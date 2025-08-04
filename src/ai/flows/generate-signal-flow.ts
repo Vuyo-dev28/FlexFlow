@@ -59,11 +59,10 @@ const getMarketDataTool = ai.defineTool(
       let apiResults: {pair: string, price?: number, error?: string}[] = [];
 
       if (forexPairs.length > 0) {
-        const baseCurrencies = [...new Set(forexPairs.map(p => p.split('/')[0]))];
-        const targetCurrencies = [...new Set(forexPairs.map(p => p.split('/')[1]))];
+        const currencies = [...new Set(forexPairs.flatMap(p => p.split('/')))].filter(c => c !== 'USD');
 
         try {
-            const response = await fetch(`https://api.forexrateapi.com/v1/latest?api_key=${process.env.FOREX_API_KEY}&base=USD&currencies=${targetCurrencies.join(',')}`);
+            const response = await fetch(`https://api.forexrateapi.com/v1/latest?api_key=${process.env.FOREX_API_KEY}&base=USD&currencies=${currencies.join(',')}`);
             if (!response.ok) {
                 throw new Error(`API call failed with status: ${response.status}`);
             }
@@ -72,17 +71,16 @@ const getMarketDataTool = ai.defineTool(
             if (data.success) {
                 apiResults = forexPairs.map(pair => {
                     const [base, target] = pair.split('/');
-                    if (base === 'USD' && data.rates[target]) {
-                        return { pair, price: 1 / data.rates[target] };
-                    }
                     if (target === 'USD' && data.rates[base]) {
-                         return { pair, price: data.rates[base] };
+                         return { pair, price: data.rates[base] }; // e.g., EUR/USD
                     }
-                    // This API only supports USD as base, direct conversion for others like GBP/JPY isn't straightforward
-                    if (pair === 'GBP/JPY' && data.rates['GBP'] && data.rates['JPY']) {
-                         return { pair, price: (1 / data.rates['GBP']) * data.rates['JPY'] };
+                    if (base === 'USD' && data.rates[target]) {
+                        return { pair, price: 1 / data.rates[target] }; // e.g., USD/JPY
                     }
-                    return { pair, error: 'Rate not available in API response for non-USD base' };
+                    if (data.rates[base] && data.rates[target]) {
+                         return { pair, price: data.rates[target] / data.rates[base] }; // e.g., GBP/JPY = (USD/JPY) / (USD/GBP)
+                    }
+                    return { pair, error: 'Could not calculate rate from API response.' };
                 });
             } else {
                  apiResults = forexPairs.map(pair => ({ pair, error: data.message || 'Forex API request failed' }));
