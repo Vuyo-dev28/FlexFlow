@@ -11,11 +11,14 @@ import {
   Globe,
   Mountain,
   Waves,
+  ArrowDown,
+  ArrowUp,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import type { Signal } from '@/types/signal';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
+import { useLivePrices } from '@/hooks/use-live-prices';
 
 interface SignalCardProps {
   signal: Signal;
@@ -40,11 +43,31 @@ const pairIcons: Record<string, React.ElementType> = {
   'XAU/USD': Mountain,
 };
 
+const LivePriceDisplay = ({ pair, category }: { pair: string, category: string }) => {
+    const { prices } = useLivePrices();
+    const livePriceInfo = prices[pair];
+
+    if (category !== 'Forex' || !livePriceInfo) {
+        return <div className="h-5 w-24"></div>; // Placeholder for alignment
+    }
+
+    const { price, direction } = livePriceInfo;
+    const isUp = direction === 'up';
+
+    const formatPrice = (price: number) => price.toFixed(5);
+
+    return (
+        <div className={cn("flex items-center gap-1 font-mono text-sm", isUp ? 'text-green-400' : 'text-red-400')}>
+            {isUp ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+            <span>{formatPrice(price)}</span>
+        </div>
+    )
+}
+
 export function SignalCard({ signal, onSelect }: SignalCardProps) {
   const isBuy = signal.type === 'BUY';
   const Icon = pairIcons[signal.pair] || CandlestickChart;
-  const timeAgo = formatDistanceToNow(signal.timestamp, { addSuffix: true });
-
+  
   const formatPrice = (price: number) => {
     // Simple heuristic to format prices based on their magnitude
     if (price > 1000) return price.toFixed(2);
@@ -66,15 +89,18 @@ export function SignalCard({ signal, onSelect }: SignalCardProps) {
                     <p className="text-xs text-muted-foreground">{signal.category}</p>
                 </div>
             </div>
-            <Badge
-                variant="outline"
-                className={cn(
-                'text-xs font-semibold py-1 px-2',
-                isBuy ? 'border-green-500/50 text-green-400 bg-green-500/10' : 'border-red-500/50 text-red-400 bg-red-500/10'
-                )}
-            >
-                {signal.type}
-            </Badge>
+            <div className="flex flex-col items-end gap-1">
+                <Badge
+                    variant="outline"
+                    className={cn(
+                    'text-xs font-semibold py-1 px-2',
+                    isBuy ? 'border-green-500/50 text-green-400 bg-green-500/10' : 'border-red-500/50 text-red-400 bg-red-500/10'
+                    )}
+                >
+                    {signal.type}
+                </Badge>
+                <LivePriceDisplay pair={signal.pair} category={signal.category} />
+            </div>
         </div>
 
         {/* Rationale */}

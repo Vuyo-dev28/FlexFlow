@@ -18,6 +18,9 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  env: {
+    NEXT_PUBLIC_FOREX_API_KEY: process.env.FOREX_API_KEY,
+  }
 };
 
 export default nextConfig;

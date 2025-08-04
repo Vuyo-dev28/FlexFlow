@@ -8,9 +8,9 @@ import { SignalFilters } from '@/components/signal-filters';
 import type { Signal, SignalCategory, FinancialPair } from '@/types/signal';
 import { Watchlist } from '@/components/watchlist';
 import { MOCK_SIGNALS, ALL_PAIRS } from '@/lib/mock-data';
-import { Skeleton } from '@/components/ui/skeleton';
+import { LivePricesProvider } from '@/hooks/use-live-prices';
 
-export default function Home() {
+function HomePageContent() {
   const [signals, setSignals] = useState<Signal[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<SignalCategory | 'All'>('All');
   const [selectedPair, setSelectedPair] = useState<FinancialPair | null>(null);
@@ -91,4 +91,13 @@ export default function Home() {
       />
     </div>
   );
+}
+
+
+export default function Home() {
+  return (
+    <LivePricesProvider>
+      <HomePageContent />
+    </LivePricesProvider>
+  )
 }
