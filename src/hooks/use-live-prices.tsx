@@ -39,7 +39,7 @@ async function fetchForexRates(pairs: FinancialPair[]) {
     }
     const data = await response.json();
     if (!data.success) {
-      console.error("Forex API error:", data.error?.info);
+      console.error("Forex API error:", data.error?.info || 'Unknown error from API');
       return null;
     }
     return data.rates;
@@ -65,12 +65,12 @@ export const LivePricesProvider = ({ children }: { children: React.ReactNode }) 
         const [base, quote] = pair.split('/');
         let currentPrice: number | undefined = undefined;
 
-        if (base === 'USD') {
-            currentPrice = rates[quote];
-        } else if (quote === 'USD') {
-            currentPrice = 1 / rates[base];
+        if (base === 'USD' && rates[quote]) {
+            currentPrice = 1 / rates[quote];
+        } else if (quote === 'USD' && rates[base]) {
+            currentPrice = rates[base];
         } else if (rates[base] && rates[quote]) {
-            currentPrice = rates[quote] / rates[base];
+            currentPrice = rates[base] / rates[quote];
         }
         
         if (currentPrice !== undefined) {
