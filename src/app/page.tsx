@@ -6,7 +6,7 @@ import { SignalCard } from '@/components/signal-card';
 import { SignalDetailDialog } from '@/components/signal-detail-dialog';
 import { SignalFilters } from '@/components/signal-filters';
 import type { Signal, SignalCategory, FinancialPair } from '@/types/signal';
-import { generateSignal } from '@/ai/flows/generate-signal-flow';
+import { generateSignals } from '@/ai/flows/generate-signal-flow';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const ALL_PAIRS: { pair: FinancialPair, category: SignalCategory }[] = [
@@ -33,19 +33,21 @@ export default function Home() {
     async function fetchSignals() {
       setLoading(true);
       try {
-        const generatedSignals = await Promise.all(
-          ALL_PAIRS.map(async ({pair, category}) => {
-            const generated = await generateSignal({ pair });
-            return {
-              ...generated,
-              id: crypto.randomUUID(),
-              timestamp: new Date(),
-              pair,
-              category,
-            } as Signal;
-          })
-        );
-        setSignals(generatedSignals);
+        const pairsToFetch = ALL_PAIRS.map(p => p.pair);
+        const generatedSignals = await generateSignals({ pairs: pairsToFetch });
+        
+        const allSignals = generatedSignals.map((generated, index) => {
+          const { pair, category } = ALL_PAIRS[index];
+          return {
+            ...generated,
+            id: crypto.randomUUID(),
+            timestamp: new Date(),
+            pair,
+            category,
+          } as Signal;
+        });
+
+        setSignals(allSignals);
       } catch (error) {
         console.error("Failed to generate signals", error);
         // Optionally, set some error state to show in the UI
