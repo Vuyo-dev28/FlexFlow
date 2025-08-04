@@ -39,7 +39,7 @@ async function fetchForexRates(pairs: FinancialPair[]) {
     }
     const data = await response.json();
     if (!data.success) {
-      console.error("Forex API error:", data.error?.info || 'Unknown error from API');
+      console.error("Forex API error:", data.error?.info || JSON.stringify(data.error));
       return null;
     }
     return data.rates;

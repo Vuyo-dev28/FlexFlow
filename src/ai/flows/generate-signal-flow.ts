@@ -66,7 +66,7 @@ const getMarketData = ai.defineTool(
         }
         const data = await response.json();
         if (!data.success) {
-          throw new Error(`Forex API error: ${data.error?.info || 'Unknown error'}`);
+          throw new Error(`Forex API error: ${data.error?.info || JSON.stringify(data.error)}`);
         }
 
         let currentPrice: number | undefined;
