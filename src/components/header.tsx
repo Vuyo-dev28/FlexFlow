@@ -11,9 +11,9 @@ export function Header() {
   return (
     <>
       <header className="sticky top-0 z-50 flex items-center justify-between p-4 bg-background/95 backdrop-blur-sm border-b border-border">
-        <div className="flex items-center gap-3">
-          <CandlestickChart className="h-8 w-8 text-primary" />
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">SignalStream</h1>
+        <div className="flex items-center gap-2 sm:gap-3">
+          <CandlestickChart className="h-7 w-7 sm:h-8 sm:w-8 text-primary" />
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">SignalStream</h1>
         </div>
         <Button variant="ghost" size="icon" onClick={() => setIsSettingsOpen(true)} aria-label="Open settings">
           <Settings className="h-6 w-6" />

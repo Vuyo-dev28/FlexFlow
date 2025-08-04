@@ -56,16 +56,16 @@ export function SignalCard({ signal, onSelect }: SignalCardProps) {
       <CardHeader>
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <Icon className="h-8 w-8 text-muted-foreground group-hover:text-primary transition-colors" />
+            <Icon className="h-7 w-7 sm:h-8 sm:w-8 text-muted-foreground group-hover:text-primary transition-colors" />
             <div className='flex flex-col'>
-              <CardTitle className="text-xl">{signal.pair}</CardTitle>
+              <CardTitle className="text-lg sm:text-xl">{signal.pair}</CardTitle>
               <p className="text-xs text-muted-foreground">{signal.category}</p>
             </div>
           </div>
           <Badge
             variant="outline"
             className={cn(
-              'text-sm',
+              'text-xs sm:text-sm',
               isBuy ? 'border-green-500 text-green-500' : 'border-red-500 text-red-500'
             )}
           >
