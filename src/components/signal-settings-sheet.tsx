@@ -26,7 +26,6 @@ import {
 } from '@/components/ui/sheet';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { mockSignals } from '@/lib/mock-data';
 import { useMemo } from 'react';
 import { Separator } from './ui/separator';
 import type { SignalCategory } from '@/types/signal';
@@ -36,7 +35,7 @@ interface SignalSettingsSheetProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const availableCategories = Array.from(new Set(mockSignals.map(s => s.category)));
+const availableCategories: SignalCategory[] = ['Crypto', 'Stock Indices', 'Forex', 'Metals', 'Volatility Indices'];
 
 const FormSchema = z.object({
   categories: z.array(z.string()).refine(value => value.some(item => item), {

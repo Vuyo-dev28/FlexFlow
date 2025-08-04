@@ -12,14 +12,17 @@ export type SignalType = 'BUY' | 'SELL';
 
 export type SignalCategory = 'Crypto' | 'Stock Indices' | 'Forex' | 'Metals' | 'Volatility Indices';
 
-export interface Signal {
-  id: string;
-  pair: FinancialPair;
+export interface GeneratedSignal {
   type: SignalType;
-  category: SignalCategory;
-  timestamp: Date;
   entry: number;
   takeProfit: number;
   stopLoss: number;
   rationale: string;
+}
+
+export interface Signal extends GeneratedSignal {
+  id: string;
+  pair: FinancialPair;
+  category: SignalCategory;
+  timestamp: Date;
 }
