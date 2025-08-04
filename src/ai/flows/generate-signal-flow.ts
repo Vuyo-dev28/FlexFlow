@@ -10,6 +10,7 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import type { FinancialPair, GeneratedSignal } from '@/types/signal';
+import fetch from 'node-fetch';
 
 const GenerateSignalsInputSchema = z.object({
   pairs: z.array(z.string()).describe('The financial pairs to generate signals for (e.g., ["BTC/USD", "ETH/USD"]).'),
@@ -50,10 +51,49 @@ const getMarketDataTool = ai.defineTool(
       }),
     },
     async ({ pairs }) => {
-      // In a real application, this would fetch from a live data source.
-      // For now, we'll use a fixed set of realistic prices.
       console.log(`Fetching market data for: ${pairs.join(', ')}`);
-      const results = pairs.map(pair => {
+      
+      const forexPairs = pairs.filter(p => ['EUR/USD', 'GBP/JPY'].includes(p));
+      const otherPairs = pairs.filter(p => !forexPairs.includes(p));
+      
+      let apiResults: {pair: string, price?: number, error?: string}[] = [];
+
+      if (forexPairs.length > 0) {
+        const baseCurrencies = [...new Set(forexPairs.map(p => p.split('/')[0]))];
+        const targetCurrencies = [...new Set(forexPairs.map(p => p.split('/')[1]))];
+
+        try {
+            const response = await fetch(`https://api.forexrateapi.com/v1/latest?api_key=${process.env.FOREX_API_KEY}&base=USD&currencies=${targetCurrencies.join(',')}`);
+            if (!response.ok) {
+                throw new Error(`API call failed with status: ${response.status}`);
+            }
+            const data: any = await response.json();
+
+            if (data.success) {
+                apiResults = forexPairs.map(pair => {
+                    const [base, target] = pair.split('/');
+                    if (base === 'USD' && data.rates[target]) {
+                        return { pair, price: 1 / data.rates[target] };
+                    }
+                    if (target === 'USD' && data.rates[base]) {
+                         return { pair, price: data.rates[base] };
+                    }
+                    // This API only supports USD as base, direct conversion for others like GBP/JPY isn't straightforward
+                    if (pair === 'GBP/JPY' && data.rates['GBP'] && data.rates['JPY']) {
+                         return { pair, price: (1 / data.rates['GBP']) * data.rates['JPY'] };
+                    }
+                    return { pair, error: 'Rate not available in API response for non-USD base' };
+                });
+            } else {
+                 apiResults = forexPairs.map(pair => ({ pair, error: data.message || 'Forex API request failed' }));
+            }
+        } catch (error: any) {
+            console.error('Forex API fetch error:', error);
+            apiResults = forexPairs.map(pair => ({ pair, error: error.message || 'Failed to fetch from Forex API' }));
+        }
+      }
+
+      const mockResults = otherPairs.map(pair => {
         let price;
         switch (pair) {
           case 'BTC/USD': price = 68000.50; break;
@@ -64,14 +104,13 @@ const getMarketDataTool = ai.defineTool(
           case 'NAS100/USD': price = 19500.00; break;
           case 'US30/USD': price = 39000.00; break;
           case 'VIX': price = 13.5; break;
-          case 'EUR/USD': price = 1.0850; break;
-          case 'GBP/JPY': price = 200.50; break;
           case 'XAU/USD': price = 2350.80; break;
           default: return { pair, error: 'Unknown pair' };
         }
         return { pair, price };
       });
-      return { results };
+
+      return { results: [...apiResults, ...mockResults] };
     }
 );
 
