@@ -8,25 +8,7 @@
  */
 
 import {ai} from '@/ai/genkit';
-import type { GeneratedSignal, FinancialPair } from '@/types/signal';
-import {z} from 'zod';
-
-
-// Define the schema for the flow's input
-export const GenerateSignalInputSchema = z.object({
-  pair: z.string().describe('The financial pair to generate a signal for, e.g., "EUR/USD".'),
-  price: z.number().describe('The current live price of the financial pair.'),
-});
-export type GenerateSignalInput = z.infer<typeof GenerateSignalInputSchema>;
-
-// Define the schema for the flow's output
-export const GenerateSignalOutputSchema = z.object({
-    type: z.enum(['BUY', 'SELL']),
-    entry: z.number(),
-    takeProfit: z.number(),
-    stopLoss: z.number(),
-    rationale: z.string(),
-});
+import { GenerateSignalInput, GenerateSignalInputSchema, GenerateSignalOutputSchema, GeneratedSignal } from '@/types/signal';
 
 
 /**
