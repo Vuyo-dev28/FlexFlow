@@ -38,7 +38,7 @@ export default function Home() {
             const generated = await generateSignal({ pair });
             return {
               ...generated,
-              id: self.crypto.randomUUID(),
+              id: crypto.randomUUID(),
               timestamp: new Date(),
               pair,
               category,
