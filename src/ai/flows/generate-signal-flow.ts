@@ -31,8 +31,66 @@ const GenerateSignalsOutputSchema = z.object({
 
 export type GenerateSignalsOutput = z.infer<typeof GenerateSignalsOutputSchema>;
 
+
+const getMarketDataTool = ai.defineTool(
+    {
+      name: 'getMarketData',
+      description: 'Get the current market price for a list of financial pairs.',
+      inputSchema: z.object({
+        pairs: z.array(z.string()).describe('The financial pairs to fetch data for.'),
+      }),
+      outputSchema: z.object({
+        results: z.array(
+          z.object({
+            pair: z.string(),
+            price: z.number().optional(),
+            error: z.string().optional(),
+          })
+        ),
+      }),
+    },
+    async ({ pairs }) => {
+      // In a real application, this would fetch from a live data source.
+      // For now, we'll simulate it with realistic but random data.
+      console.log(`Fetching market data for: ${pairs.join(', ')}`);
+      const results = pairs.map(pair => {
+        let price;
+        const randomness = 1 + (Math.random() - 0.5) * 0.05; // +/- 2.5%
+        switch (pair) {
+          case 'BTC/USD': price = 68000 * randomness; break;
+          case 'ETH/USD': price = 3500 * randomness; break;
+          case 'SOL/USD': price = 150 * randomness; break;
+          case 'XRP/USD': price = 0.5 * randomness; break;
+          case 'ADA/USD': price = 0.45 * randomness; break;
+          case 'NAS100/USD': price = 19500 * randomness; break;
+          case 'US30/USD': price = 39000 * randomness; break;
+          case 'VIX': price = 13.5 * randomness; break;
+          case 'EUR/USD': price = 1.08 * randomness; break;
+          case 'GBP/JPY': price = 200 * randomness; break;
+          case 'XAU/USD': price = 2350 * randomness; break;
+          default: return { pair, error: 'Unknown pair' };
+        }
+        return { pair, price };
+      });
+      return { results };
+    }
+);
+
 export async function generateSignals(input: { pairs: FinancialPair[] }): Promise<GeneratedSignal[]> {
-    const result = await generateSignalFlow({ pairs: input.pairs as string[] });
+    let result: GenerateSignalsOutput;
+    try {
+        result = await generateSignalFlow({ pairs: input.pairs as string[] });
+    } catch(e) {
+        console.error("Failed to call generateSignalFlow", e);
+        // Fallback to generating empty signals if the flow fails
+        return input.pairs.map(pair => ({
+            type: 'SELL',
+            entry: 0,
+            takeProfit: 0,
+            stopLoss: 0,
+            rationale: `Could not generate a signal for ${pair} due to an internal error.`,
+        }));
+    }
     
     // Create a map for quick lookup of generated signals by pair
     const signalMap = new Map(result.signals.map(s => [s.pair, s]));
@@ -49,10 +107,8 @@ export async function generateSignals(input: { pairs: FinancialPair[] }): Promis
                 rationale: signal.rationale,
             };
         }
-        // This case should ideally not be reached if the model works as expected.
-        // You might want to handle this with a default/error state.
+        // This case handles pairs the model might have failed to generate a signal for.
         console.warn(`No signal generated for ${pair}`);
-        // Return a default "error" signal or skip it
         return {
             type: 'SELL',
             entry: 0,
@@ -70,20 +126,23 @@ const prompt = ai.definePrompt({
   name: 'generateSignalPrompt',
   input: { schema: GenerateSignalsInputSchema },
   output: { schema: GenerateSignalsOutputSchema },
-  prompt: `You are an expert financial analyst with 20 years of experience in technical and fundamental analysis. Your task is to generate a trading signal for each of the given financial pairs: {{#each pairs}}"{{{this}}}"{{#unless @last}}, {{/unless}}{{/each}}.
+  tools: [getMarketDataTool],
+  prompt: `You are an expert financial analyst with 20 years of experience in technical and fundamental analysis.
 
-For each pair, analyze the current market conditions. Your analysis must be grounded in reality, using your knowledge of recent and realistic price ranges for each specific asset. For example, XAU/USD (Gold) should have prices in the thousands (e.g., 2350.55), while EUR/USD should have prices around 1.x.
+Your task is to generate a trading signal for each of the given financial pairs: {{#each pairs}}"{{{this}}}"{{#unless @last}}, {{/unless}}{{/each}}.
 
-Based on your analysis, provide a clear 'BUY' or 'SELL' signal for each pair.
+First, you MUST use the 'getMarketData' tool to fetch the current market prices for all requested pairs. This is a mandatory first step.
 
-Determine precise and realistic price points for the following for each pair, ensuring they are formatted as numbers with appropriate decimal places for the given pair:
-- Entry Price: The price at which to enter the trade. This should be very close to the current market price.
-- Take Profit: A target price to close the trade in profit. This should be a realistic target based on recent volatility and price action.
-- Stop Loss: A price to close the trade to limit potential losses. This should be a sensible level based on recent support/resistance.
+Based on the live data from the tool and your market analysis, provide a clear 'BUY' or 'SELL' signal for each pair.
 
-Finally, write a concise (2-3 sentences) but compelling rationale for each signal, explaining the key factors behind your decision. The rationale should be clear and easy for an intermediate trader to understand.
+Then, determine precise and realistic price points for the following, ensuring they are formatted as numbers with appropriate decimal places for the given asset:
+- Entry Price: The price at which to enter the trade. This should be very close to the current market price returned by the tool.
+- Take Profit: A realistic target price to close the trade in profit, based on recent volatility.
+- Stop Loss: A sensible price to close the trade and limit losses, based on recent support/resistance.
 
-Do not include any introductory or concluding remarks. Only provide the JSON object containing the array of signal information. The output must contain a signal for every requested pair.`,
+Finally, write a concise (2-3 sentences) but compelling rationale for each signal, explaining the key factors behind your decision.
+
+Do not include any introductory or concluding remarks. The output must contain a signal for every requested pair. If the tool returns an error for a pair, you should indicate that in the rationale and not generate a signal for it.`,
 });
 
 const generateSignalFlow = ai.defineFlow(
