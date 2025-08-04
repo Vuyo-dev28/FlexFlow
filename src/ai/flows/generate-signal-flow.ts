@@ -72,7 +72,7 @@ const prompt = ai.definePrompt({
   output: { schema: GenerateSignalsOutputSchema },
   prompt: `You are an expert financial analyst with 20 years of experience in technical and fundamental analysis. Your task is to generate a trading signal for each of the given financial pairs: {{#each pairs}}"{{{this}}}"{{#unless @last}}, {{/unless}}{{/each}}.
 
-For each pair, analyze the current market conditions. Your analysis should be grounded in reality, using your knowledge of recent and realistic price ranges for each specific asset.
+For each pair, analyze the current market conditions. Your analysis must be grounded in reality, using your knowledge of recent and realistic price ranges for each specific asset. For example, XAU/USD (Gold) should have prices in the thousands (e.g., 2350.55), while EUR/USD should have prices around 1.x.
 
 Based on your analysis, provide a clear 'BUY' or 'SELL' signal for each pair.
 
