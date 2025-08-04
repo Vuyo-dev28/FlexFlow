@@ -8,6 +8,8 @@ import {
   DollarSign,
   Euro,
   TrendingUp,
+  Activity,
+  BarChart,
 } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -26,6 +28,8 @@ const pairIcons: Record<string, React.ElementType> = {
   'SOL/USD': CandlestickChart,
   'XRP/USD': DollarSign,
   'ADA/USD': Euro,
+  'NAS100/USD': Activity,
+  'US30/USD': BarChart,
 };
 
 export function SignalCard({ signal, onSelect }: SignalCardProps) {

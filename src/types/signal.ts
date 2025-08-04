@@ -1,4 +1,4 @@
-export type FinancialPair = 'BTC/USD' | 'ETH/USD' | 'SOL/USD' | 'XRP/USD' | 'ADA/USD';
+export type FinancialPair = 'BTC/USD' | 'ETH/USD' | 'SOL/USD' | 'XRP/USD' | 'ADA/USD' | 'NAS100/USD' | 'US30/USD';
 
 export type SignalType = 'BUY' | 'SELL';
 

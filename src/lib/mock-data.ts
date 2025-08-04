@@ -80,5 +80,25 @@ export const mockSignals: Signal[] = [
     takeProfit: 160.0,
     stopLoss: 175.0,
     rationale: 'Overbought conditions on the RSI across multiple timeframes. Profit-taking is expected after a significant recent rally, leading to a corrective move.',
+  },
+  {
+    id: '9',
+    pair: 'NAS100/USD',
+    type: 'BUY',
+    timestamp: new Date(Date.now() - 1000 * 60 * 320),
+    entry: 19600.0,
+    takeProfit: 19800.0,
+    stopLoss: 19500.0,
+    rationale: 'Strong quarterly earnings from tech giants are driving the index higher. Bullish engulfing candle on the daily chart.',
+  },
+  {
+    id: '10',
+    pair: 'US30/USD',
+    type: 'SELL',
+    timestamp: new Date(Date.now() - 1000 * 60 * 360),
+    entry: 39100.0,
+    takeProfit: 38800.0,
+    stopLoss: 39250.0,
+    rationale: 'Weak manufacturing data and concerns over inflation are creating bearish pressure. The index is facing resistance at the 20-day EMA.',
   }
 ];
