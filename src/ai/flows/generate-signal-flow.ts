@@ -35,7 +35,7 @@ export type GenerateSignalsOutput = z.infer<typeof GenerateSignalsOutputSchema>;
 const getMarketDataTool = ai.defineTool(
   {
     name: 'getMarketData',
-    description: 'Get the current market price for a list of financial pairs. This tool can fetch live Forex data and generate realistic prices for other assets.',
+    description: 'Get the current market price for a list of financial pairs. This tool can only fetch live Forex data.',
     inputSchema: z.object({
       pairs: z.array(z.string()).describe('The financial pairs to fetch data for.'),
     }),
@@ -56,9 +56,7 @@ const getMarketDataTool = ai.defineTool(
     const otherPairs = pairs.filter(p => !forexPairs.includes(p));
     
     let apiResults: {pair: string, price?: number, error?: string}[] = [];
-    let otherResults: {pair: string, price?: number, error?: string}[] = [];
 
-    // Handle Forex pairs with the live API
     if (forexPairs.length > 0) {
       const currencies = [...new Set(forexPairs.flatMap(p => p.split('/')))].filter(c => c !== 'USD');
       try {
@@ -70,17 +68,13 @@ const getMarketDataTool = ai.defineTool(
         if (data.success) {
           apiResults = forexPairs.map(pair => {
             const [base, target] = pair.split('/');
-            // Handle EUR/USD type pairs (target is USD)
             if (target === 'USD' && data.rates[base]) {
               return { pair, price: 1 / data.rates[base] };
             }
-            // Handle USD/JPY type pairs (base is USD)
             if (base === 'USD' && data.rates[target]) {
               return { pair, price: data.rates[target] };
             }
-            // Handle cross-currency pairs like GBP/JPY
             if (data.rates[base] && data.rates[target]) {
-              // Formula: (USD/JPY) / (USD/GBP) = GBP/JPY
               const rate = data.rates[target] / data.rates[base];
               return { pair, price: rate };
             }
@@ -94,38 +88,13 @@ const getMarketDataTool = ai.defineTool(
         apiResults = forexPairs.map(pair => ({ pair, error: error.message || 'Failed to fetch from Forex API' }));
       }
     }
-
-    // Handle other pairs by generating plausible prices with AI
-    if (otherPairs.length > 0) {
-        try {
-            const priceGenPrompt = `Generate a realistic, current market price for each of the following financial assets: ${otherPairs.join(', ')}.
-            Respond ONLY with a JSON object mapping the pair to its price, like this: {"BTC/USD": 68000.50, "XAU/USD": 2350.80}.`;
-
-            const { output } = await ai.generate({
-                prompt: priceGenPrompt,
-                output: {
-                    format: 'json',
-                    schema: z.record(z.number()),
-                }
-            });
-
-            if (output) {
-                otherResults = otherPairs.map(pair => {
-                    const price = output[pair];
-                    if (price) {
-                        return { pair, price };
-                    }
-                    return { pair, error: 'Failed to generate price.' };
-                });
-            } else {
-                 throw new Error("AI price generation returned no output.");
-            }
-        } catch (error: any) {
-             console.error('AI Price Generation error:', error);
-             otherResults = otherPairs.map(pair => ({ pair, error: error.message || 'Failed to generate price with AI' }));
-        }
-    }
     
+    // For non-forex pairs, return an error as we don't have a live data source.
+    const otherResults = otherPairs.map(pair => ({
+        pair,
+        error: `Live market data is not available for this pair.`,
+    }));
+
     return { results: [...apiResults, ...otherResults] };
   }
 );
@@ -189,18 +158,16 @@ The signal should be for a trade expected to be executed within a 30-MINUTE TIME
 
 First, you MUST use the 'getMarketData' tool to fetch the current market prices for all requested pairs. This is a mandatory first step.
 
-Based on the live data from the tool and your market analysis, provide a clear 'BUY' or 'SELL' signal for each pair.
-
+If the tool returns a valid price, proceed with the analysis. Based on the live data from the tool and your market analysis, provide a clear 'BUY' or 'SELL' signal for each pair.
 Then, determine precise and realistic price points for the following, ensuring they are formatted as numbers with appropriate decimal places for the given asset. The Take Profit and Stop Loss should be very tight, suitable for a 30-minute trade.
 - Entry Price: The price at which to enter the trade. This should be very close to the current market price returned by the tool.
 - Take Profit: A realistic target price to close the trade in profit, based on recent volatility within a 30-minute chart.
 - Stop Loss: A sensible price to close the trade and limit losses, based on recent support/resistance within a 30-minute chart.
-
-For example, for XAU/USD, if the current price is 2350.80, the entry, TP, and SL should be values like 2351.00, 2355.50, and 2348.00, not values like 3358.4.
-
 Finally, write a concise (2-3 sentences) but compelling rationale for each signal, explaining the key factors behind your decision.
 
-Do not include any introductory or concluding remarks. The output must contain a signal for every requested pair. If the tool returns an error for a pair, you should indicate that in the rationale and not generate a signal for it.`,
+If the 'getMarketData' tool returns an error for a pair, you MUST NOT generate a trading signal for it. Instead, you must set the 'entry', 'takeProfit', and 'stopLoss' values to 0, and the 'rationale' must clearly state that a signal could not be generated and include the error message returned by the tool.
+
+Do not include any introductory or concluding remarks. The output must contain a signal for every requested pair.`,
 });
 
 const generateSignalFlow = ai.defineFlow(
