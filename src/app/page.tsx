@@ -6,62 +6,20 @@ import { SignalCard } from '@/components/signal-card';
 import { SignalDetailDialog } from '@/components/signal-detail-dialog';
 import { SignalFilters } from '@/components/signal-filters';
 import type { Signal, SignalCategory, FinancialPair } from '@/types/signal';
-import { generateSignals } from '@/ai/flows/generate-signal-flow';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Watchlist } from '@/components/watchlist';
-import { Separator } from '@/components/ui/separator';
-
-const ALL_PAIRS: { pair: FinancialPair, category: SignalCategory }[] = [
-    { pair: 'BTC/USD', category: 'Crypto' },
-    { pair: 'ETH/USD', category: 'Crypto' },
-    { pair: 'SOL/USD', category: 'Crypto' },
-    { pair: 'XRP/USD', category: 'Crypto' },
-    { pair: 'ADA/USD', category: 'Crypto' },
-    { pair: 'NAS100/USD', category: 'Stock Indices' },
-    { pair: 'US30/USD', category: 'Stock Indices' },
-    { pair: 'VIX', category: 'Volatility Indices' },
-    { pair: 'EUR/USD', category: 'Forex' },
-    { pair: 'GBP/JPY', category: 'Forex' },
-    { pair: 'XAU/USD', category: 'Metals' },
-];
+import { MOCK_SIGNALS, ALL_PAIRS } from '@/lib/mock-data';
 
 export default function Home() {
   const [signals, setSignals] = useState<Signal[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // No longer loading from an API
   const [selectedCategory, setSelectedCategory] = useState<SignalCategory | 'All'>('All');
   const [selectedPair, setSelectedPair] = useState<FinancialPair | null>(null);
   const [selectedSignal, setSelectedSignal] = useState<Signal | null>(null);
 
   useEffect(() => {
-    async function fetchSignals() {
-      setLoading(true);
-      try {
-        const pairsToFetch = ALL_PAIRS.map(p => p.pair);
-        const generatedSignals = await generateSignals({ pairs: pairsToFetch });
-        
-        const allSignals = generatedSignals.map((generated, index) => {
-          const { pair, category } = ALL_PAIRS[index];
-          return {
-            ...generated,
-            id: crypto.randomUUID(),
-            timestamp: new Date(),
-            pair,
-            category,
-          } as Signal;
-        });
-
-        setSignals(allSignals);
-      } catch (error) {
-        console.error("Failed to generate signals", error);
-        // Optionally, set some error state to show in the UI
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchSignals();
+    // Set signals from mock data
+    setSignals(MOCK_SIGNALS);
   }, []);
-
 
   const availableCategories = useMemo(() => {
     const categories = new Set(ALL_PAIRS.map(s => s.category));
