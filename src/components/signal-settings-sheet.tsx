@@ -29,17 +29,18 @@ import { useToast } from '@/hooks/use-toast';
 import { mockSignals } from '@/lib/mock-data';
 import { useMemo } from 'react';
 import { Separator } from './ui/separator';
+import type { SignalCategory } from '@/types/signal';
 
 interface SignalSettingsSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-const availablePairs = Array.from(new Set(mockSignals.map(s => s.pair)));
+const availableCategories = Array.from(new Set(mockSignals.map(s => s.category)));
 
 const FormSchema = z.object({
-  pairs: z.array(z.string()).refine(value => value.some(item => item), {
-    message: 'You have to select at least one pair.',
+  categories: z.array(z.string()).refine(value => value.some(item => item), {
+    message: 'You have to select at least one category.',
   }),
   pushNotifications: z.boolean().default(false).optional(),
   emailNotifications: z.boolean().default(false).optional(),
@@ -51,7 +52,7 @@ export function SignalSettingsSheet({ open, onOpenChange }: SignalSettingsSheetP
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      pairs: availablePairs,
+      categories: availableCategories,
       pushNotifications: true,
       emailNotifications: false,
     },
@@ -80,20 +81,20 @@ export function SignalSettingsSheet({ open, onOpenChange }: SignalSettingsSheetP
             <div className="flex-1 space-y-8 overflow-y-auto pr-6">
                 <FormField
                   control={form.control}
-                  name="pairs"
+                  name="categories"
                   render={() => (
                     <FormItem>
                       <div className="mb-4">
-                        <FormLabel className="text-base">Signal Pairs</FormLabel>
+                        <FormLabel className="text-base">Signal Categories</FormLabel>
                         <FormDescription>
-                          Select the financial pairs for which you want to receive alerts.
+                          Select the categories for which you want to receive alerts.
                         </FormDescription>
                       </div>
-                      {availablePairs.map(item => (
+                      {availableCategories.map(item => (
                         <FormField
                           key={item}
                           control={form.control}
-                          name="pairs"
+                          name="categories"
                           render={({ field }) => {
                             return (
                               <FormItem

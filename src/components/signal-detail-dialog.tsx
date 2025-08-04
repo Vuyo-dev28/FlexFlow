@@ -28,20 +28,25 @@ export function SignalDetailDialog({ signal, open, onOpenChange }: SignalDetailD
       <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
           <div className="flex justify-between items-start">
-            <DialogTitle className="text-2xl font-bold">{signal.pair} Signal</DialogTitle>
+            <div>
+              <DialogTitle className="text-2xl font-bold">{signal.pair} Signal</DialogTitle>
+              <DialogDescription>
+                {signal.category}
+              </DialogDescription>
+            </div>
              <Badge
                 variant="outline"
                 className={cn(
                   'text-base',
-                  isBuy ? 'border-accent text-accent' : 'border-destructive text-destructive'
+                  isBuy ? 'border-green-500 text-green-500' : 'border-red-500 text-red-500'
                 )}
               >
                 {signal.type}
               </Badge>
           </div>
-          <DialogDescription>
-            Posted {signal.timestamp.toLocaleString()}
-          </DialogDescription>
+           <DialogDescription>
+              Posted {new Date(signal.timestamp).toLocaleString()}
+            </DialogDescription>
         </DialogHeader>
 
         <Separator />

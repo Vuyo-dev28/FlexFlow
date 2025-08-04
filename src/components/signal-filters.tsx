@@ -1,22 +1,26 @@
 'use client';
 
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import type { FinancialPair } from '@/types/signal';
+import type { SignalCategory } from '@/types/signal';
 
 interface SignalFiltersProps {
-  pairs: FinancialPair[];
-  selectedPair: FinancialPair | 'All';
-  onPairChange: (pair: FinancialPair | 'All') => void;
+  categories: SignalCategory[];
+  selectedCategory: SignalCategory | 'All';
+  onCategoryChange: (category: SignalCategory | 'All') => void;
 }
 
-export function SignalFilters({ pairs, selectedPair, onPairChange }: SignalFiltersProps) {
+export function SignalFilters({ categories, selectedCategory, onCategoryChange }: SignalFiltersProps) {
   return (
-    <div className="px-4 py-3 border-b border-border">
-      <Tabs value={selectedPair} onValueChange={(value) => onPairChange(value as FinancialPair | 'All')}>
-        <TabsList className="grid w-full grid-cols-3 sm:w-auto sm:grid-flow-col">
+    <div className="px-4 py-3 border-b border-border overflow-x-auto">
+       <Tabs 
+        value={selectedCategory} 
+        onValueChange={(value) => onCategoryChange(value as SignalCategory | 'All')}
+        className="w-full"
+      >
+        <TabsList className="w-full sm:w-auto">
           <TabsTrigger value="All">All</TabsTrigger>
-          {pairs.map(pair => (
-            <TabsTrigger key={pair} value={pair}>{pair}</TabsTrigger>
+          {categories.map(category => (
+            <TabsTrigger key={category} value={category}>{category}</TabsTrigger>
           ))}
         </TabsList>
       </Tabs>

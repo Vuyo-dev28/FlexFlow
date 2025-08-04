@@ -10,6 +10,9 @@ import {
   TrendingUp,
   Activity,
   BarChart,
+  Globe,
+  Mountain,
+  Waves,
 } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -23,13 +26,21 @@ interface SignalCardProps {
 }
 
 const pairIcons: Record<string, React.ElementType> = {
+  // Crypto
   'BTC/USD': Bitcoin,
   'ETH/USD': TrendingUp,
   'SOL/USD': CandlestickChart,
-  'XRP/USD': DollarSign,
-  'ADA/USD': Euro,
+  'XRP/USD': Waves,
+  'ADA/USD': CandlestickChart,
+  // Stock Indices
   'NAS100/USD': Activity,
   'US30/USD': BarChart,
+  'VIX': TrendingUp,
+  // Forex
+  'EUR/USD': Euro,
+  'GBP/JPY': Globe,
+  // Metals
+  'XAU/USD': Mountain,
 };
 
 export function SignalCard({ signal, onSelect }: SignalCardProps) {
@@ -46,13 +57,16 @@ export function SignalCard({ signal, onSelect }: SignalCardProps) {
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-3">
             <Icon className="h-8 w-8 text-muted-foreground group-hover:text-primary transition-colors" />
-            <CardTitle className="text-xl">{signal.pair}</CardTitle>
+            <div className='flex flex-col'>
+              <CardTitle className="text-xl">{signal.pair}</CardTitle>
+              <p className="text-xs text-muted-foreground">{signal.category}</p>
+            </div>
           </div>
           <Badge
             variant="outline"
             className={cn(
               'text-sm',
-              isBuy ? 'border-accent text-accent' : 'border-destructive text-destructive'
+              isBuy ? 'border-green-500 text-green-500' : 'border-red-500 text-red-500'
             )}
           >
             {signal.type}
