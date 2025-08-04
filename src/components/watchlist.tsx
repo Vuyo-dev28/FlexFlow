@@ -4,7 +4,7 @@ import { Bitcoin, Activity, BarChart, TrendingUp, Euro, Globe, Mountain, Waves, 
 import type { FinancialPair } from '@/types/signal';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { SidebarHeader, SidebarContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from './ui/sidebar';
 
 interface WatchlistProps {
   pairs: FinancialPair[];
@@ -33,41 +33,36 @@ const pairIcons: Record<string, React.ElementType> = {
 export function Watchlist({ pairs, selectedPair, onSelectPair }: WatchlistProps) {
   return (
     <div className="flex flex-col h-full">
-      <div className="p-4 border-b border-border">
+      <SidebarHeader>
         <h2 className="font-bold text-lg text-foreground">Watchlist</h2>
         <p className="text-xs text-muted-foreground">Select a pair to view signals</p>
-      </div>
-      <ScrollArea className="flex-1">
-        <div className="p-2">
-            <Button
-                variant="ghost"
+      </SidebarHeader>
+      <SidebarContent>
+        <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
                 onClick={() => onSelectPair(null)}
-                className={cn(
-                    "w-full justify-start text-left mb-1",
-                    !selectedPair && "bg-accent"
-                )}
-            >
-                All Signals
-            </Button>
-            {pairs.map(pair => {
-            const Icon = pairIcons[pair] || CandlestickChart;
-            return (
-              <Button
-                key={pair}
-                variant="ghost"
-                onClick={() => onSelectPair(pair)}
-                className={cn(
-                  "w-full justify-start text-left",
-                  selectedPair === pair && "bg-accent"
-                )}
+                isActive={!selectedPair}
               >
-                <Icon className="h-4 w-4 mr-2" />
-                <span>{pair}</span>
-              </Button>
-            );
-          })}
-        </div>
-      </ScrollArea>
+                All Signals
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            {pairs.map(pair => {
+              const Icon = pairIcons[pair] || CandlestickChart;
+              return (
+                <SidebarMenuItem key={pair}>
+                  <SidebarMenuButton
+                    onClick={() => onSelectPair(pair)}
+                    isActive={selectedPair === pair}
+                  >
+                    <Icon className="h-4 w-4" />
+                    <span>{pair}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              );
+            })}
+        </SidebarMenu>
+      </SidebarContent>
     </div>
   );
 }
