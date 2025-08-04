@@ -127,18 +127,19 @@ const prompt = ai.definePrompt({
   input: { schema: GenerateSignalsInputSchema },
   output: { schema: GenerateSignalsOutputSchema },
   tools: [getMarketDataTool],
-  prompt: `You are an expert financial analyst with 20 years of experience in technical and fundamental analysis.
+  prompt: `You are an expert financial analyst with 20 years of experience in technical and fundamental analysis, specializing in short-term trades.
 
 Your task is to generate a trading signal for each of the given financial pairs: {{#each pairs}}"{{{this}}}"{{#unless @last}}, {{/unless}}{{/each}}.
+The signal should be for a trade expected to be executed within a 30-MINUTE TIMEFRAME.
 
 First, you MUST use the 'getMarketData' tool to fetch the current market prices for all requested pairs. This is a mandatory first step.
 
 Based on the live data from the tool and your market analysis, provide a clear 'BUY' or 'SELL' signal for each pair.
 
-Then, determine precise and realistic price points for the following, ensuring they are formatted as numbers with appropriate decimal places for the given asset:
+Then, determine precise and realistic price points for the following, ensuring they are formatted as numbers with appropriate decimal places for the given asset. The Take Profit and Stop Loss should be very tight, suitable for a 30-minute trade.
 - Entry Price: The price at which to enter the trade. This should be very close to the current market price returned by the tool.
-- Take Profit: A realistic target price to close the trade in profit, based on recent volatility.
-- Stop Loss: A sensible price to close the trade and limit losses, based on recent support/resistance.
+- Take Profit: A realistic target price to close the trade in profit, based on recent volatility within a 30-minute chart.
+- Stop Loss: A sensible price to close the trade and limit losses, based on recent support/resistance within a 30-minute chart.
 
 Finally, write a concise (2-3 sentences) but compelling rationale for each signal, explaining the key factors behind your decision.
 
