@@ -32,85 +32,104 @@ const GenerateSignalsOutputSchema = z.object({
 
 export type GenerateSignalsOutput = z.infer<typeof GenerateSignalsOutputSchema>;
 
-
 const getMarketDataTool = ai.defineTool(
-    {
-      name: 'getMarketData',
-      description: 'Get the current market price for a list of financial pairs.',
-      inputSchema: z.object({
-        pairs: z.array(z.string()).describe('The financial pairs to fetch data for.'),
-      }),
-      outputSchema: z.object({
-        results: z.array(
-          z.object({
-            pair: z.string(),
-            price: z.number().optional(),
-            error: z.string().optional(),
-          })
-        ),
-      }),
-    },
-    async ({ pairs }) => {
-      console.log(`Fetching market data for: ${pairs.join(', ')}`);
-      
-      const forexPairs = pairs.filter(p => ['EUR/USD', 'GBP/JPY'].includes(p));
-      const otherPairs = pairs.filter(p => !forexPairs.includes(p));
-      
-      let apiResults: {pair: string, price?: number, error?: string}[] = [];
+  {
+    name: 'getMarketData',
+    description: 'Get the current market price for a list of financial pairs. This tool can fetch live Forex data and generate realistic prices for other assets.',
+    inputSchema: z.object({
+      pairs: z.array(z.string()).describe('The financial pairs to fetch data for.'),
+    }),
+    outputSchema: z.object({
+      results: z.array(
+        z.object({
+          pair: z.string(),
+          price: z.number().optional(),
+          error: z.string().optional(),
+        })
+      ),
+    }),
+  },
+  async ({ pairs }) => {
+    console.log(`Fetching market data for: ${pairs.join(', ')}`);
+    
+    const forexPairs = pairs.filter(p => ['EUR/USD', 'GBP/JPY'].includes(p));
+    const otherPairs = pairs.filter(p => !forexPairs.includes(p));
+    
+    let apiResults: {pair: string, price?: number, error?: string}[] = [];
+    let otherResults: {pair: string, price?: number, error?: string}[] = [];
 
-      if (forexPairs.length > 0) {
-        const currencies = [...new Set(forexPairs.flatMap(p => p.split('/')))].filter(c => c !== 'USD');
-
-        try {
-            const response = await fetch(`https://api.forexrateapi.com/v1/latest?api_key=${process.env.FOREX_API_KEY}&base=USD&currencies=${currencies.join(',')}`);
-            if (!response.ok) {
-                throw new Error(`API call failed with status: ${response.status}`);
+    // Handle Forex pairs with the live API
+    if (forexPairs.length > 0) {
+      const currencies = [...new Set(forexPairs.flatMap(p => p.split('/')))].filter(c => c !== 'USD');
+      try {
+        const response = await fetch(`https://api.forexrateapi.com/v1/latest?api_key=${process.env.FOREX_API_KEY}&base=USD&currencies=${currencies.join(',')}`);
+        if (!response.ok) {
+          throw new Error(`API call failed with status: ${response.status}`);
+        }
+        const data: any = await response.json();
+        if (data.success) {
+          apiResults = forexPairs.map(pair => {
+            const [base, target] = pair.split('/');
+            // Handle EUR/USD type pairs (target is USD)
+            if (target === 'USD' && data.rates[base]) {
+              return { pair, price: 1 / data.rates[base] };
             }
-            const data: any = await response.json();
+            // Handle USD/JPY type pairs (base is USD)
+            if (base === 'USD' && data.rates[target]) {
+              return { pair, price: data.rates[target] };
+            }
+            // Handle cross-currency pairs like GBP/JPY
+            if (data.rates[base] && data.rates[target]) {
+              // Formula: (USD/JPY) / (USD/GBP) = GBP/JPY
+              const rate = data.rates[target] / data.rates[base];
+              return { pair, price: rate };
+            }
+            return { pair, error: 'Could not calculate rate from API response.' };
+          });
+        } else {
+          apiResults = forexPairs.map(pair => ({ pair, error: data.message || 'Forex API request failed' }));
+        }
+      } catch (error: any) {
+        console.error('Forex API fetch error:', error);
+        apiResults = forexPairs.map(pair => ({ pair, error: error.message || 'Failed to fetch from Forex API' }));
+      }
+    }
 
-            if (data.success) {
-                apiResults = forexPairs.map(pair => {
-                    const [base, target] = pair.split('/');
-                    if (target === 'USD' && data.rates[base]) {
-                         return { pair, price: data.rates[base] }; // e.g., EUR/USD
+    // Handle other pairs by generating plausible prices with AI
+    if (otherPairs.length > 0) {
+        try {
+            const priceGenPrompt = `Generate a realistic, current market price for each of the following financial assets: ${otherPairs.join(', ')}.
+            Respond ONLY with a JSON object mapping the pair to its price, like this: {"BTC/USD": 68000.50, "XAU/USD": 2350.80}.`;
+
+            const { output } = await ai.generate({
+                prompt: priceGenPrompt,
+                output: {
+                    format: 'json',
+                    schema: z.record(z.number()),
+                }
+            });
+
+            if (output) {
+                otherResults = otherPairs.map(pair => {
+                    const price = output[pair];
+                    if (price) {
+                        return { pair, price };
                     }
-                    if (base === 'USD' && data.rates[target]) {
-                        return { pair, price: 1 / data.rates[target] }; // e.g., USD/JPY
-                    }
-                    if (data.rates[base] && data.rates[target]) {
-                         return { pair, price: data.rates[target] / data.rates[base] }; // e.g., GBP/JPY = (USD/JPY) / (USD/GBP)
-                    }
-                    return { pair, error: 'Could not calculate rate from API response.' };
+                    return { pair, error: 'Failed to generate price.' };
                 });
             } else {
-                 apiResults = forexPairs.map(pair => ({ pair, error: data.message || 'Forex API request failed' }));
+                 throw new Error("AI price generation returned no output.");
             }
         } catch (error: any) {
-            console.error('Forex API fetch error:', error);
-            apiResults = forexPairs.map(pair => ({ pair, error: error.message || 'Failed to fetch from Forex API' }));
+             console.error('AI Price Generation error:', error);
+             otherResults = otherPairs.map(pair => ({ pair, error: error.message || 'Failed to generate price with AI' }));
         }
-      }
-
-      const mockResults = otherPairs.map(pair => {
-        let price;
-        switch (pair) {
-          case 'BTC/USD': price = 68000.50; break;
-          case 'ETH/USD': price = 3500.20; break;
-          case 'SOL/USD': price = 150.75; break;
-          case 'XRP/USD': price = 0.52; break;
-          case 'ADA/USD': price = 0.45; break;
-          case 'NAS100/USD': price = 19500.00; break;
-          case 'US30/USD': price = 39000.00; break;
-          case 'VIX': price = 13.5; break;
-          case 'XAU/USD': price = 2350.80; break;
-          default: return { pair, error: 'Unknown pair' };
-        }
-        return { pair, price };
-      });
-
-      return { results: [...apiResults, ...mockResults] };
     }
+    
+    return { results: [...apiResults, ...otherResults] };
+  }
 );
+
 
 export async function generateSignals(input: { pairs: FinancialPair[] }): Promise<GeneratedSignal[]> {
     let result: GenerateSignalsOutput;
