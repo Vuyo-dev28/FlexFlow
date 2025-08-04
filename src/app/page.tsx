@@ -8,10 +8,10 @@ import { SignalFilters } from '@/components/signal-filters';
 import type { Signal, SignalCategory, FinancialPair } from '@/types/signal';
 import { Watchlist } from '@/components/watchlist';
 import { MOCK_SIGNALS, ALL_PAIRS } from '@/lib/mock-data';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Home() {
   const [signals, setSignals] = useState<Signal[]>([]);
-  const [loading, setLoading] = useState(false); // No longer loading from an API
   const [selectedCategory, setSelectedCategory] = useState<SignalCategory | 'All'>('All');
   const [selectedPair, setSelectedPair] = useState<FinancialPair | null>(null);
   const [selectedSignal, setSelectedSignal] = useState<Signal | null>(null);
@@ -60,23 +60,15 @@ export default function Home() {
               }}
             />
              <div className="flex-1 p-4">
-              {loading ? (
-                <div className="flex flex-col gap-4">
-                  {Array.from({ length: 8 }).map((_, index) => (
-                      <CardSkeleton key={index} />
+              <div className="flex flex-col gap-4">
+                  {filteredSignals.map(signal => (
+                  <SignalCard
+                      key={signal.id}
+                      signal={signal}
+                      onSelect={() => setSelectedSignal(signal)}
+                  />
                   ))}
-                </div>
-              ) : (
-                <div className="flex flex-col gap-4">
-                    {filteredSignals.map(signal => (
-                    <SignalCard
-                        key={signal.id}
-                        signal={signal}
-                        onSelect={() => setSelectedSignal(signal)}
-                    />
-                    ))}
-                </div>
-              )}
+              </div>
             </div>
         </main>
         <aside className="hidden lg:block w-80 border-l border-border">
@@ -99,19 +91,4 @@ export default function Home() {
       />
     </div>
   );
-}
-
-function CardSkeleton() {
-    return (
-        <div className="flex items-center space-x-4 p-4 border rounded-lg bg-card/50">
-            <Skeleton className="h-10 w-10 rounded-full" />
-            <div className="flex-1 space-y-2">
-                <div className="flex justify-between items-center">
-                    <Skeleton className="h-4 w-24" />
-                    <Skeleton className="h-4 w-12" />
-                </div>
-                <Skeleton className="h-4 w-4/5" />
-            </div>
-        </div>
-    )
 }
