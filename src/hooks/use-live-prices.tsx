@@ -1,110 +1,104 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
-import { ALL_PAIRS } from '@/lib/mock-data';
-import type { FinancialPair } from '@/types/signal';
+import {
+  Bitcoin,
+  CandlestickChart,
+  DollarSign,
+  Euro,
+  TrendingUp,
+  Activity,
+  BarChart,
+  Globe,
+  Mountain,
+  Waves,
+  ArrowDown,
+  ArrowUp,
+} from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import type { Signal } from '@/types/signal';
+import { cn } from '@/lib/utils';
 
-const API_KEY = process.env.NEXT_PUBLIC_FOREX_API_KEY;
-const REFRESH_INTERVAL = 5000; // 5 seconds
-
-interface LivePrice {
-  price: number;
-  direction: 'up' | 'down' | 'stable';
+interface SignalCardProps {
+  signal: Signal;
+  onSelect: () => void;
 }
 
-interface LivePricesState {
-  [key: string]: LivePrice;
-}
+const pairIcons: Record<string, React.ElementType> = {
+  // Crypto
+  'BTC/USD': Bitcoin,
+  'ETH/USD': TrendingUp,
+  'SOL/USD': CandlestickChart,
+  'XRP/USD': Waves,
+  'ADA/USD': CandlestickChart,
+  // Stock Indices
+  'NAS100/USD': Activity,
+  'US30/USD': BarChart,
+  'VIX': TrendingUp,
+  // Forex
+  'EUR/USD': Euro,
+  'GBP/JPY': Globe,
+  // Metals
+  'XAU/USD': Mountain,
+};
 
-const LivePricesContext = createContext<{ prices: LivePricesState }>({ prices: {} });
 
-export const useLivePrices = () => useContext(LivePricesContext);
-
-async function fetchForexRates(pairs: FinancialPair[]) {
-  const baseCurrency = 'USD';
-  const currencies = new Set<string>();
-  pairs.forEach(pair => {
-    const [base, quote] = pair.split('/');
-    if (base !== baseCurrency) currencies.add(base);
-    if (quote !== baseCurrency) currencies.add(quote);
-  });
+export function SignalCard({ signal, onSelect }: SignalCardProps) {
+  const isBuy = signal.type === 'BUY';
+  const Icon = pairIcons[signal.pair] || CandlestickChart;
   
-  const url = `https://api.forexrateapi.com/v1/latest?api_key=${API_KEY}&base=${baseCurrency}&currencies=${Array.from(currencies).join(',')}`;
-  
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-        console.error("Failed to fetch forex rates:", response.statusText);
-        return null;
-    }
-    const data = await response.json();
-    if (!data.success) {
-      console.error("Forex API error:", data.error?.info || JSON.stringify(data.error));
-      return null;
-    }
-    return data.rates;
-  } catch (error) {
-    console.error("Error fetching forex rates:", error);
-    return null;
+  const formatPrice = (price: number) => {
+    // Simple heuristic to format prices based on their magnitude
+    if (price > 1000) return price.toFixed(2);
+    if (price < 10) return price.toFixed(4);
+    return price.toFixed(2);
   }
-}
-
-export const LivePricesProvider = ({ children }: { children: React.ReactNode }) => {
-  const [prices, setPrices] = useState<LivePricesState>({});
-
-  const forexPairs = useMemo(() => ALL_PAIRS.filter(p => p.category === 'Forex').map(p => p.pair), []);
-
-  const updatePrices = useCallback(async () => {
-    const rates = await fetchForexRates(forexPairs);
-    if (!rates) return;
-
-    setPrices(prevPrices => {
-      const newPrices: LivePricesState = {};
-      
-      forexPairs.forEach(pair => {
-        const [base, quote] = pair.split('/');
-        let currentPrice: number | undefined = undefined;
-
-        if (base === 'USD' && rates[quote]) {
-            currentPrice = 1 / rates[quote];
-        } else if (quote === 'USD' && rates[base]) {
-            currentPrice = rates[base];
-        } else if (rates[base] && rates[quote]) {
-            currentPrice = rates[base] / rates[quote];
-        }
-        
-        if (currentPrice !== undefined) {
-          const oldPrice = prevPrices[pair]?.price;
-          const direction =
-            !oldPrice || oldPrice === currentPrice
-              ? 'stable'
-              : currentPrice > oldPrice
-              ? 'up'
-              : 'down';
-          
-          newPrices[pair] = { price: currentPrice, direction };
-        }
-      });
-      
-      return { ...prevPrices, ...newPrices };
-    });
-  }, [forexPairs]);
-
-  useEffect(() => {
-    if (!API_KEY) {
-      console.warn("Forex API key is missing. Live prices will not be available.");
-      return;
-    }
-
-    updatePrices(); // Initial fetch
-    const intervalId = setInterval(updatePrices, REFRESH_INTERVAL);
-
-    return () => clearInterval(intervalId);
-  }, [updatePrices]);
 
   return (
-    <LivePricesContext.Provider value={{ prices }}>
-      {children}
-    </LivePricesContext.Provider>
+    <div
+      className="flex flex-col p-3 border rounded-lg cursor-pointer bg-card/50 hover:bg-accent/50 transition-colors duration-200 group"
+      onClick={onSelect}
+    >
+        {/* Card Header */}
+        <div className="flex justify-between items-start mb-2">
+            <div className="flex items-center gap-3">
+                <Icon className="h-8 w-8 text-muted-foreground transition-colors" />
+                <div>
+                    <h3 className="font-bold text-base text-foreground">{signal.pair}</h3>
+                    <p className="text-xs text-muted-foreground">{signal.category}</p>
+                </div>
+            </div>
+            <div className="flex flex-col items-end gap-1">
+                <Badge
+                    variant="outline"
+                    className={cn(
+                    'text-xs font-semibold py-1 px-2',
+                    isBuy ? 'border-green-500/50 text-green-400 bg-green-500/10' : 'border-red-500/50 text-red-400 bg-red-500/10'
+                    )}
+                >
+                    {signal.type}
+                </Badge>
+            </div>
+        </div>
+
+        {/* Rationale */}
+        <p className="text-sm text-muted-foreground mb-3 px-1 leading-snug">{signal.rationale}</p>
+
+        {/* Price Info */}
+        <div className="grid grid-cols-3 gap-2 text-center text-xs px-1">
+            <div className='text-red-400'>
+                <p className="text-muted-foreground text-xs">Stop Loss</p>
+                <p className="font-mono text-sm font-semibold">{formatPrice(signal.stopLoss)}</p>
+            </div>
+            <div className='text-foreground'>
+                <p className="text-muted-foreground text-xs">Entry Price</p>
+                <p className="font-mono text-sm font-semibold">{formatPrice(signal.entry)}</p>
+            </div>
+            <div className='text-green-400'>
+                <p className="text-muted-foreground text-xs">Take Profit</p>
+                <p className="font-mono text-sm font-semibold">{formatPrice(signal.takeProfit)}</p>
+            </div>
+        </div>
+      
+    </div>
   );
-};
+}

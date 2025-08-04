@@ -17,8 +17,6 @@ import {
 import { Badge } from '@/components/ui/badge';
 import type { Signal } from '@/types/signal';
 import { cn } from '@/lib/utils';
-import { formatDistanceToNow } from 'date-fns';
-import { useLivePrices } from '@/hooks/use-live-prices';
 
 interface SignalCardProps {
   signal: Signal;
@@ -43,26 +41,6 @@ const pairIcons: Record<string, React.ElementType> = {
   'XAU/USD': Mountain,
 };
 
-const LivePriceDisplay = ({ pair, category }: { pair: string, category: string }) => {
-    const { prices } = useLivePrices();
-    const livePriceInfo = prices[pair];
-
-    if (category !== 'Forex' || !livePriceInfo) {
-        return <div className="h-5 w-24"></div>; // Placeholder for alignment
-    }
-
-    const { price, direction } = livePriceInfo;
-    const isUp = direction === 'up';
-
-    const formatPrice = (price: number) => price.toFixed(5);
-
-    return (
-        <div className={cn("flex items-center gap-1 font-mono text-sm", isUp ? 'text-green-400' : 'text-red-400')}>
-            {isUp ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
-            <span>{formatPrice(price)}</span>
-        </div>
-    )
-}
 
 export function SignalCard({ signal, onSelect }: SignalCardProps) {
   const isBuy = signal.type === 'BUY';
@@ -99,7 +77,6 @@ export function SignalCard({ signal, onSelect }: SignalCardProps) {
                 >
                     {signal.type}
                 </Badge>
-                <LivePriceDisplay pair={signal.pair} category={signal.category} />
             </div>
         </div>
 

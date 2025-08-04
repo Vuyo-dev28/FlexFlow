@@ -16,7 +16,6 @@ export type SignalCategory = 'Crypto' | 'Stock Indices' | 'Forex' | 'Metals' | '
 
 export const GenerateSignalInputSchema = z.object({
   pair: z.string().describe('The financial pair to generate a signal for, e.g., "EUR/USD".'),
-  price: z.number().describe('The current live price of the financial pair.'),
 });
 export type GenerateSignalInput = z.infer<typeof GenerateSignalInputSchema>;
 

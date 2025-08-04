@@ -3,8 +3,7 @@
  * @fileOverview A Genkit flow for generating trading signals.
  *
  * This file defines a flow that takes a financial pair and generates a trading signal
- * based on live market data. It uses a tool to fetch prices, which combines a
- * real-time Forex API with AI-generated prices for other assets.
+ * based on an AI-generated market price. It uses a tool to fetch prices.
  */
 
 import {ai} from '@/ai/genkit';
@@ -13,13 +12,8 @@ import {
   GenerateSignalInputSchema,
   GenerateSignalOutputSchema,
   GeneratedSignal,
-  FinancialPair,
-  SignalCategory,
 } from '@/types/signal';
 import {z} from 'zod';
-import {ALL_PAIRS} from '@/lib/mock-data';
-
-const API_KEY = process.env.FOREX_API_KEY;
 
 // Schema for the AI-powered price generation
 const PriceGenerationSchema = z.object({
@@ -27,13 +21,12 @@ const PriceGenerationSchema = z.object({
 });
 
 /**
- * A tool that fetches the current market price for a given financial pair.
- * It uses a live API for Forex pairs and an AI model for other asset classes.
+ * A tool that gets the current market price for a given financial pair using AI.
  */
 const getMarketData = ai.defineTool(
   {
     name: 'getMarketData',
-    description: 'Gets the current market price for a financial pair. Uses a live API for Forex and AI for others.',
+    description: 'Gets the current market price for a financial pair using an AI model.',
     inputSchema: z.object({
       pair: z.string().describe('The financial pair to get the price for (e.g., "EUR/USD", "BTC/USD").'),
     }),
@@ -43,48 +36,7 @@ const getMarketData = ai.defineTool(
     }),
   },
   async ({pair}) => {
-    const pairInfo = ALL_PAIRS.find(p => p.pair === pair);
-    if (!pairInfo) {
-      return {error: `Pair not found: ${pair}`};
-    }
-
-    // Use live Forex API for currency pairs
-    if (pairInfo.category === 'Forex') {
-      if (!API_KEY) {
-        return {error: 'Forex API key is not configured.'};
-      }
-      try {
-        const currencies = new Set<string>();
-        const [base, quote] = pair.split('/');
-        if (base !== 'USD') currencies.add(base);
-        if (quote !== 'USD') currencies.add(quote);
-
-        const url = `https://api.forexrateapi.com/v1/latest?api_key=${API_KEY}&base=USD&currencies=${Array.from(currencies).join(',')}`;
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error(`API request failed with status ${response.status}`);
-        }
-        const data = await response.json();
-        if (!data.success) {
-          throw new Error(`Forex API error: ${data.error?.info || JSON.stringify(data.error)}`);
-        }
-
-        let currentPrice: number | undefined;
-        if (base === 'USD') currentPrice = 1 / data.rates[quote];
-        else if (quote === 'USD') currentPrice = data.rates[base];
-        else if (data.rates[base] && data.rates[quote]) currentPrice = data.rates[base] / data.rates[quote];
-
-        if (currentPrice !== undefined) {
-          return {price: currentPrice};
-        } else {
-          return {error: `Could not determine price for ${pair}`};
-        }
-      } catch (e: any) {
-        return {error: `Failed to fetch Forex data: ${e.message}`};
-      }
-    }
-
-    // Use AI to generate prices for other asset classes
+    // Use AI to generate prices for all asset classes
     try {
       const {output} = await ai.generate({
         model: 'googleai/gemini-1.5-flash-preview',
@@ -102,7 +54,7 @@ const getMarketData = ai.defineTool(
 /**
  * An exported function that invokes the `generateSignalFlow`.
  * This is the primary entry point for using this flow from the application.
- * @param input The financial pair (price is ignored, will be fetched by the tool).
+ * @param input The financial pair.
  * @returns A promise that resolves to a `GeneratedSignal`.
  */
 export async function generateSignal(input: GenerateSignalInput): Promise<GeneratedSignal> {
@@ -143,8 +95,7 @@ const generateSignalFlow = ai.defineFlow(
     outputSchema: GenerateSignalOutputSchema,
   },
   async (input) => {
-    // Note: The input 'price' is ignored, as the prompt now uses the tool to fetch it.
-    const {output} = await prompt(input);
+    const { output } = await prompt(input);
     return output!;
   }
 );
