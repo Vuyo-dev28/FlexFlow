@@ -51,23 +51,22 @@ const getMarketDataTool = ai.defineTool(
     },
     async ({ pairs }) => {
       // In a real application, this would fetch from a live data source.
-      // For now, we'll simulate it with realistic but random data.
+      // For now, we'll use a fixed set of realistic prices.
       console.log(`Fetching market data for: ${pairs.join(', ')}`);
       const results = pairs.map(pair => {
         let price;
-        const randomness = 1 + (Math.random() - 0.5) * 0.05; // +/- 2.5%
         switch (pair) {
-          case 'BTC/USD': price = 68000 * randomness; break;
-          case 'ETH/USD': price = 3500 * randomness; break;
-          case 'SOL/USD': price = 150 * randomness; break;
-          case 'XRP/USD': price = 0.5 * randomness; break;
-          case 'ADA/USD': price = 0.45 * randomness; break;
-          case 'NAS100/USD': price = 19500 * randomness; break;
-          case 'US30/USD': price = 39000 * randomness; break;
-          case 'VIX': price = 13.5 * randomness; break;
-          case 'EUR/USD': price = 1.08 * randomness; break;
-          case 'GBP/JPY': price = 200 * randomness; break;
-          case 'XAU/USD': price = 2350 * randomness; break;
+          case 'BTC/USD': price = 68000.50; break;
+          case 'ETH/USD': price = 3500.20; break;
+          case 'SOL/USD': price = 150.75; break;
+          case 'XRP/USD': price = 0.52; break;
+          case 'ADA/USD': price = 0.45; break;
+          case 'NAS100/USD': price = 19500.00; break;
+          case 'US30/USD': price = 39000.00; break;
+          case 'VIX': price = 13.5; break;
+          case 'EUR/USD': price = 1.0850; break;
+          case 'GBP/JPY': price = 200.50; break;
+          case 'XAU/USD': price = 2350.80; break;
           default: return { pair, error: 'Unknown pair' };
         }
         return { pair, price };
@@ -140,6 +139,8 @@ Then, determine precise and realistic price points for the following, ensuring t
 - Entry Price: The price at which to enter the trade. This should be very close to the current market price returned by the tool.
 - Take Profit: A realistic target price to close the trade in profit, based on recent volatility within a 30-minute chart.
 - Stop Loss: A sensible price to close the trade and limit losses, based on recent support/resistance within a 30-minute chart.
+
+For example, for XAU/USD, if the current price is 2350.80, the entry, TP, and SL should be values like 2351.00, 2355.50, and 2348.00, not values like 3358.4.
 
 Finally, write a concise (2-3 sentences) but compelling rationale for each signal, explaining the key factors behind your decision.
 
