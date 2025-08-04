@@ -32,7 +32,7 @@ const GenerateSignalsOutputSchema = z.object({
 export type GenerateSignalsOutput = z.infer<typeof GenerateSignalsOutputSchema>;
 
 export async function generateSignals(input: { pairs: FinancialPair[] }): Promise<GeneratedSignal[]> {
-    const result = await generateSignalFlow(input);
+    const result = await generateSignalFlow({ pairs: input.pairs as string[] });
     
     // Create a map for quick lookup of generated signals by pair
     const signalMap = new Map(result.signals.map(s => [s.pair, s]));
@@ -72,18 +72,18 @@ const prompt = ai.definePrompt({
   output: { schema: GenerateSignalsOutputSchema },
   prompt: `You are an expert financial analyst with 20 years of experience in technical and fundamental analysis. Your task is to generate a trading signal for each of the given financial pairs: {{#each pairs}}"{{{this}}}"{{#unless @last}}, {{/unless}}{{/each}}.
 
-  For each pair, analyze the current market conditions, including chart patterns, indicators (like RSI, MACD, Moving Averages), support and resistance levels, and any relevant news or economic data.
-  
-  Based on your analysis, provide a clear 'BUY' or 'SELL' signal for each pair.
-  
-  Determine precise and realistic price points for the following for each pair, ensuring they are formatted as numbers with appropriate decimal places for the given pair:
-  - Entry Price: The price at which to enter the trade.
-  - Take Profit: A target price to close the trade in profit.
-  - Stop Loss: A price to close the trade to limit potential losses.
-  
-  Finally, write a concise (2-3 sentences) but compelling rationale for each signal, explaining the key factors behind your decision. The rationale should be clear and easy for an intermediate trader to understand.
-  
-  Do not include any introductory or concluding remarks. Only provide the JSON object containing the array of signal information. The output must contain a signal for every requested pair.`,
+For each pair, analyze the current market conditions. Your analysis should be grounded in reality, using your knowledge of recent and realistic price ranges for each specific asset.
+
+Based on your analysis, provide a clear 'BUY' or 'SELL' signal for each pair.
+
+Determine precise and realistic price points for the following for each pair, ensuring they are formatted as numbers with appropriate decimal places for the given pair:
+- Entry Price: The price at which to enter the trade. This should be very close to the current market price.
+- Take Profit: A target price to close the trade in profit. This should be a realistic target based on recent volatility and price action.
+- Stop Loss: A price to close the trade to limit potential losses. This should be a sensible level based on recent support/resistance.
+
+Finally, write a concise (2-3 sentences) but compelling rationale for each signal, explaining the key factors behind your decision. The rationale should be clear and easy for an intermediate trader to understand.
+
+Do not include any introductory or concluding remarks. Only provide the JSON object containing the array of signal information. The output must contain a signal for every requested pair.`,
 });
 
 const generateSignalFlow = ai.defineFlow(
