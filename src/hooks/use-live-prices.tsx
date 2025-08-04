@@ -1,104 +1,125 @@
 'use client';
 
-import {
-  Bitcoin,
-  CandlestickChart,
-  DollarSign,
-  Euro,
-  TrendingUp,
-  Activity,
-  BarChart,
-  Globe,
-  Mountain,
-  Waves,
-  ArrowDown,
-  ArrowUp,
-} from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import type { Signal } from '@/types/signal';
-import { cn } from '@/lib/utils';
+import { useState, useEffect, createContext, useContext, useMemo, useCallback } from 'react';
+import type { FinancialPair } from '@/types/signal';
+import { MOCK_SIGNALS } from '@/lib/mock-data';
 
-interface SignalCardProps {
-  signal: Signal;
-  onSelect: () => void;
+const FOREX_API_URL = 'https://api.forexrateapi.com/v1/latest';
+const UPDATE_INTERVAL = 1000; // 1 second
+
+interface LivePrices {
+  [key: string]: number;
 }
 
-const pairIcons: Record<string, React.ElementType> = {
-  // Crypto
-  'BTC/USD': Bitcoin,
-  'ETH/USD': TrendingUp,
-  'SOL/USD': CandlestickChart,
-  'XRP/USD': Waves,
-  'ADA/USD': CandlestickChart,
-  // Stock Indices
-  'NAS100/USD': Activity,
-  'US30/USD': BarChart,
-  'VIX': TrendingUp,
-  // Forex
-  'EUR/USD': Euro,
-  'GBP/JPY': Globe,
-  // Metals
-  'XAU/USD': Mountain,
-};
+interface PriceChanges {
+  [key: string]: 'up' | 'down' | 'neutral';
+}
 
+interface LivePricesContextType {
+  livePrices: LivePrices;
+  priceChanges: PriceChanges;
+  apiKey: string | null;
+  setApiKey: (key: string | null) => void;
+  forexPairs: FinancialPair[];
+}
 
-export function SignalCard({ signal, onSelect }: SignalCardProps) {
-  const isBuy = signal.type === 'BUY';
-  const Icon = pairIcons[signal.pair] || CandlestickChart;
-  
-  const formatPrice = (price: number) => {
-    // Simple heuristic to format prices based on their magnitude
-    if (price > 1000) return price.toFixed(2);
-    if (price < 10) return price.toFixed(4);
-    return price.toFixed(2);
+const LivePricesContext = createContext<LivePricesContextType | undefined>(undefined);
+
+async function fetchForexRates(apiKey: string, base: string, currencies: string): Promise<LivePrices | null> {
+  if (!apiKey) return null;
+  try {
+    const response = await fetch(`${FOREX_API_URL}?api_key=${apiKey}&base=${base}&currencies=${currencies}`);
+    const data = await response.json();
+    if (!data.success) {
+      console.error("Forex API error:", data.error ? JSON.stringify(data.error) : 'Unknown error from API');
+      return null;
+    }
+    return data.rates;
+  } catch (error) {
+    console.error("Failed to fetch forex rates:", error);
+    return null;
   }
+}
+
+export function LivePricesProvider({ children }: { children: React.ReactNode }) {
+  const [livePrices, setLivePrices] = useState<LivePrices>({});
+  const [priceChanges, setPriceChanges] = useState<PriceChanges>({});
+  const [apiKey, setApiKey] = useState<string | null>(process.env.NEXT_PUBLIC_FOREX_API_KEY || null);
+
+  const forexPairs = useMemo(() => 
+    MOCK_SIGNALS.filter(s => s.category === 'Forex').map(s => s.pair) as FinancialPair[],
+    []
+  );
+
+  const updatePrices = useCallback(async () => {
+    if (!apiKey) return;
+
+    const bases = Array.from(new Set(forexPairs.map(p => p.substring(0, 3))));
+    const currencies = Array.from(new Set(forexPairs.map(p => p.substring(4, 7))));
+
+    try {
+      const rates = await fetchForexRates(apiKey, bases.join(','), currencies.join(','));
+
+      if (rates) {
+        setLivePrices(prevPrices => {
+          const newPriceChanges: PriceChanges = {};
+          const updatedPrices = { ...prevPrices };
+
+          forexPairs.forEach(pair => {
+            const currency = pair.substring(4, 7);
+            const rate = rates[currency];
+
+            if (rate) {
+              const newPrice = rate;
+              const oldPrice = prevPrices[pair];
+              updatedPrices[pair] = newPrice;
+
+              if (oldPrice) {
+                if (newPrice > oldPrice) newPriceChanges[pair] = 'up';
+                else if (newPrice < oldPrice) newPriceChanges[pair] = 'down';
+                else newPriceChanges[pair] = 'neutral';
+              } else {
+                newPriceChanges[pair] = 'neutral';
+              }
+            }
+          });
+
+          setPriceChanges(prevChanges => ({ ...prevChanges, ...newPriceChanges }));
+          return updatedPrices;
+        });
+      }
+    } catch (error) {
+      console.error('Error updating prices:', error);
+    }
+  }, [apiKey, forexPairs]);
+
+  useEffect(() => {
+    if (apiKey) {
+      updatePrices(); // Initial fetch
+      const intervalId = setInterval(updatePrices, UPDATE_INTERVAL);
+      return () => clearInterval(intervalId);
+    }
+  }, [apiKey, updatePrices]);
+
+  const contextValue = {
+    livePrices,
+    priceChanges,
+    apiKey,
+    setApiKey,
+    forexPairs
+  };
 
   return (
-    <div
-      className="flex flex-col p-3 border rounded-lg cursor-pointer bg-card/50 hover:bg-accent/50 transition-colors duration-200 group"
-      onClick={onSelect}
-    >
-        {/* Card Header */}
-        <div className="flex justify-between items-start mb-2">
-            <div className="flex items-center gap-3">
-                <Icon className="h-8 w-8 text-muted-foreground transition-colors" />
-                <div>
-                    <h3 className="font-bold text-base text-foreground">{signal.pair}</h3>
-                    <p className="text-xs text-muted-foreground">{signal.category}</p>
-                </div>
-            </div>
-            <div className="flex flex-col items-end gap-1">
-                <Badge
-                    variant="outline"
-                    className={cn(
-                    'text-xs font-semibold py-1 px-2',
-                    isBuy ? 'border-green-500/50 text-green-400 bg-green-500/10' : 'border-red-500/50 text-red-400 bg-red-500/10'
-                    )}
-                >
-                    {signal.type}
-                </Badge>
-            </div>
-        </div>
-
-        {/* Rationale */}
-        <p className="text-sm text-muted-foreground mb-3 px-1 leading-snug">{signal.rationale}</p>
-
-        {/* Price Info */}
-        <div className="grid grid-cols-3 gap-2 text-center text-xs px-1">
-            <div className='text-red-400'>
-                <p className="text-muted-foreground text-xs">Stop Loss</p>
-                <p className="font-mono text-sm font-semibold">{formatPrice(signal.stopLoss)}</p>
-            </div>
-            <div className='text-foreground'>
-                <p className="text-muted-foreground text-xs">Entry Price</p>
-                <p className="font-mono text-sm font-semibold">{formatPrice(signal.entry)}</p>
-            </div>
-            <div className='text-green-400'>
-                <p className="text-muted-foreground text-xs">Take Profit</p>
-                <p className="font-mono text-sm font-semibold">{formatPrice(signal.takeProfit)}</p>
-            </div>
-        </div>
-      
-    </div>
+    <LivePricesContext.Provider value={contextValue}>
+      {children}
+    </LivePricesContext.Provider>
   );
 }
+
+export const useLivePrices = () => {
+  const context = useContext(LivePricesContext);
+  if (context === undefined) {
+    throw new Error('useLivePrices must be used within a LivePricesProvider');
+  }
+  return context;
+};
