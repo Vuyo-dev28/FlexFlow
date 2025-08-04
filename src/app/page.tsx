@@ -8,6 +8,8 @@ import { SignalFilters } from '@/components/signal-filters';
 import type { Signal, SignalCategory, FinancialPair } from '@/types/signal';
 import { generateSignals } from '@/ai/flows/generate-signal-flow';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Watchlist } from '@/components/watchlist';
+import { Separator } from '@/components/ui/separator';
 
 const ALL_PAIRS: { pair: FinancialPair, category: SignalCategory }[] = [
     { pair: 'BTC/USD', category: 'Crypto' },
@@ -27,6 +29,7 @@ export default function Home() {
   const [signals, setSignals] = useState<Signal[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<SignalCategory | 'All'>('All');
+  const [selectedPair, setSelectedPair] = useState<FinancialPair | null>(null);
   const [selectedSignal, setSelectedSignal] = useState<Signal | null>(null);
 
   useEffect(() => {
@@ -62,45 +65,71 @@ export default function Home() {
 
   const availableCategories = useMemo(() => {
     const categories = new Set(ALL_PAIRS.map(s => s.category));
-    return Array.from(categories);
+    return ['All', ...Array.from(categories)] as (SignalCategory | 'All')[];
   }, []);
 
   const filteredSignals = useMemo(() => {
-    if (selectedCategory === 'All') {
-      return signals;
+    let categoryFiltered = signals;
+    if (selectedCategory !== 'All') {
+        categoryFiltered = signals.filter(signal => signal.category === selectedCategory);
     }
-    return signals.filter(signal => signal.category === selectedCategory);
-  }, [signals, selectedCategory]);
+    
+    if (selectedPair) {
+        return categoryFiltered.filter(signal => signal.pair === selectedPair);
+    }
+
+    return categoryFiltered;
+  }, [signals, selectedCategory, selectedPair]);
+  
+  const watchlistPairs = useMemo(() => {
+    if (selectedCategory === 'All') {
+      return ALL_PAIRS.map(p => p.pair);
+    }
+    return ALL_PAIRS.filter(p => p.category === selectedCategory).map(p => p.pair);
+  }, [selectedCategory]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
+    <div className="flex flex-col min-h-screen bg-background text-sm">
       <Header />
-      <main className="flex-1">
-        <SignalFilters
-          categories={availableCategories}
-          selectedCategory={selectedCategory}
-          onCategoryChange={setSelectedCategory}
-        />
-        <div className="container mx-auto px-4 py-6">
-          {loading ? (
-             <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {Array.from({ length: 12 }).map((_, index) => (
-                    <CardSkeleton key={index} />
-                ))}
-             </div>
-          ) : (
-            <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {filteredSignals.map(signal => (
-                <SignalCard
-                    key={signal.id}
-                    signal={signal}
-                    onSelect={() => setSelectedSignal(signal)}
-                />
-                ))}
+      <div className="flex flex-1">
+        <main className="flex-1 flex flex-col">
+            <SignalFilters
+              categories={availableCategories}
+              selectedCategory={selectedCategory}
+              onCategoryChange={cat => {
+                setSelectedCategory(cat);
+                setSelectedPair(null); // Reset pair selection when category changes
+              }}
+            />
+             <div className="flex-1 p-4">
+              {loading ? (
+                <div className="flex flex-col gap-4">
+                  {Array.from({ length: 8 }).map((_, index) => (
+                      <CardSkeleton key={index} />
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col gap-4">
+                    {filteredSignals.map(signal => (
+                    <SignalCard
+                        key={signal.id}
+                        signal={signal}
+                        onSelect={() => setSelectedSignal(signal)}
+                    />
+                    ))}
+                </div>
+              )}
             </div>
-          )}
-        </div>
-      </main>
+        </main>
+        <aside className="hidden lg:block w-80 border-l border-border">
+          <Watchlist 
+            pairs={watchlistPairs}
+            selectedPair={selectedPair}
+            onSelectPair={setSelectedPair}
+          />
+        </aside>
+      </div>
+
       <SignalDetailDialog
         signal={selectedSignal}
         open={!!selectedSignal}
@@ -114,36 +143,16 @@ export default function Home() {
   );
 }
 
-
 function CardSkeleton() {
     return (
-        <div className="flex flex-col space-y-3 p-4 border rounded-lg bg-card">
-            <div className="flex justify-between items-center">
-                <div className="flex items-center gap-3">
-                    <Skeleton className="h-8 w-8 rounded-full" />
-                    <div className="flex flex-col gap-1">
-                        <Skeleton className="h-4 w-20" />
-                        <Skeleton className="h-3 w-12" />
-                    </div>
+        <div className="flex items-center space-x-4 p-4 border rounded-lg bg-card/50">
+            <Skeleton className="h-10 w-10 rounded-full" />
+            <div className="flex-1 space-y-2">
+                <div className="flex justify-between items-center">
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-4 w-12" />
                 </div>
-                <Skeleton className="h-6 w-12 rounded-full" />
-            </div>
-            <div className="space-y-2 pt-2">
-                <div className="flex items-center justify-between">
-                    <Skeleton className="h-4 w-1/3" />
-                    <Skeleton className="h-4 w-1/4" />
-                </div>
-                <div className="flex items-center justify-between">
-                    <Skeleton className="h-4 w-1/3" />
-                    <Skeleton className="h-4 w-1/4" />
-                </div>
-                <div className="flex items-center justify-between">
-                    <Skeleton className="h-4 w-1/3" />
-                    <Skeleton className="h-4 w-1/4" />
-                </div>
-            </div>
-            <div className="flex justify-between items-center pt-2">
-                 <Skeleton className="h-3 w-24" />
+                <Skeleton className="h-4 w-4/5" />
             </div>
         </div>
     )
