@@ -8,11 +8,18 @@
 
 import {ai} from '@/ai/genkit';
 import { AnalyzeChartInput, AnalyzeChartOutput, AnalyzeChartInputSchema, AnalyzeChartOutputSchema } from '@/types/signal';
+import { v4 as uuidv4 } from 'uuid';
 
 const prompt = ai.definePrompt({
   name: 'analyzeChartPrompt',
   input: {schema: AnalyzeChartInputSchema},
-  output: {schema: AnalyzeChartOutputSchema},
+  output: {schema: z.object({
+      type: AnalyzeChartOutputSchema.shape.type,
+      rationale: AnalyzeChartOutputSchema.shape.rationale,
+      entry: AnalyzeChartOutputSchema.shape.entry,
+      takeProfit: AnalyzeChartOutputSchema.shape.takeProfit,
+      stopLoss: AnalyzeChartOutputSchema.shape.stopLoss,
+  })},
   prompt: `
     You are an expert financial analyst who specializes in high-frequency scalping strategies with a proven 70%+ win rate.
     Your task is to analyze the provided financial chart image to identify a high-probability scalping opportunity. The chart is likely a 1-minute, 3-minute, or 5-minute timeframe.
@@ -37,7 +44,11 @@ const analyzeChartFlow = ai.defineFlow(
   },
   async (input) => {
     const { output } = await prompt(input, {model: 'googleai/gemini-2.5-pro'});
-    return output!;
+    return {
+      ...output!,
+      id: uuidv4(),
+      chartImageUri: input.chartImageUri,
+    };
   }
 );
 

@@ -1,3 +1,5 @@
+'use server';
+
 import { z } from 'zod';
 
 export type FinancialPair = 
@@ -43,6 +45,8 @@ export type AnalyzeChartInput = z.infer<typeof AnalyzeChartInputSchema>;
 
 // Schema for the output of the chart analysis
 export const AnalyzeChartOutputSchema = z.object({
+  id: z.string().describe('A unique identifier for this analysis result.'),
+  chartImageUri: z.string().describe('The data URI of the analyzed chart image.'),
   type: z.enum(['BUY', 'SELL', 'HOLD']).describe("The trading signal: BUY, SELL, or HOLD if uncertain."),
   rationale: z
     .string()
