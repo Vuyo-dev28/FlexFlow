@@ -31,7 +31,7 @@ async function fetchForexRates(apiKey: string, base: string, currencies: string)
     const response = await fetch(`${FOREX_API_URL}?api_key=${apiKey}&base=${base}&currencies=${currencies}`);
     const data = await response.json();
     if (!data.success) {
-      console.error("Forex API error:", data.error ? JSON.stringify(data.error) : 'Unknown error from API');
+      console.error("Forex API error:", data.error ? JSON.stringify(data.error) : 'Could not fetch live price.');
       return null;
     }
     return data.rates;
@@ -54,23 +54,33 @@ export function LivePricesProvider({ children }: { children: React.ReactNode }) 
   const updatePrices = useCallback(async () => {
     if (!apiKey) return;
 
+    // Correctly get all bases and currencies for the API call.
     const bases = Array.from(new Set(forexPairs.map(p => p.substring(0, 3))));
-    const currencies = Array.from(new Set(forexPairs.map(p => p.substring(4, 7))));
-
+    const allCurrencies = Array.from(new Set(forexPairs.flatMap(p => [p.substring(0,3), p.substring(4,7)])));
+    
     try {
-      const rates = await fetchForexRates(apiKey, bases.join(','), currencies.join(','));
+      // We can only have one base, so we'll use the first one. This is a limitation of the free API.
+      // For a real app, we might need multiple calls or a more advanced API.
+      const base = bases[0] || 'USD';
+      const currenciesToFetch = allCurrencies.filter(c => c !== base).join(',');
+
+      const rates = await fetchForexRates(apiKey, base, currenciesToFetch);
 
       if (rates) {
+        // Add the base rate
+        rates[base] = 1.0;
+        
         setLivePrices(prevPrices => {
           const newPriceChanges: PriceChanges = {};
           const updatedPrices = { ...prevPrices };
 
           forexPairs.forEach(pair => {
-            const currency = pair.substring(4, 7);
-            const rate = rates[currency];
+            const pairBase = pair.substring(0, 3);
+            const pairTarget = pair.substring(4, 7);
 
-            if (rate) {
-              const newPrice = rate;
+            if (rates[pairBase] && rates[pairTarget]) {
+              // Calculate the cross-rate
+              const newPrice = rates[pairTarget] / rates[pairBase];
               const oldPrice = prevPrices[pair];
               updatedPrices[pair] = newPrice;
 
@@ -92,6 +102,7 @@ export function LivePricesProvider({ children }: { children: React.ReactNode }) 
       console.error('Error updating prices:', error);
     }
   }, [apiKey, forexPairs]);
+
 
   useEffect(() => {
     if (apiKey) {
