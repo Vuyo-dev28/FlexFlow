@@ -6,7 +6,7 @@ export type FinancialPair =
   // Stock Indices
   'NAS100/USD' | 'US30/USD' | 'VIX' |
   // Forex
-  'EUR/USD' | 'GBP/JPY' |
+  'EUR/USD' | 'GBP/JPY' | 'USD/JPY' | 'GBP/USD' | 'AUD/USD' | 'USD/CAD' |
   // Metals
   'XAU/USD';
 

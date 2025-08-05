@@ -37,6 +37,10 @@ const pairIcons: Record<string, React.ElementType> = {
   // Forex
   'EUR/USD': Euro,
   'GBP/JPY': Globe,
+  'USD/JPY': DollarSign,
+  'GBP/USD': Globe,
+  'AUD/USD': DollarSign,
+  'USD/CAD': DollarSign,
   // Metals
   'XAU/USD': Mountain,
 };

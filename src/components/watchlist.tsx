@@ -1,6 +1,6 @@
 'use client';
 
-import { Bitcoin, Activity, BarChart, TrendingUp, Euro, Globe, Mountain, Waves, CandlestickChart } from 'lucide-react';
+import { Bitcoin, Activity, BarChart, TrendingUp, Euro, Globe, Mountain, Waves, CandlestickChart, DollarSign } from 'lucide-react';
 import type { FinancialPair } from '@/types/signal';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -26,6 +26,10 @@ const pairIcons: Record<string, React.ElementType> = {
   // Forex
   'EUR/USD': Euro,
   'GBP/JPY': Globe,
+  'USD/JPY': DollarSign,
+  'GBP/USD': Globe,
+  'AUD/USD': DollarSign,
+  'USD/CAD': DollarSign,
   // Metals
   'XAU/USD': Mountain,
 };

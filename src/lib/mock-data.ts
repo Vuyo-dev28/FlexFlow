@@ -11,6 +11,10 @@ export const ALL_PAIRS: { pair: FinancialPair, category: SignalCategory }[] = [
     { pair: 'VIX', category: 'Volatility Indices' },
     { pair: 'EUR/USD', category: 'Forex' },
     { pair: 'GBP/JPY', category: 'Forex' },
+    { pair: 'USD/JPY', category: 'Forex' },
+    { pair: 'GBP/USD', category: 'Forex' },
+    { pair: 'AUD/USD', category: 'Forex' },
+    { pair: 'USD/CAD', category: 'Forex' },
     { pair: 'XAU/USD', category: 'Metals' },
 ];
 
@@ -102,5 +106,49 @@ export const MOCK_SIGNALS: Signal[] = [
     takeProfit: 170.00,
     stopLoss: 162.50,
     rationale: 'A bullish pennant formation suggests a continuation of the recent uptrend.'
+  },
+  {
+    id: '9',
+    pair: 'USD/JPY',
+    category: 'Forex',
+    timestamp: new Date(),
+    type: 'BUY',
+    entry: 157.20,
+    takeProfit: 157.60,
+    stopLoss: 156.90,
+    rationale: 'Interest rate differentials continue to favor the US dollar.'
+  },
+  {
+    id: '10',
+    pair: 'GBP/USD',
+    category: 'Forex',
+    timestamp: new Date(),
+    type: 'SELL',
+    entry: 1.2720,
+    takeProfit: 1.2670,
+    stopLoss: 1.2750,
+    rationale: 'Bearish momentum is building as the price struggles to break above key resistance.'
+  },
+  {
+    id: '11',
+    pair: 'AUD/USD',
+    category: 'Forex',
+    timestamp: new Date(),
+    type: 'BUY',
+    entry: 0.6650,
+    takeProfit: 0.6700,
+    stopLoss: 0.6620,
+    rationale: 'Commodity prices are providing a tailwind for the Australian dollar.'
+  },
+  {
+    id: '12',
+    pair: 'USD/CAD',
+    category: 'Forex',
+    timestamp: new Date(),
+    type: 'SELL',
+    entry: 1.3650,
+    takeProfit: 1.3600,
+    stopLoss: 1.3680,
+    rationale: 'Rising oil prices are boosting the Canadian dollar, putting pressure on the pair.'
   },
 ];
