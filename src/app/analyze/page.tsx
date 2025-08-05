@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
@@ -7,13 +8,15 @@ import { Input } from '@/components/ui/input';
 import { Upload, Lightbulb, TrendingUp, TrendingDown, Hourglass, Trash2, CheckCircle2, XCircle, Award } from 'lucide-react';
 import Image from 'next/image';
 import { analyzeChart } from '@/ai/flows/analyze-chart-flow';
-import { AnalyzeChartOutput, TimeFrame } from '@/types/signal';
+import { AnalyzeChartOutput, TimeFrame, timeFrames } from '@/types/signal';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { FormLabel } from '@/components/ui/form';
 
 const LOCAL_STORAGE_KEY = 'analysisHistory';
 const SETTINGS_KEY = 'signalStreamSettings';
@@ -268,7 +271,7 @@ export default function AnalyzePage() {
         <div className="flex flex-col gap-1.5">
             <h1 className="text-2xl font-bold tracking-tight">Chart Analyzer</h1>
             <p className="text-muted-foreground">
-                Upload a chart for the <span className='font-semibold text-foreground'>{timeFrame}</span> time frame. AI will provide a technical analysis signal.
+                Upload a chart and select the time frame. The AI will provide a technical analysis signal.
             </p>
         </div>
         <div className="grid md:grid-cols-2 gap-6 items-start">
@@ -276,13 +279,24 @@ export default function AnalyzePage() {
                 <Card>
                     <CardHeader>
                         <CardTitle>Upload Chart</CardTitle>
-                        <CardDescription>Select a screenshot of your trading chart.</CardDescription>
+                        <CardDescription>Select a screenshot of your trading chart and specify its time frame.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
+                         <div className="space-y-2">
+                            <FormLabel htmlFor="time-frame-select">Time Frame</FormLabel>
+                             <Select value={timeFrame} onValueChange={(value) => setTimeFrame(value as TimeFrame)}>
+                                <SelectTrigger id="time-frame-select">
+                                    <SelectValue placeholder="Select a time frame" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                {timeFrames.map((tf) => (
+                                    <SelectItem key={tf} value={tf}>{tf}</SelectItem>
+                                ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
                         <div className="space-y-2">
-                            <label htmlFor="chart-upload" className="font-medium">
-                                Chart Image
-                            </label>
+                            <FormLabel htmlFor="chart-upload">Chart Image</FormLabel>
                             <Input id="chart-upload" type="file" accept="image/*" onChange={handleFileChange} />
                         </div>
                         {imagePreview && (
@@ -306,7 +320,7 @@ export default function AnalyzePage() {
                     <Lightbulb className="h-4 w-4" />
                     <AlertTitle>How it Works</AlertTitle>
                     <AlertDescription>
-                        This tool uses a multimodal AI to analyze your chart for the selected time frame. This is not financial advice. You can change the time frame in the main settings.
+                        This tool uses a multimodal AI to analyze your chart for the selected time frame. This is not financial advice. Your default time frame can be changed in the main settings.
                     </AlertDescription>
                 </Alert>
             </div>
