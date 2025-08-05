@@ -21,37 +21,18 @@ export const useLivePrices = () => useContext(LivePricesContext);
 
 const REFRESH_INTERVAL = 1000; // 1 second
 
-const forexPairs = ALL_PAIRS.filter(p => p.category === 'Forex').map(p => p.pair);
-
 async function fetchForexRates(): Promise<LivePrices | null> {
-    const apiKey = process.env.NEXT_PUBLIC_FOREX_API_KEY;
-    if (!apiKey) {
-      console.warn("Forex API key not found. Live prices for Forex will not be available.");
-      return null;
-    }
-    const apiPairs = forexPairs.map(p => p.replace('/', '')).join(',');
-    const url = `https://api.forexapi.dev/v1/live?pairs=${apiPairs}&api_key=${apiKey}`;
-
     try {
-        const response = await fetch(url);
-        const data: any = await response.json();
-        
-        if (data.error) {
-            console.error("Forex API Error:", data.message);
+        const response = await fetch('/api/forex');
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("API route error:", errorData.error);
             return null;
         }
-
-        const newPrices: LivePrices = {} as LivePrices;
-        forexPairs.forEach(pair => {
-            const apiPair = pair.replace('/', '');
-            if (data.rates[apiPair]) {
-                newPrices[pair] = data.rates[apiPair].price;
-            }
-        });
-
-        return newPrices;
+        const data = await response.json();
+        return data.prices;
     } catch (error) {
-        console.error("Failed to fetch Forex rates:", error);
+        console.error("Failed to fetch from internal API route:", error);
         return null;
     }
 }
