@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Upload, Lightbulb, TrendingUp, TrendingDown, Hourglass, Trash2, CheckCircle2, XCircle, Award } from 'lucide-react';
+import { Upload, Lightbulb, TrendingUp, TrendingDown, Hourglass, Trash2, CheckCircle2, XCircle, Award, Info } from 'lucide-react';
 import Image from 'next/image';
 import { analyzeChart } from '@/ai/flows/analyze-chart-flow';
 import { AnalyzeChartOutput, TimeFrame, timeFrames } from '@/types/signal';
@@ -321,6 +321,17 @@ export default function AnalyzePage() {
                     <AlertTitle>How it Works</AlertTitle>
                     <AlertDescription>
                         This tool uses a multimodal AI to analyze your chart for the selected time frame. This is not financial advice. Your default time frame can be changed in the main settings.
+                    </AlertDescription>
+                </Alert>
+                <Alert>
+                    <Info className="h-4 w-4" />
+                    <AlertTitle>Time Frame Guidance</AlertTitle>
+                    <AlertDescription>
+                        <ul className="list-disc pl-5 space-y-1 mt-2">
+                            <li><b>Short (1m-15m):</b> Best for scalping and capturing quick momentum shifts.</li>
+                            <li><b>Medium (30m-4h):</b> Ideal for day/swing trading, focusing on patterns and levels.</li>
+                            <li><b>Long (1D):</b> Suited for position trading and analyzing major market trends.</li>
+                        </ul>
                     </AlertDescription>
                 </Alert>
             </div>
