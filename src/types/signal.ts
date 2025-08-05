@@ -1,3 +1,4 @@
+
 import { z } from 'zod';
 
 export type FinancialPair = 
@@ -70,3 +71,13 @@ export interface Signal extends GenerateSignalOutput {
   category: SignalCategory;
   timestamp: Date;
 }
+
+// Type for app-wide settings
+export type AppSettings = {
+  tradingStyle: TradingStyle;
+  accountSize: number;
+  riskPerTrade: number;
+  pushNotifications: boolean;
+  emailNotifications: boolean;
+  categories: SignalCategory[];
+};

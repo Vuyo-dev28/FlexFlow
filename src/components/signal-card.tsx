@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -13,12 +14,13 @@ import {
   Waves,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import type { Signal } from '@/types/signal';
+import type { Signal, AppSettings } from '@/types/signal';
 import { cn } from '@/lib/utils';
 import React from 'react';
 
 interface SignalCardProps {
   signal: Signal;
+  settings: AppSettings;
   onSelect: () => void;
 }
 
@@ -44,7 +46,7 @@ const pairIcons: Record<string, React.ElementType> = {
   'XAU/USD': Mountain,
 };
 
-export function SignalCard({ signal, onSelect }: SignalCardProps) {
+export function SignalCard({ signal, settings, onSelect }: SignalCardProps) {
   const isBuy = signal.type === 'BUY';
   const Icon = pairIcons[signal.pair] || CandlestickChart;
   
@@ -55,6 +57,10 @@ export function SignalCard({ signal, onSelect }: SignalCardProps) {
     return price.toFixed(2);
   }
 
+  const riskAmount = settings.accountSize * (settings.riskPerTrade / 100);
+  const stopLossDistance = Math.abs(signal.entry - signal.stopLoss);
+  const positionSize = stopLossDistance > 0 ? riskAmount / stopLossDistance : 0;
+  
   return (
     <div
       className="flex flex-col p-3 border rounded-lg cursor-pointer bg-card/50 hover:bg-accent/50 transition-colors duration-200 group"
@@ -79,6 +85,9 @@ export function SignalCard({ signal, onSelect }: SignalCardProps) {
                 >
                     {signal.type}
                 </Badge>
+                 <span className="text-xs text-muted-foreground">
+                    Pos. Size: {positionSize.toFixed(2)}
+                </span>
             </div>
         </div>
 

@@ -3,12 +3,12 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Upload, Lightbulb, TrendingUp, TrendingDown, Hourglass, Trash2, CheckCircle2, XCircle, Award, Info } from 'lucide-react';
+import { Upload, Lightbulb, TrendingUp, TrendingDown, Hourglass, Trash2, CheckCircle2, XCircle, Award, Info, Scalpel, DollarSign, BarChartHorizontal } from 'lucide-react';
 import Image from 'next/image';
 import { analyzeChart } from '@/ai/flows/analyze-chart-flow';
-import { AnalyzeChartOutput, TradingStyle, tradingStyles } from '@/types/signal';
+import { AnalyzeChartOutput, TradingStyle, tradingStyles, AppSettings } from '@/types/signal';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -20,6 +20,15 @@ import { Label } from '@/components/ui/label';
 
 const LOCAL_STORAGE_KEY = 'analysisHistory';
 const SETTINGS_KEY = 'signalStreamSettings';
+
+const defaultSettings: AppSettings = {
+    tradingStyle: 'Day Trading',
+    accountSize: 10000,
+    riskPerTrade: 1,
+    pushNotifications: true,
+    emailNotifications: false,
+    categories: ['Crypto', 'Stock Indices', 'Forex', 'Metals', 'Volatility Indices'],
+};
 
 function WinRateTracker({ history }: { history: AnalyzeChartOutput[] }) {
     const { wins, completedTrades } = useMemo(() => {
@@ -55,7 +64,44 @@ function WinRateTracker({ history }: { history: AnalyzeChartOutput[] }) {
     );
 }
 
-function AnalysisResultCard({ result, onDelete, onMarkResult }: { result: AnalyzeChartOutput; onDelete: (id: string) => void; onMarkResult: (id: string, isWin: boolean) => void; }) {
+function RiskManagementDetails({ result, settings }: { result: AnalyzeChartOutput, settings: AppSettings}) {
+     if (result.type === 'HOLD' || !result.entry || !result.takeProfit || !result.stopLoss) {
+        return null;
+    }
+
+    const stopLossDistance = Math.abs(result.entry - result.stopLoss);
+    const takeProfitDistance = Math.abs(result.entry - result.takeProfit);
+    const riskRewardRatio = stopLossDistance > 0 ? takeProfitDistance / stopLossDistance : 0;
+
+    const riskAmount = settings.accountSize * (settings.riskPerTrade / 100);
+    const positionSize = stopLossDistance > 0 ? riskAmount / stopLossDistance : 0;
+    const potentialLoss = positionSize * stopLossDistance;
+    const potentialProfit = positionSize * takeProfitDistance;
+
+    return (
+        <div className="space-y-4">
+             <Separator />
+             <div>
+                <h3 className="font-semibold text-foreground mb-2 flex items-center gap-2"><Scalpel /> Risk Profile</h3>
+                <div className="grid grid-cols-2 items-center gap-x-4 gap-y-2 text-sm">
+                    <span className="text-muted-foreground">Risk/Reward Ratio</span>
+                    <span className="font-mono text-right text-foreground">1 : {riskRewardRatio.toFixed(2)}</span>
+
+                     <span className="text-muted-foreground">Position Size</span>
+                    <span className="font-mono text-right text-foreground">{positionSize.toFixed(4)} units</span>
+
+                    <span className="text-muted-foreground">Potential Profit</span>
+                    <span className="font-mono text-right text-green-500">${potentialProfit.toFixed(2)}</span>
+
+                    <span className="text-muted-foreground">Potential Loss</span>
+                    <span className="font-mono text-right text-red-500">${potentialLoss.toFixed(2)}</span>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function AnalysisResultCard({ result, settings, onDelete, onMarkResult }: { result: AnalyzeChartOutput; settings: AppSettings; onDelete: (id: string) => void; onMarkResult: (id: string, isWin: boolean) => void; }) {
     const SignalIcon = result.type === 'BUY' ? TrendingUp : result.type === 'SELL' ? TrendingDown : Hourglass;
 
     return (
@@ -101,7 +147,7 @@ function AnalysisResultCard({ result, onDelete, onMarkResult }: { result: Analyz
                 {result.type !== 'HOLD' && result.entry && result.takeProfit && result.stopLoss && (
                     <>
                     <Separator />
-                    <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                    <div className="grid grid-cols-3 gap-2 text-center">
                             <div className='text-red-400'>
                                 <p className="text-muted-foreground text-xs">Stop Loss</p>
                                 <p className="font-mono text-sm font-semibold">{result.stopLoss?.toFixed(4)}</p>
@@ -117,22 +163,26 @@ function AnalysisResultCard({ result, onDelete, onMarkResult }: { result: Analyz
                     </div>
                     </>
                 )}
-                 <Separator />
-                 <div className="flex gap-2">
-                     <Button variant="outline" size="sm" className="w-full" onClick={() => onMarkResult(result.id, true)} disabled={result.isWin === true}>
-                        <CheckCircle2 className="mr-2 h-4 w-4 text-green-500" />
-                        Mark as Win
-                    </Button>
-                    <Button variant="outline" size="sm" className="w-full" onClick={() => onMarkResult(result.id, false)} disabled={result.isWin === false}>
-                        <XCircle className="mr-2 h-4 w-4 text-red-500" />
-                        Mark as Loss
-                    </Button>
-                </div>
-                 <Button variant="destructive" size="sm" className="w-full" onClick={() => onDelete(result.id)}>
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Delete Analysis
-                </Button>
+                <RiskManagementDetails result={result} settings={settings} />
             </CardContent>
+             {result.type !== 'HOLD' && (
+                <CardFooter className="flex-col items-stretch gap-2 pt-4">
+                     <div className="flex gap-2">
+                         <Button variant="outline" size="sm" className="w-full" onClick={() => onMarkResult(result.id, true)} disabled={result.isWin === true}>
+                            <CheckCircle2 className="mr-2 h-4 w-4 text-green-500" />
+                            Mark as Win
+                        </Button>
+                        <Button variant="outline" size="sm" className="w-full" onClick={() => onMarkResult(result.id, false)} disabled={result.isWin === false}>
+                            <XCircle className="mr-2 h-4 w-4 text-red-500" />
+                            Mark as Loss
+                        </Button>
+                    </div>
+                     <Button variant="destructive" size="sm" className="w-full" onClick={() => onDelete(result.id)}>
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete Analysis
+                    </Button>
+                </CardFooter>
+            )}
         </Card>
     )
 }
@@ -143,24 +193,27 @@ export default function AnalyzePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [analysisHistory, setAnalysisHistory] = useState<AnalyzeChartOutput[]>([]);
   const [tradingStyle, setTradingStyle] = useState<TradingStyle>('Day Trading');
+  const [settings, setSettings] = useState<AppSettings>(defaultSettings);
   const { toast } = useToast();
 
   const loadSettings = useCallback(() => {
     try {
-        const savedSettings = localStorage.getItem(SETTINGS_KEY);
-        if (savedSettings) {
-            const parsed = JSON.parse(savedSettings);
-            if (parsed.tradingStyle) {
-                setTradingStyle(parsed.tradingStyle);
-            }
-        }
+      const savedSettings = localStorage.getItem(SETTINGS_KEY);
+      if (savedSettings) {
+        const parsed = JSON.parse(savedSettings);
+        setSettings({ ...defaultSettings, ...parsed });
+        setTradingStyle(parsed.tradingStyle || defaultSettings.tradingStyle);
+      } else {
+        setSettings(defaultSettings);
+        setTradingStyle(defaultSettings.tradingStyle);
+      }
     } catch (error) {
-        console.error("Failed to load settings:", error);
+      console.error("Failed to load settings:", error);
+      setSettings(defaultSettings);
     }
   }, []);
 
   useEffect(() => {
-    // Load saved analysis history
     try {
         const storedHistory = localStorage.getItem(LOCAL_STORAGE_KEY);
         if (storedHistory) {
@@ -171,10 +224,8 @@ export default function AnalyzePage() {
         localStorage.removeItem(LOCAL_STORAGE_KEY);
     }
 
-    // Load settings
     loadSettings();
 
-    // Listen for settings changes from other tabs
     const handleStorageChange = (event: StorageEvent) => {
         if (event.key === SETTINGS_KEY) {
             loadSettings();
@@ -355,7 +406,7 @@ export default function AnalyzePage() {
                     
                     {analysisHistory.length > 0 ? (
                         analysisHistory.map(result => (
-                            <AnalysisResultCard key={result.id} result={result} onDelete={handleDeleteAnalysis} onMarkResult={handleMarkResult} />
+                            <AnalysisResultCard key={result.id} result={result} settings={settings} onDelete={handleDeleteAnalysis} onMarkResult={handleMarkResult} />
                         ))
                     ) : (
                         !isLoading && (

@@ -1,10 +1,11 @@
+
 'use client';
 
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { SignalCard } from '@/components/signal-card';
 import { SignalDetailDialog } from '@/components/signal-detail-dialog';
 import { SignalFilters } from '@/components/signal-filters';
-import type { Signal, SignalCategory, FinancialPair, TradingStyle } from '@/types/signal';
+import type { Signal, SignalCategory, FinancialPair, TradingStyle, AppSettings } from '@/types/signal';
 import { Watchlist } from '@/components/watchlist';
 import { MOCK_SIGNALS, ALL_PAIRS } from '@/lib/mock-data';
 import { generateSignal } from '@/ai/flows/generate-signal-flow';
@@ -15,6 +16,15 @@ import { ArrowRightLeft } from 'lucide-react';
 
 const SETTINGS_KEY = 'signalStreamSettings';
 
+const defaultSettings: AppSettings = {
+    tradingStyle: 'Day Trading',
+    accountSize: 10000,
+    riskPerTrade: 1,
+    pushNotifications: true,
+    emailNotifications: false,
+    categories: ['Crypto', 'Stock Indices', 'Forex', 'Metals', 'Volatility Indices'],
+};
+
 export default function HomePage() {
   const [signals, setSignals] = useState<Signal[]>(MOCK_SIGNALS);
   const [selectedCategory, setSelectedCategory] = useState<SignalCategory | 'All'>('All');
@@ -22,19 +32,20 @@ export default function HomePage() {
   const [selectedSignal, setSelectedSignal] = useState<Signal | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isWatchlistOpen, setIsWatchlistOpen] = useState(false);
-  const [tradingStyle, setTradingStyle] = useState<TradingStyle>('Day Trading');
+  const [settings, setSettings] = useState<AppSettings>(defaultSettings);
 
   const loadSettings = useCallback(() => {
     try {
       const savedSettings = localStorage.getItem(SETTINGS_KEY);
       if (savedSettings) {
         const parsed = JSON.parse(savedSettings);
-        if (parsed.tradingStyle) {
-          setTradingStyle(parsed.tradingStyle);
-        }
+        setSettings({ ...defaultSettings, ...parsed });
+      } else {
+        setSettings(defaultSettings);
       }
     } catch (error) {
       console.error("Failed to load settings:", error);
+      setSettings(defaultSettings);
     }
   }, []);
 
@@ -65,7 +76,7 @@ export default function HomePage() {
             throw new Error(`Invalid pair selected: ${pair}`);
         }
         
-        const newSignal = await generateSignal({ pair, tradingStyle });
+        const newSignal = await generateSignal({ pair, tradingStyle: settings.tradingStyle });
         const signalWithMetadata: Signal = {
           ...newSignal,
           id: `ai-${pair}-${new Date().getTime()}`,
@@ -85,7 +96,7 @@ export default function HomePage() {
         setIsLoading(false);
       }
     }
-  }, [tradingStyle]);
+  }, [settings.tradingStyle]);
 
 
   const availableCategories = useMemo(() => {
@@ -155,6 +166,7 @@ export default function HomePage() {
                     <SignalCard
                         key={signal.id}
                         signal={signal}
+                        settings={settings}
                         onSelect={() => setSelectedSignal(signal)}
                     />
                     ))
@@ -165,6 +177,7 @@ export default function HomePage() {
 
       <SignalDetailDialog
         signal={selectedSignal}
+        settings={settings}
         open={!!selectedSignal}
         onOpenChange={(isOpen) => {
           if (!isOpen) {

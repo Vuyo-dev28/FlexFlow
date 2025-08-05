@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -19,7 +20,7 @@ import {
 } from '@/components/ui/drawer';
 
 import { Badge } from '@/components/ui/badge';
-import type { Signal } from '@/types/signal';
+import type { Signal, AppSettings } from '@/types/signal';
 import { cn } from '@/lib/utils';
 import { Separator } from './ui/separator';
 import { useMediaQuery } from '@/hooks/use-media-query';
@@ -27,29 +28,59 @@ import { Button } from './ui/button';
 
 interface SignalDetailDialogProps {
   signal: Signal | null;
+  settings: AppSettings;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-function SignalDetails({ signal }: { signal: Signal }) {
+function SignalDetails({ signal, settings }: { signal: Signal, settings: AppSettings }) {
     if (!signal) return null;
-    const isBuy = signal.type === 'BUY';
+
+    const stopLossDistance = Math.abs(signal.entry - signal.stopLoss);
+    const takeProfitDistance = Math.abs(signal.entry - signal.takeProfit);
+    const riskRewardRatio = stopLossDistance > 0 ? takeProfitDistance / stopLossDistance : 0;
+    
+    const riskAmount = settings.accountSize * (settings.riskPerTrade / 100);
+    const positionSize = stopLossDistance > 0 ? riskAmount / stopLossDistance : 0;
+    const potentialLoss = positionSize * stopLossDistance;
+    const potentialProfit = positionSize * takeProfitDistance;
+
+
     return (
         <div className="flex flex-col gap-4 p-4 sm:p-0">
-            <div className="grid gap-4">
-                <div className="grid grid-cols-3 items-center gap-4 text-sm">
-                <span className="text-muted-foreground col-span-1">Entry Price</span>
-                <span className="font-mono text-lg text-foreground col-span-2">{signal.entry.toFixed(4)}</span>
-                </div>
-                <div className="grid grid-cols-3 items-center gap-4 text-sm">
-                <span className="text-muted-foreground col-span-1">Take Profit</span>
-                <span className="font-mono text-lg text-green-500 col-span-2">{signal.takeProfit.toFixed(4)}</span>
-                </div>
-                <div className="grid grid-cols-3 items-center gap-4 text-sm">
-                <span className="text-muted-foreground col-span-1">Stop Loss</span>
-                <span className="font-mono text-lg text-red-500 col-span-2">{signal.stopLoss.toFixed(4)}</span>
+             <div>
+                <h3 className="font-semibold text-foreground mb-2">Trade Execution</h3>
+                <div className="grid grid-cols-2 items-center gap-4 text-sm">
+                    <span className="text-muted-foreground">Entry Price</span>
+                    <span className="font-mono text-right text-foreground">{signal.entry.toFixed(4)}</span>
+                    
+                    <span className="text-muted-foreground">Take Profit</span>
+                    <span className="font-mono text-right text-green-500">{signal.takeProfit.toFixed(4)}</span>
+
+                    <span className="text-muted-foreground">Stop Loss</span>
+                    <span className="font-mono text-right text-red-500">{signal.stopLoss.toFixed(4)}</span>
                 </div>
             </div>
+
+            <Separator />
+
+             <div>
+                <h3 className="font-semibold text-foreground mb-2">Risk Profile</h3>
+                <div className="grid grid-cols-2 items-center gap-4 text-sm">
+                    <span className="text-muted-foreground">Risk/Reward Ratio</span>
+                    <span className="font-mono text-right text-foreground">1 : {riskRewardRatio.toFixed(2)}</span>
+
+                     <span className="text-muted-foreground">Position Size</span>
+                    <span className="font-mono text-right text-foreground">{positionSize.toFixed(4)} units</span>
+
+                    <span className="text-muted-foreground">Potential Profit</span>
+                    <span className="font-mono text-right text-green-500">${potentialProfit.toFixed(2)}</span>
+
+                    <span className="text-muted-foreground">Potential Loss</span>
+                    <span className="font-mono text-right text-red-500">${potentialLoss.toFixed(2)}</span>
+                </div>
+            </div>
+
 
             <Separator />
 
@@ -93,7 +124,7 @@ function SignalHeader({ signal }: { signal: Signal }) {
 }
 
 
-export function SignalDetailDialog({ signal, open, onOpenChange }: SignalDetailDialogProps) {
+export function SignalDetailDialog({ signal, settings, open, onOpenChange }: SignalDetailDialogProps) {
   const isDesktop = useMediaQuery("(min-width: 768px)")
 
   if (!signal) return null;
@@ -106,7 +137,7 @@ export function SignalDetailDialog({ signal, open, onOpenChange }: SignalDetailD
                 <SignalHeader signal={signal} />
             </DialogHeader>
             <Separator />
-            <SignalDetails signal={signal} />
+            <SignalDetails signal={signal} settings={settings} />
         </DialogContent>
         </Dialog>
     );
@@ -120,7 +151,7 @@ export function SignalDetailDialog({ signal, open, onOpenChange }: SignalDetailD
             </DrawerHeader>
             <Separator />
             <div className="p-4">
-                <SignalDetails signal={signal} />
+                <SignalDetails signal={signal} settings={settings} />
             </div>
             <DrawerFooter className="pt-2">
                 <DrawerClose asChild>

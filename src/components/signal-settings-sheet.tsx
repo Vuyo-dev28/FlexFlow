@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -31,6 +32,8 @@ import { Separator } from './ui/separator';
 import type { SignalCategory, TradingStyle } from '@/types/signal';
 import { tradingStyles } from '@/types/signal';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { Input } from './ui/input';
+import { Slider } from './ui/slider';
 
 interface SignalSettingsSheetProps {
   open: boolean;
@@ -48,6 +51,8 @@ const FormSchema = z.object({
   pushNotifications: z.boolean().default(false).optional(),
   emailNotifications: z.boolean().default(false).optional(),
   tradingStyle: z.enum(tradingStyles),
+  accountSize: z.coerce.number().positive({ message: "Account size must be a positive number."}),
+  riskPerTrade: z.number().min(0.1).max(10),
 });
 
 type FormValues = z.infer<typeof FormSchema>;
@@ -62,6 +67,8 @@ export function SignalSettingsSheet({ open, onOpenChange }: SignalSettingsSheetP
       pushNotifications: true,
       emailNotifications: false,
       tradingStyle: 'Day Trading',
+      accountSize: 10000,
+      riskPerTrade: 1,
     },
   });
 
@@ -77,6 +84,8 @@ export function SignalSettingsSheet({ open, onOpenChange }: SignalSettingsSheetP
           if (typeof parsedSettings.pushNotifications === 'boolean') validValues.pushNotifications = parsedSettings.pushNotifications;
           if (typeof parsedSettings.emailNotifications === 'boolean') validValues.emailNotifications = parsedSettings.emailNotifications;
           if (parsedSettings.tradingStyle) validValues.tradingStyle = parsedSettings.tradingStyle;
+          if (parsedSettings.accountSize) validValues.accountSize = parsedSettings.accountSize;
+          if (parsedSettings.riskPerTrade) validValues.riskPerTrade = parsedSettings.riskPerTrade;
           
           form.reset(validValues);
         }
@@ -107,7 +116,7 @@ export function SignalSettingsSheet({ open, onOpenChange }: SignalSettingsSheetP
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent>
+      <SheetContent className="flex flex-col">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full">
             <SheetHeader>
@@ -143,6 +152,45 @@ export function SignalSettingsSheet({ open, onOpenChange }: SignalSettingsSheetP
                     </FormItem>
                   )}
                 />
+                
+                <div className="space-y-4">
+                    <h3 className="text-base font-medium">Risk Management</h3>
+                     <FormField
+                        control={form.control}
+                        name="accountSize"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Account Size ($)</FormLabel>
+                            <FormControl>
+                                <Input type="number" placeholder="e.g., 10000" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                        />
+                    <FormField
+                        control={form.control}
+                        name="riskPerTrade"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Risk Per Trade ({field.value}%)</FormLabel>
+                            <FormControl>
+                               <Slider
+                                  min={0.1}
+                                  max={10}
+                                  step={0.1}
+                                  value={[field.value]}
+                                  onValueChange={(value) => field.onChange(value[0])}
+                                />
+                            </FormControl>
+                             <FormDescription>
+                                The percentage of your account to risk per trade.
+                            </FormDescription>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                        />
+                </div>
                 
                 <FormItem>
                     <div className="mb-4">
