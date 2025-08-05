@@ -44,7 +44,7 @@ const generateSignalFlow = ai.defineFlow(
     outputSchema: GenerateSignalOutputSchema,
   },
   async (input) => {
-    const { output } = await prompt(input, {model: 'googleai/gemini-pro'});
+    const { output } = await prompt(input, {model: 'googleai/gemini-2.5-pro'});
     return output!;
   }
 );

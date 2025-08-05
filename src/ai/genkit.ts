@@ -3,12 +3,14 @@
  * It configures a global `ai` object that can be used throughout the application
  * to interact with generative models.
  */
-import {genkit} from 'genkit';
-import {googleAI} from '@genkit-ai/googleai';
+import { genkit } from 'genkit';
+import { googleAI } from '@genkit-ai/googleai';
 
 export const ai = genkit({
   plugins: [
-    googleAI(),
+    googleAI({
+      apiVersion: 'v1', // ✅ This is mandatory
+    }),
   ],
   logLevel: 'debug',
   enableTracing: true,
