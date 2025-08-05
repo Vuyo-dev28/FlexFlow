@@ -7,7 +7,8 @@
  */
 
 import {ai} from '@/ai/genkit';
-import { AnalyzeChartInput, AnalyzeChartOutput, AnalyzeChartInputSchema, AnalyzeChartOutputSchema } from '@/types/signal';
+import { AnalyzeChartInput, AnalyzeChartOutput } from '@/types/signal';
+import { AnalyzeChartInputSchema, AnalyzeChartOutputSchema } from '@/types/signal';
 
 const prompt = ai.definePrompt({
   name: 'analyzeChartPrompt',

@@ -10,9 +10,8 @@ import {ai} from '@/ai/genkit';
 import {
   GenerateSignalInput,
   GenerateSignalOutput,
-  GenerateSignalInputSchema,
-  GenerateSignalOutputSchema,
 } from '@/types/signal';
+import { GenerateSignalInputSchema, GenerateSignalOutputSchema } from '@/types/signal';
 
 // Define the prompt for the AI model, which will now use the getMarketData tool
 const prompt = ai.definePrompt({
