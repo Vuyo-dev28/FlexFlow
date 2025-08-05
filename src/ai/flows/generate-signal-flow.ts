@@ -13,7 +13,6 @@ import {
   GenerateSignalOutputSchema,
   GeneratedSignal,
 } from '@/types/signal';
-import { ALL_PAIRS } from '@/lib/mock-data';
 import {z} from 'zod';
 
 

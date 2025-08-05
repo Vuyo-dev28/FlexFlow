@@ -7,26 +7,7 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'zod';
-
-// Define the schema for the flow's input
-export const AnalyzeChartInputSchema = z.object({
-  chartImageUri: z
-    .string()
-    .describe(
-      "A data URI of the chart image to be analyzed. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
-    ),
-});
-export type AnalyzeChartInput = z.infer<typeof AnalyzeChartInputSchema>;
-
-// Define the schema for the flow's output
-export const AnalyzeChartOutputSchema = z.object({
-  type: z.enum(['BUY', 'SELL', 'HOLD']).describe("The trading signal: BUY, SELL, or HOLD if uncertain."),
-  rationale: z
-    .string()
-    .describe('A detailed rationale for the generated trading signal, based on the chart analysis.'),
-});
-export type AnalyzeChartOutput = z.infer<typeof AnalyzeChartOutputSchema>;
+import { AnalyzeChartInput, AnalyzeChartInputSchema, AnalyzeChartOutput, AnalyzeChartOutputSchema } from '@/types/signal';
 
 const prompt = ai.definePrompt({
   name: 'analyzeChartPrompt',

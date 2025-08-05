@@ -6,7 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Input } from '@/components/ui/input';
 import { Upload, Lightbulb, TrendingUp, TrendingDown, Hourglass } from 'lucide-react';
 import Image from 'next/image';
-import { analyzeChart, AnalyzeChartOutput } from '@/ai/flows/analyze-chart-flow';
+import { analyzeChart } from '@/ai/flows/analyze-chart-flow';
+import { AnalyzeChartOutput } from '@/types/signal';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
