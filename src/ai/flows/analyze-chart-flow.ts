@@ -22,14 +22,19 @@ const prompt = ai.definePrompt({
       stopLoss: AnalyzeChartOutputSchema.shape.stopLoss,
   })},
   prompt: `
-    You are an expert financial analyst who specializes in high-frequency scalping strategies with a proven 70%+ win rate.
-    Your task is to analyze the provided financial chart image to identify a high-probability scalping opportunity. The chart is likely a 1-minute, 3-minute, or 5-minute timeframe.
+    You are an expert financial analyst who specializes in multi-timeframe trading strategies with a proven 70%+ win rate.
+    Your task is to analyze the provided financial chart image to identify a high-probability trading opportunity.
 
-    1.  Analyze the provided chart for short-term patterns, momentum indicators, and micro-trends suitable for scalping.
+    The user has specified that this chart is for the {{{timeFrame}}} time frame. You must tailor your analysis and strategy to this time frame.
+    - For short time frames (1m, 3m, 5m, 15m), focus on scalping opportunities, micro-trends, and momentum indicators.
+    - For medium time frames (1h, 4h), focus on swing trading setups, support/resistance levels, and pattern recognition.
+    - For long time frames (1D), focus on position trading, major trend analysis, and macroeconomic factors.
+
+    1.  Analyze the provided chart based on the specified {{{timeFrame}}} for relevant patterns, indicators, and trends.
     2.  Based on your analysis, decide if there is a high-probability BUY or SELL signal.
     3.  If, and only if, a high-probability setup exists, provide a BUY or SELL signal. Otherwise, you MUST return HOLD. Your reputation is built on being selective and avoiding low-probability trades.
-    4.  If the signal is BUY or SELL, determine a realistic entry price, a tight take-profit price for a quick gain, and a tight stop-loss price to manage risk. These values must be numbers.
-    5.  Provide a concise, expert-level rationale for your decision in 2-4 sentences, focusing on the specific short-term indicators that signal this high-probability scalping opportunity.
+    4.  If the signal is BUY or SELL, determine a realistic entry price, a take-profit price, and a stop-loss price, all of which must be appropriate for the strategy corresponding to the {{{timeFrame}}}. These values must be numbers.
+    5.  Provide a concise, expert-level rationale for your decision in 2-4 sentences, focusing on the specific indicators that signal this high-probability opportunity for the given time frame.
 
     Chart Image: {{media url=chartImageUri}}
 

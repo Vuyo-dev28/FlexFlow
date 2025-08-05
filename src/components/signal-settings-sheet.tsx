@@ -26,9 +26,11 @@ import {
 } from '@/components/ui/sheet';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { useMemo } from 'react';
+import { useEffect } from 'react';
 import { Separator } from './ui/separator';
-import type { SignalCategory } from '@/types/signal';
+import type { SignalCategory, TimeFrame } from '@/types/signal';
+import { timeFrames } from '@/types/signal';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
 interface SignalSettingsSheetProps {
   open: boolean;
@@ -37,32 +39,70 @@ interface SignalSettingsSheetProps {
 
 const availableCategories: SignalCategory[] = ['Crypto', 'Stock Indices', 'Forex', 'Metals', 'Volatility Indices'];
 
+const SETTINGS_KEY = 'signalStreamSettings';
+
 const FormSchema = z.object({
   categories: z.array(z.string()).refine(value => value.some(item => item), {
     message: 'You have to select at least one category.',
   }),
   pushNotifications: z.boolean().default(false).optional(),
   emailNotifications: z.boolean().default(false).optional(),
+  timeFrame: z.enum(timeFrames),
 });
+
+type FormValues = z.infer<typeof FormSchema>;
 
 export function SignalSettingsSheet({ open, onOpenChange }: SignalSettingsSheetProps) {
   const { toast } = useToast();
 
-  const form = useForm<z.infer<typeof FormSchema>>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       categories: availableCategories,
       pushNotifications: true,
       emailNotifications: false,
+      timeFrame: '5m',
     },
   });
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    toast({
-      title: 'Settings Saved',
-      description: 'Your notification preferences have been updated.',
-    });
-    onOpenChange(false);
+  useEffect(() => {
+    if (open) {
+      try {
+        const savedSettings = localStorage.getItem(SETTINGS_KEY);
+        if (savedSettings) {
+          const parsedSettings = JSON.parse(savedSettings);
+          // Ensure we only set values that exist in the form schema
+          const validValues: Partial<FormValues> = {};
+          if (parsedSettings.categories) validValues.categories = parsedSettings.categories;
+          if (typeof parsedSettings.pushNotifications === 'boolean') validValues.pushNotifications = parsedSettings.pushNotifications;
+          if (typeof parsedSettings.emailNotifications === 'boolean') validValues.emailNotifications = parsedSettings.emailNotifications;
+          if (parsedSettings.timeFrame) validValues.timeFrame = parsedSettings.timeFrame;
+          
+          form.reset(validValues);
+        }
+      } catch (error) {
+        console.error("Failed to load settings from localStorage", error);
+      }
+    }
+  }, [open, form]);
+
+  function onSubmit(data: FormValues) {
+    try {
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(data));
+        toast({
+          title: 'Settings Saved',
+          description: 'Your preferences have been updated.',
+        });
+        onOpenChange(false);
+         // Manually trigger a storage event to notify other tabs/windows
+        window.dispatchEvent(new StorageEvent('storage', { key: SETTINGS_KEY, newValue: JSON.stringify(data) }));
+    } catch(error) {
+         toast({
+            variant: 'destructive',
+            title: 'Failed to Save Settings',
+            description: 'Could not save settings to local storage.',
+        });
+    }
   }
 
   return (
@@ -73,11 +113,93 @@ export function SignalSettingsSheet({ open, onOpenChange }: SignalSettingsSheetP
             <SheetHeader>
               <SheetTitle className="text-2xl">Settings</SheetTitle>
               <SheetDescription>
-                Customize your signal notifications.
+                Customize your signals and notifications.
               </SheetDescription>
             </SheetHeader>
             <Separator className="my-4"/>
             <div className="flex-1 space-y-8 overflow-y-auto pr-6">
+                <FormField
+                  control={form.control}
+                  name="timeFrame"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-base">Trading Time Frame</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a time frame" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {timeFrames.map((tf) => (
+                             <SelectItem key={tf} value={tf}>{tf}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        Adjust the AI's strategy based on your preferred time frame.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormItem>
+                    <div className="mb-4">
+                        <FormLabel className="text-base">Notification Channels</FormLabel>
+                        <FormDescription>
+                        Choose how you want to be notified.
+                        </FormDescription>
+                    </div>
+                    <div className="space-y-4">
+                        <FormField
+                        control={form.control}
+                        name="pushNotifications"
+                        render={({ field }) => (
+                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                            <div className="space-y-0.5">
+                                <FormLabel className="text-base">
+                                Push Notifications
+                                </FormLabel>
+                                <FormDescription>
+                                Receive alerts directly on your device.
+                                </FormDescription>
+                            </div>
+                            <FormControl>
+                                <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                                />
+                            </FormControl>
+                            </FormItem>
+                        )}
+                        />
+                        <FormField
+                        control={form.control}
+                        name="emailNotifications"
+                        render={({ field }) => (
+                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                            <div className="space-y-0.5">
+                                <FormLabel className="text-base">
+                                Email Notifications
+                                </FormLabel>
+                                <FormDescription>
+                                Get signal alerts sent to your email.
+                                </FormDescription>
+                            </div>
+                            <FormControl>
+                                <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                                aria-readonly
+                                />
+                            </FormControl>
+                            </FormItem>
+                        )}
+                        />
+                    </div>
+                </FormItem>
+
                 <FormField
                   control={form.control}
                   name="categories"
@@ -124,62 +246,7 @@ export function SignalSettingsSheet({ open, onOpenChange }: SignalSettingsSheetP
                     </FormItem>
                   )}
                 />
-              
-              <FormItem>
-                <div className="mb-4">
-                  <FormLabel className="text-base">Notification Channels</FormLabel>
-                  <FormDescription>
-                    Choose how you want to be notified.
-                  </FormDescription>
-                </div>
-                <div className="space-y-4">
-                    <FormField
-                    control={form.control}
-                    name="pushNotifications"
-                    render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                        <div className="space-y-0.5">
-                            <FormLabel className="text-base">
-                            Push Notifications
-                            </FormLabel>
-                             <FormDescription>
-                              Receive alerts directly on your device.
-                            </FormDescription>
-                        </div>
-                        <FormControl>
-                            <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                            />
-                        </FormControl>
-                        </FormItem>
-                    )}
-                    />
-                    <FormField
-                    control={form.control}
-                    name="emailNotifications"
-                    render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                        <div className="space-y-0.5">
-                            <FormLabel className="text-base">
-                            Email Notifications
-                            </FormLabel>
-                             <FormDescription>
-                              Get signal alerts sent to your email.
-                            </FormDescription>
-                        </div>
-                        <FormControl>
-                            <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                            aria-readonly
-                            />
-                        </FormControl>
-                        </FormItem>
-                    )}
-                    />
-                </div>
-              </FormItem>
+
             </div>
             <SheetFooter className="mt-6">
                 <SheetClose asChild>

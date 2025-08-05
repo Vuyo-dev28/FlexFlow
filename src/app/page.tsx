@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { SignalCard } from '@/components/signal-card';
 import { SignalDetailDialog } from '@/components/signal-detail-dialog';
 import { SignalFilters } from '@/components/signal-filters';
-import type { Signal, SignalCategory, FinancialPair } from '@/types/signal';
+import type { Signal, SignalCategory, FinancialPair, TimeFrame } from '@/types/signal';
 import { Watchlist } from '@/components/watchlist';
 import { MOCK_SIGNALS, ALL_PAIRS } from '@/lib/mock-data';
 import { generateSignal } from '@/ai/flows/generate-signal-flow';
@@ -13,6 +13,8 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { ArrowRightLeft } from 'lucide-react';
 
+const SETTINGS_KEY = 'signalStreamSettings';
+
 export default function HomePage() {
   const [signals, setSignals] = useState<Signal[]>(MOCK_SIGNALS);
   const [selectedCategory, setSelectedCategory] = useState<SignalCategory | 'All'>('All');
@@ -20,6 +22,36 @@ export default function HomePage() {
   const [selectedSignal, setSelectedSignal] = useState<Signal | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isWatchlistOpen, setIsWatchlistOpen] = useState(false);
+  const [timeFrame, setTimeFrame] = useState<TimeFrame>('5m');
+
+  const loadSettings = useCallback(() => {
+    try {
+      const savedSettings = localStorage.getItem(SETTINGS_KEY);
+      if (savedSettings) {
+        const parsed = JSON.parse(savedSettings);
+        if (parsed.timeFrame) {
+          setTimeFrame(parsed.timeFrame);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to load settings:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadSettings();
+
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === SETTINGS_KEY) {
+        loadSettings();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [loadSettings]);
 
 
   const handleSelectPair = useCallback(async (pair: FinancialPair | null) => {
@@ -33,7 +65,7 @@ export default function HomePage() {
             throw new Error(`Invalid pair selected: ${pair}`);
         }
         
-        const newSignal = await generateSignal({ pair });
+        const newSignal = await generateSignal({ pair, timeFrame });
         const signalWithMetadata: Signal = {
           ...newSignal,
           id: `ai-${pair}-${new Date().getTime()}`,
@@ -53,7 +85,7 @@ export default function HomePage() {
         setIsLoading(false);
       }
     }
-  }, []);
+  }, [timeFrame]);
 
 
   const availableCategories = useMemo(() => {

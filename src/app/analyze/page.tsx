@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Upload, Lightbulb, TrendingUp, TrendingDown, Hourglass, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import { analyzeChart } from '@/ai/flows/analyze-chart-flow';
-import { AnalyzeChartOutput } from '@/types/signal';
+import { AnalyzeChartOutput, TimeFrame } from '@/types/signal';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -16,6 +16,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
 
 const LOCAL_STORAGE_KEY = 'analysisHistory';
+const SETTINGS_KEY = 'signalStreamSettings';
 
 function AnalysisResultCard({ result, onDelete }: { result: AnalyzeChartOutput; onDelete: (id: string) => void; }) {
     const SignalIcon = result.type === 'BUY' ? TrendingUp : result.type === 'SELL' ? TrendingDown : Hourglass;
@@ -56,7 +57,7 @@ function AnalysisResultCard({ result, onDelete }: { result: AnalyzeChartOutput; 
                         {result.rationale}
                     </p>
                 </div>
-                {result.type !== 'HOLD' && result.entry && (
+                {result.type !== 'HOLD' && result.entry && result.takeProfit && result.stopLoss && (
                     <>
                     <Separator />
                     <div className="grid grid-cols-3 gap-2 text-center text-xs">
@@ -89,9 +90,25 @@ export default function AnalyzePage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [analysisHistory, setAnalysisHistory] = useState<AnalyzeChartOutput[]>([]);
+  const [timeFrame, setTimeFrame] = useState<TimeFrame>('5m');
   const { toast } = useToast();
 
+  const loadSettings = useCallback(() => {
+    try {
+        const savedSettings = localStorage.getItem(SETTINGS_KEY);
+        if (savedSettings) {
+            const parsed = JSON.parse(savedSettings);
+            if (parsed.timeFrame) {
+                setTimeFrame(parsed.timeFrame);
+            }
+        }
+    } catch (error) {
+        console.error("Failed to load settings:", error);
+    }
+  }, []);
+
   useEffect(() => {
+    // Load saved analysis history
     try {
         const storedHistory = localStorage.getItem(LOCAL_STORAGE_KEY);
         if (storedHistory) {
@@ -101,7 +118,21 @@ export default function AnalyzePage() {
         console.error("Failed to parse analysis history from localStorage", error);
         localStorage.removeItem(LOCAL_STORAGE_KEY);
     }
-  }, []);
+
+    // Load settings
+    loadSettings();
+
+    // Listen for settings changes from other tabs
+    const handleStorageChange = (event: StorageEvent) => {
+        if (event.key === SETTINGS_KEY) {
+            loadSettings();
+        }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+        window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [loadSettings]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -140,7 +171,7 @@ export default function AnalyzePage() {
       reader.readAsDataURL(imageFile);
       reader.onloadend = async () => {
         const base64data = reader.result as string;
-        const result = await analyzeChart({ chartImageUri: base64data });
+        const result = await analyzeChart({ chartImageUri: base64data, timeFrame });
         
         const updatedHistory = [result, ...analysisHistory];
         setAnalysisHistory(updatedHistory);
@@ -176,7 +207,7 @@ export default function AnalyzePage() {
         <div className="flex flex-col gap-1.5">
             <h1 className="text-2xl font-bold tracking-tight">Chart Analyzer</h1>
             <p className="text-muted-foreground">
-                Upload a trading chart image and let AI provide a technical analysis signal. Your history is saved on this device.
+                Upload a chart for the <span className='font-semibold text-foreground'>{timeFrame}</span> time frame. AI will provide a technical analysis signal.
             </p>
         </div>
         <div className="grid md:grid-cols-2 gap-6 items-start">
@@ -213,7 +244,7 @@ export default function AnalyzePage() {
                     <Lightbulb className="h-4 w-4" />
                     <AlertTitle>How it Works</AlertTitle>
                     <AlertDescription>
-                        This tool uses a multimodal AI model to perform technical analysis on your chart image. It identifies patterns and indicators to generate a trading signal. This is not financial advice.
+                        This tool uses a multimodal AI to analyze your chart for the selected time frame. This is not financial advice. You can change the time frame in the main settings.
                     </AlertDescription>
                 </Alert>
             </div>
