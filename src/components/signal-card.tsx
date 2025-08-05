@@ -15,10 +15,49 @@ import {
 import { Badge } from '@/components/ui/badge';
 import type { Signal } from '@/types/signal';
 import { cn } from '@/lib/utils';
+import React, { useState, useEffect } from 'react';
+
+interface LivePriceDisplayProps {
+  price: number;
+  change: 'up' | 'down' | 'none';
+  formatPrice: (price: number) => string;
+}
+
+const LivePriceDisplay: React.FC<LivePriceDisplayProps> = ({ price, change, formatPrice }) => {
+  const [flash, setFlash] = useState<'up' | 'down' | 'none'>('none');
+
+  useEffect(() => {
+    if (change !== 'none') {
+      setFlash(change);
+      const timer = setTimeout(() => setFlash('none'), 500); // Animation duration
+      return () => clearTimeout(timer);
+    }
+  }, [price, change]);
+
+  return (
+    <div className={cn(
+        "transition-colors duration-500 rounded-md px-2 py-0.5",
+        flash === 'up' && 'bg-green-500/20',
+        flash === 'down' && 'bg-red-500/20'
+    )}>
+      <span className={cn(
+        "font-mono text-xs",
+        change === 'up' && 'text-green-400',
+        change === 'down' && 'text-red-400',
+        change === 'none' && 'text-muted-foreground'
+      )}>
+        {formatPrice(price)}
+      </span>
+    </div>
+  );
+};
+
 
 interface SignalCardProps {
   signal: Signal;
   onSelect: () => void;
+  livePrice?: number;
+  priceChange?: 'up' | 'down' | 'none';
 }
 
 const pairIcons: Record<string, React.ElementType> = {
@@ -43,7 +82,7 @@ const pairIcons: Record<string, React.ElementType> = {
   'XAU/USD': Mountain,
 };
 
-export function SignalCard({ signal, onSelect }: SignalCardProps) {
+export function SignalCard({ signal, onSelect, livePrice, priceChange }: SignalCardProps) {
   const isBuy = signal.type === 'BUY';
   const Icon = pairIcons[signal.pair] || CandlestickChart;
   
@@ -78,6 +117,9 @@ export function SignalCard({ signal, onSelect }: SignalCardProps) {
                 >
                     {signal.type}
                 </Badge>
+                {livePrice && priceChange && (
+                    <LivePriceDisplay price={livePrice} change={priceChange} formatPrice={formatPrice} />
+                )}
             </div>
         </div>
 

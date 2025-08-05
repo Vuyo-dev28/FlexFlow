@@ -1,18 +1,21 @@
 'use client';
 
-import { Bitcoin, Activity, BarChart, TrendingUp, Euro, Globe, Mountain, Waves, CandlestickChart, DollarSign } from 'lucide-react';
+import { Bitcoin, Activity, BarChart, TrendingUp, Euro, Globe, Mountain, Waves, CandlestickChart, DollarSign, ArrowRightLeft } from 'lucide-react';
 import type { FinancialPair } from '@/types/signal';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { SidebarHeader, SidebarContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from './ui/sidebar';
+import { SidebarContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarHeader } from './ui/sidebar';
+import React from 'react';
 
 interface WatchlistProps {
   pairs: FinancialPair[];
   selectedPair: FinancialPair | null;
   onSelectPair: (pair: FinancialPair | null) => void;
+  livePrices?: Record<FinancialPair, number>;
+  priceChanges?: Record<FinancialPair, 'up' | 'down' | 'none'>;
 }
 
 const pairIcons: Record<string, React.ElementType> = {
+  'All Signals': ArrowRightLeft,
   // Crypto
   'BTC/USD': Bitcoin,
   'ETH/USD': TrendingUp,
@@ -34,7 +37,46 @@ const pairIcons: Record<string, React.ElementType> = {
   'XAU/USD': Mountain,
 };
 
-export function Watchlist({ pairs, selectedPair, onSelectPair }: WatchlistProps) {
+const WatchlistItem: React.FC<{
+  pair: FinancialPair | 'All Signals';
+  selectedPair: FinancialPair | null;
+  onSelectPair: (pair: FinancialPair | null) => void;
+  livePrice?: number;
+  priceChange?: 'up' | 'down' | 'none';
+}> = ({ pair, selectedPair, onSelectPair, livePrice, priceChange }) => {
+  const Icon = pairIcons[pair] || CandlestickChart;
+  const isAllSignals = pair === 'All Signals';
+  const isActive = isAllSignals ? !selectedPair : selectedPair === pair;
+  const isForex = !isAllSignals && (pair.includes('USD') || pair.includes('JPY') || pair.includes('EUR') || pair.includes('GBP') || pair.includes('AUD') || pair.includes('CAD'));
+
+  const formatPrice = (price: number) => {
+    return price.toFixed(4);
+  }
+
+  return (
+    <SidebarMenuItem>
+      <SidebarMenuButton
+        onClick={() => onSelectPair(isAllSignals ? null : pair)}
+        isActive={isActive}
+        className="justify-start"
+      >
+        <Icon className="h-4 w-4" />
+        <span className="flex-1">{pair}</span>
+        {livePrice && isForex && (
+          <span className={cn(
+            "text-xs font-mono transition-colors duration-300",
+            priceChange === 'up' && 'text-green-400',
+            priceChange === 'down' && 'text-red-400',
+          )}>
+            {formatPrice(livePrice)}
+          </span>
+        )}
+      </SidebarMenuButton>
+    </SidebarMenuItem>
+  );
+};
+
+export function Watchlist({ pairs, selectedPair, onSelectPair, livePrices = {}, priceChanges = {} }: WatchlistProps) {
   return (
     <div className="flex flex-col h-full">
       <SidebarHeader>
@@ -43,28 +85,21 @@ export function Watchlist({ pairs, selectedPair, onSelectPair }: WatchlistProps)
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                onClick={() => onSelectPair(null)}
-                isActive={!selectedPair}
-              >
-                All Signals
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            {pairs.map(pair => {
-              const Icon = pairIcons[pair] || CandlestickChart;
-              return (
-                <SidebarMenuItem key={pair}>
-                  <SidebarMenuButton
-                    onClick={() => onSelectPair(pair)}
-                    isActive={selectedPair === pair}
-                  >
-                    <Icon className="h-4 w-4" />
-                    <span>{pair}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              );
-            })}
+          <WatchlistItem
+            pair="All Signals"
+            selectedPair={selectedPair}
+            onSelectPair={onSelectPair}
+          />
+          {pairs.map(pair => (
+            <WatchlistItem
+              key={pair}
+              pair={pair}
+              selectedPair={selectedPair}
+              onSelectPair={onSelectPair}
+              livePrice={livePrices[pair]}
+              priceChange={priceChanges[pair]}
+            />
+          ))}
         </SidebarMenu>
       </SidebarContent>
     </div>

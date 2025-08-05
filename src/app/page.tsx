@@ -11,13 +11,16 @@ import { MOCK_SIGNALS, ALL_PAIRS } from '@/lib/mock-data';
 import { generateSignal } from '@/ai/flows/generate-signal-flow';
 import { Skeleton } from '@/components/ui/skeleton';
 import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar';
+import { LivePricesProvider, useLivePrices } from '@/hooks/use-live-prices';
 
-export default function HomePage() {
+function HomePageContent() {
   const [signals, setSignals] = useState<Signal[]>(MOCK_SIGNALS);
   const [selectedCategory, setSelectedCategory] = useState<SignalCategory | 'All'>('All');
   const [selectedPair, setSelectedPair] = useState<FinancialPair | null>(null);
   const [selectedSignal, setSelectedSignal] = useState<Signal | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const { livePrices, priceChanges } = useLivePrices();
+
 
   const handleSelectPair = useCallback(async (pair: FinancialPair | null) => {
     setSelectedPair(pair);
@@ -78,58 +81,66 @@ export default function HomePage() {
   }, [selectedCategory]);
 
   return (
-    <SidebarProvider>
-      <div className="flex flex-col min-h-screen bg-background text-sm">
-        <Header />
-        <div className="flex flex-1">
-          <Sidebar>
+    <>
+        <div className="flex-1 hidden md:flex md:flex-col border-r">
             <Watchlist 
               pairs={watchlistPairs}
               selectedPair={selectedPair}
               onSelectPair={handleSelectPair}
+              livePrices={livePrices}
+              priceChanges={priceChanges}
             />
-          </Sidebar>
-          <SidebarInset>
-            <main className="flex-1 flex flex-col">
-              <SignalFilters
-                categories={availableCategories}
-                selectedCategory={selectedCategory}
-                onCategoryChange={cat => {
-                  setSelectedCategory(cat);
-                  setSelectedPair(null); // Reset pair selection when category changes
-                }}
-              />
-              <div className="flex-1 p-4">
-                <div className="flex flex-col gap-4">
-                    {isLoading && selectedPair ? (
-                      <div className="flex flex-col space-y-3">
-                          <Skeleton className="h-[125px] w-full rounded-xl" />
-                      </div>
-                    ) : (
-                      filteredSignals.map(signal => (
-                      <SignalCard
-                          key={signal.id}
-                          signal={signal}
-                          onSelect={() => setSelectedSignal(signal)}
-                      />
-                      ))
-                    )}
-                </div>
-              </div>
-            </main>
-          </SidebarInset>
+        </div>
+        <div className="flex-1 flex flex-col">
+            <SignalFilters
+            categories={availableCategories}
+            selectedCategory={selectedCategory}
+            onCategoryChange={cat => {
+                setSelectedCategory(cat);
+                setSelectedPair(null); // Reset pair selection when category changes
+            }}
+            />
+            <div className="flex-1 p-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {isLoading && selectedPair ? (
+                    Array.from({ length: 1 }).map((_, index) => (
+                        <div key={index} className="flex flex-col space-y-3">
+                            <Skeleton className="h-[125px] w-full rounded-xl" />
+                        </div>
+                    ))
+                ) : (
+                    filteredSignals.map(signal => (
+                    <SignalCard
+                        key={signal.id}
+                        signal={signal}
+                        onSelect={() => setSelectedSignal(signal)}
+                        livePrice={livePrices[signal.pair]}
+                        priceChange={priceChanges[signal.pair]}
+                    />
+                    ))
+                )}
+            </div>
+            </div>
         </div>
 
-        <SignalDetailDialog
-          signal={selectedSignal}
-          open={!!selectedSignal}
-          onOpenChange={(isOpen) => {
-            if (!isOpen) {
-              setSelectedSignal(null);
-            }
-          }}
-        />
-      </div>
-    </SidebarProvider>
+      <SignalDetailDialog
+        signal={selectedSignal}
+        open={!!selectedSignal}
+        onOpenChange={(isOpen) => {
+          if (!isOpen) {
+            setSelectedSignal(null);
+          }
+        }}
+      />
+    </>
   );
+}
+
+
+export default function HomePage() {
+    return (
+        <LivePricesProvider>
+           <HomePageContent />
+        </LivePricesProvider>
+    )
 }

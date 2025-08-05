@@ -12,13 +12,41 @@ import {
   GenerateSignalInputSchema,
   GenerateSignalOutputSchema,
   GeneratedSignal,
+  FinancialPair,
+  SignalCategory
 } from '@/types/signal';
+import { ALL_PAIRS } from '@/lib/mock-data';
 import {z} from 'zod';
+import fetch from 'node-fetch';
+
 
 // Schema for the AI-powered price generation
 const PriceGenerationSchema = z.object({
   price: z.number().describe('The current, realistic market price for the asset.'),
 });
+
+
+const getForexPrice = async (pair: FinancialPair): Promise<{ price?: number, error?: string}> => {
+  const apiKey = process.env.FOREX_API_KEY;
+  if (!apiKey) {
+    return { error: 'Forex API key is not configured.' };
+  }
+  // The API uses a slightly different format (e.g. EURUSD instead of EUR/USD)
+  const apiPair = pair.replace('/', '');
+  const url = `https://api.forexapi.dev/v1/live?pairs=${apiPair}&api_key=${apiKey}`;
+
+  try {
+    const response = await fetch(url);
+    const data: any = await response.json();
+    if (data.error) {
+        return { error: data.message };
+    }
+    const price = data.rates[apiPair]?.price;
+    return price ? { price } : { error: `Price for ${pair} not found in API response.`};
+  } catch (error: any) {
+    return { error: `Failed to fetch from Forex API: ${error.message}` };
+  }
+}
 
 /**
  * A tool that gets the current market price for a given financial pair using an AI model.
@@ -26,7 +54,7 @@ const PriceGenerationSchema = z.object({
 const getMarketData = ai.defineTool(
   {
     name: 'getMarketData',
-    description: 'Gets the current market price for a financial pair using an AI model.',
+    description: 'Gets the current market price for a financial pair. Uses a live API for Forex pairs and an AI model for others.',
     inputSchema: z.object({
       pair: z.string().describe('The financial pair to get the price for (e.g., "EUR/USD", "BTC/USD").'),
     }),
@@ -36,6 +64,14 @@ const getMarketData = ai.defineTool(
     }),
   },
   async ({pair}) => {
+    const pairInfo = ALL_PAIRS.find(p => p.pair === pair);
+
+    // Use live API for Forex, AI for everything else
+    if (pairInfo?.category === 'Forex') {
+      return getForexPrice(pair as FinancialPair);
+    }
+
+    // Fallback to AI for non-forex pairs
     try {
       const {output} = await ai.generate({
         model: 'googleai/gemini-1.5-flash-preview',

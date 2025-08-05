@@ -1,6 +1,11 @@
 import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
+import { Header } from '@/components/header';
+import { SidebarProvider, Sidebar, SidebarInset, SidebarContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
+import { Watchlist } from '@/components/watchlist';
+import { BotMessageSquare, CandlestickChart, Home, Settings } from 'lucide-react';
+import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'SignalStream',
@@ -20,7 +25,40 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased">
-        {children}
+         <SidebarProvider>
+            <div className="flex flex-col min-h-screen bg-background text-sm">
+                <Header />
+                <div className="flex flex-1">
+                <Sidebar>
+                    <SidebarContent>
+                        <SidebarMenu>
+                             <SidebarMenuItem>
+                                <Link href="/" passHref>
+                                    <SidebarMenuButton>
+                                        <Home />
+                                        <span>Home</span>
+                                    </SidebarMenuButton>
+                                </Link>
+                             </SidebarMenuItem>
+                             <SidebarMenuItem>
+                                <Link href="/analyze" passHref>
+                                    <SidebarMenuButton>
+                                        <BotMessageSquare />
+                                        <span>Chart Analyzer</span>
+                                    </SidebarMenuButton>
+                                </Link>
+                             </SidebarMenuItem>
+                        </SidebarMenu>
+                    </SidebarContent>
+                </Sidebar>
+                <SidebarInset>
+                    <main className="flex-1 flex flex-col">
+                        {children}
+                    </main>
+                </SidebarInset>
+                </div>
+            </div>
+        </SidebarProvider>
         <Toaster />
       </body>
     </html>
