@@ -11,7 +11,7 @@ import { MOCK_SIGNALS, ALL_PAIRS } from '@/lib/mock-data';
 import { generateSignal } from '@/ai/flows/generate-signal-flow';
 import { Skeleton } from '@/components/ui/skeleton';
 import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar';
-
+import { LivePricesProvider } from '@/hooks/use-live-prices';
 
 export default function HomePage() {
   const [signals, setSignals] = useState<Signal[]>(MOCK_SIGNALS);
@@ -80,57 +80,59 @@ export default function HomePage() {
 
   return (
     <SidebarProvider>
-      <div className="flex flex-col min-h-screen bg-background text-sm">
-        <Header />
-        <div className="flex flex-1">
-          <Sidebar>
-            <Watchlist 
-              pairs={watchlistPairs}
-              selectedPair={selectedPair}
-              onSelectPair={handleSelectPair}
-            />
-          </Sidebar>
-          <SidebarInset>
-            <main className="flex-1 flex flex-col">
-              <SignalFilters
-                categories={availableCategories}
-                selectedCategory={selectedCategory}
-                onCategoryChange={cat => {
-                  setSelectedCategory(cat);
-                  setSelectedPair(null); // Reset pair selection when category changes
-                }}
+      <LivePricesProvider>
+        <div className="flex flex-col min-h-screen bg-background text-sm">
+          <Header />
+          <div className="flex flex-1">
+            <Sidebar>
+              <Watchlist 
+                pairs={watchlistPairs}
+                selectedPair={selectedPair}
+                onSelectPair={handleSelectPair}
               />
-              <div className="flex-1 p-4">
-                <div className="flex flex-col gap-4">
-                    {isLoading && selectedPair ? (
-                      <div className="flex flex-col space-y-3">
-                          <Skeleton className="h-[125px] w-full rounded-xl" />
-                      </div>
-                    ) : (
-                      filteredSignals.map(signal => (
-                      <SignalCard
-                          key={signal.id}
-                          signal={signal}
-                          onSelect={() => setSelectedSignal(signal)}
-                      />
-                      ))
-                    )}
+            </Sidebar>
+            <SidebarInset>
+              <main className="flex-1 flex flex-col">
+                <SignalFilters
+                  categories={availableCategories}
+                  selectedCategory={selectedCategory}
+                  onCategoryChange={cat => {
+                    setSelectedCategory(cat);
+                    setSelectedPair(null); // Reset pair selection when category changes
+                  }}
+                />
+                <div className="flex-1 p-4">
+                  <div className="flex flex-col gap-4">
+                      {isLoading && selectedPair ? (
+                        <div className="flex flex-col space-y-3">
+                            <Skeleton className="h-[125px] w-full rounded-xl" />
+                        </div>
+                      ) : (
+                        filteredSignals.map(signal => (
+                        <SignalCard
+                            key={signal.id}
+                            signal={signal}
+                            onSelect={() => setSelectedSignal(signal)}
+                        />
+                        ))
+                      )}
+                  </div>
                 </div>
-              </div>
-            </main>
-          </SidebarInset>
-        </div>
+              </main>
+            </SidebarInset>
+          </div>
 
-        <SignalDetailDialog
-          signal={selectedSignal}
-          open={!!selectedSignal}
-          onOpenChange={(isOpen) => {
-            if (!isOpen) {
-              setSelectedSignal(null);
-            }
-          }}
-        />
-      </div>
+          <SignalDetailDialog
+            signal={selectedSignal}
+            open={!!selectedSignal}
+            onOpenChange={(isOpen) => {
+              if (!isOpen) {
+                setSelectedSignal(null);
+              }
+            }}
+          />
+        </div>
+      </LivePricesProvider>
     </SidebarProvider>
   );
 }
