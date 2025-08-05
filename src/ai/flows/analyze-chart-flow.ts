@@ -24,10 +24,7 @@ const prompt = ai.definePrompt({
     Chart Image: {{media url=chartImageUri}}
 
     Generate the signal and rationale now.
-  `,
-  config: {
-    model: 'googleai/gemini-1.5-flash-preview',
-  }
+  `
 });
 
 const analyzeChartFlow = ai.defineFlow(
@@ -37,7 +34,7 @@ const analyzeChartFlow = ai.defineFlow(
     outputSchema: AnalyzeChartOutputSchema,
   },
   async (input) => {
-    const { output } = await prompt(input);
+    const { output } = await prompt(input, {model: 'googleai/gemini-1.5-flash-preview'});
     return output!;
   }
 );
