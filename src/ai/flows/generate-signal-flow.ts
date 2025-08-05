@@ -51,16 +51,6 @@ const getMarketData = ai.defineTool(
   }
 );
 
-/**
- * An exported function that invokes the `generateSignalFlow`.
- * This is the primary entry point for using this flow from the application.
- * @param input The financial pair.
- * @returns A promise that resolves to a `GeneratedSignal`.
- */
-export async function generateSignal(input: GenerateSignalInput): Promise<GeneratedSignal> {
-  return generateSignalFlow(input);
-}
-
 // Define the prompt for the AI model, which will now use the getMarketData tool
 const prompt = ai.definePrompt({
   name: 'generateSignalPrompt',
@@ -99,3 +89,13 @@ const generateSignalFlow = ai.defineFlow(
     return output!;
   }
 );
+
+/**
+ * An exported function that invokes the `generateSignalFlow`.
+ * This is the primary entry point for using this flow from the application.
+ * @param input The financial pair.
+ * @returns A promise that resolves to a `GeneratedSignal`.
+ */
+export async function generateSignal(input: GenerateSignalInput): Promise<GeneratedSignal> {
+  return generateSignalFlow(input);
+}

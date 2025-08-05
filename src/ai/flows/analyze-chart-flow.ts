@@ -28,18 +28,6 @@ export const AnalyzeChartOutputSchema = z.object({
 });
 export type AnalyzeChartOutput = z.infer<typeof AnalyzeChartOutputSchema>;
 
-
-/**
- * An exported function that invokes the `analyzeChartFlow`.
- * This is the primary entry point for using this flow from the application.
- * @param input The chart image data URI.
- * @returns A promise that resolves to an `AnalyzeChartOutput`.
- */
-export async function analyzeChart(input: AnalyzeChartInput): Promise<AnalyzeChartOutput> {
-  return analyzeChartFlow(input);
-}
-
-
 const prompt = ai.definePrompt({
   name: 'analyzeChartPrompt',
   input: {schema: AnalyzeChartInputSchema},
@@ -61,7 +49,6 @@ const prompt = ai.definePrompt({
   }
 });
 
-
 const analyzeChartFlow = ai.defineFlow(
   {
     name: 'analyzeChartFlow',
@@ -73,3 +60,14 @@ const analyzeChartFlow = ai.defineFlow(
     return output!;
   }
 );
+
+
+/**
+ * An exported function that invokes the `analyzeChartFlow`.
+ * This is the primary entry point for using this flow from the application.
+ * @param input The chart image data URI.
+ * @returns A promise that resolves to an `AnalyzeChartOutput`.
+ */
+export async function analyzeChart(input: AnalyzeChartInput): Promise<AnalyzeChartOutput> {
+  return analyzeChartFlow(input);
+}
