@@ -49,7 +49,7 @@ const analyzeChartFlow = ai.defineFlow(
     outputSchema: AnalyzeChartOutputSchema,
   },
   async (input) => {
-    const { output } = await prompt(input, {model: 'googleai/gemini-2.5-pro'});
+    const { output } = await prompt(input, {model: 'googleai/gemini-pro-vision'});
     return {
       ...output!,
       id: uuidv4(),
