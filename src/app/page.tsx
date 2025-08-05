@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useMemo, useCallback } from 'react';
-import { Header } from '@/components/header';
 import { SignalCard } from '@/components/signal-card';
 import { SignalDetailDialog } from '@/components/signal-detail-dialog';
 import { SignalFilters } from '@/components/signal-filters';
@@ -10,16 +9,13 @@ import { Watchlist } from '@/components/watchlist';
 import { MOCK_SIGNALS, ALL_PAIRS } from '@/lib/mock-data';
 import { generateSignal } from '@/ai/flows/generate-signal-flow';
 import { Skeleton } from '@/components/ui/skeleton';
-import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar';
-import { LivePricesProvider, useLivePrices } from '@/hooks/use-live-prices';
 
-function HomePageContent() {
+export default function HomePage() {
   const [signals, setSignals] = useState<Signal[]>(MOCK_SIGNALS);
   const [selectedCategory, setSelectedCategory] = useState<SignalCategory | 'All'>('All');
   const [selectedPair, setSelectedPair] = useState<FinancialPair | null>(null);
   const [selectedSignal, setSelectedSignal] = useState<Signal | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const { livePrices, priceChanges } = useLivePrices();
 
 
   const handleSelectPair = useCallback(async (pair: FinancialPair | null) => {
@@ -87,8 +83,6 @@ function HomePageContent() {
               pairs={watchlistPairs}
               selectedPair={selectedPair}
               onSelectPair={handleSelectPair}
-              livePrices={livePrices}
-              priceChanges={priceChanges}
             />
         </div>
         <div className="flex-1 flex flex-col">
@@ -114,8 +108,6 @@ function HomePageContent() {
                         key={signal.id}
                         signal={signal}
                         onSelect={() => setSelectedSignal(signal)}
-                        livePrice={livePrices[signal.pair]}
-                        priceChange={priceChanges[signal.pair]}
                     />
                     ))
                 )}
@@ -134,13 +126,4 @@ function HomePageContent() {
       />
     </>
   );
-}
-
-
-export default function HomePage() {
-    return (
-        <LivePricesProvider>
-           <HomePageContent />
-        </LivePricesProvider>
-    )
 }

@@ -10,8 +10,6 @@ interface WatchlistProps {
   pairs: FinancialPair[];
   selectedPair: FinancialPair | null;
   onSelectPair: (pair: FinancialPair | null) => void;
-  livePrices?: Record<FinancialPair, number>;
-  priceChanges?: Record<FinancialPair, 'up' | 'down' | 'none'>;
 }
 
 const pairIcons: Record<string, React.ElementType> = {
@@ -41,17 +39,10 @@ const WatchlistItem: React.FC<{
   pair: FinancialPair | 'All Signals';
   selectedPair: FinancialPair | null;
   onSelectPair: (pair: FinancialPair | null) => void;
-  livePrice?: number;
-  priceChange?: 'up' | 'down' | 'none';
-}> = ({ pair, selectedPair, onSelectPair, livePrice, priceChange }) => {
+}> = ({ pair, selectedPair, onSelectPair }) => {
   const Icon = pairIcons[pair] || CandlestickChart;
   const isAllSignals = pair === 'All Signals';
   const isActive = isAllSignals ? !selectedPair : selectedPair === pair;
-  const isForex = !isAllSignals && (pair.includes('USD') || pair.includes('JPY') || pair.includes('EUR') || pair.includes('GBP') || pair.includes('AUD') || pair.includes('CAD'));
-
-  const formatPrice = (price: number) => {
-    return price.toFixed(4);
-  }
 
   return (
     <SidebarMenuItem>
@@ -62,26 +53,17 @@ const WatchlistItem: React.FC<{
       >
         <Icon className="h-4 w-4" />
         <span className="flex-1">{pair}</span>
-        {livePrice && isForex && (
-          <span className={cn(
-            "text-xs font-mono transition-colors duration-300",
-            priceChange === 'up' && 'text-green-400',
-            priceChange === 'down' && 'text-red-400',
-          )}>
-            {formatPrice(livePrice)}
-          </span>
-        )}
       </SidebarMenuButton>
     </SidebarMenuItem>
   );
 };
 
-export function Watchlist({ pairs, selectedPair, onSelectPair, livePrices = {}, priceChanges = {} }: WatchlistProps) {
+export function Watchlist({ pairs, selectedPair, onSelectPair }: WatchlistProps) {
   return (
     <div className="flex flex-col h-full">
       <SidebarHeader>
         <h2 className="font-bold text-lg text-foreground">Watchlist</h2>
-        <p className="text-xs text-muted-foreground">Select a pair to view signals</p>
+        <p className="text-xs text-muted-foreground">Select a pair to get a new signal</p>
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
@@ -96,8 +78,6 @@ export function Watchlist({ pairs, selectedPair, onSelectPair, livePrices = {}, 
               pair={pair}
               selectedPair={selectedPair}
               onSelectPair={onSelectPair}
-              livePrice={livePrices[pair]}
-              priceChange={priceChanges[pair]}
             />
           ))}
         </SidebarMenu>
