@@ -9,6 +9,9 @@ import { Watchlist } from '@/components/watchlist';
 import { MOCK_SIGNALS, ALL_PAIRS } from '@/lib/mock-data';
 import { generateSignal } from '@/ai/flows/generate-signal-flow';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { ArrowRightLeft } from 'lucide-react';
 
 export default function HomePage() {
   const [signals, setSignals] = useState<Signal[]>(MOCK_SIGNALS);
@@ -16,10 +19,12 @@ export default function HomePage() {
   const [selectedPair, setSelectedPair] = useState<FinancialPair | null>(null);
   const [selectedSignal, setSelectedSignal] = useState<Signal | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isWatchlistOpen, setIsWatchlistOpen] = useState(false);
 
 
   const handleSelectPair = useCallback(async (pair: FinancialPair | null) => {
     setSelectedPair(pair);
+    setIsWatchlistOpen(false); // Close sheet on selection
     if (pair) {
       setIsLoading(true);
       try {
@@ -78,22 +83,33 @@ export default function HomePage() {
 
   return (
     <>
-        <div className="flex-1 hidden md:flex md:flex-col border-r">
-            <Watchlist 
-              pairs={watchlistPairs}
-              selectedPair={selectedPair}
-              onSelectPair={handleSelectPair}
-            />
-        </div>
         <div className="flex-1 flex flex-col">
-            <SignalFilters
-            categories={availableCategories}
-            selectedCategory={selectedCategory}
-            onCategoryChange={cat => {
-                setSelectedCategory(cat);
-                setSelectedPair(null); // Reset pair selection when category changes
-            }}
-            />
+          <div className='flex items-center justify-between px-4 py-2 border-b'>
+             <SignalFilters
+              categories={availableCategories}
+              selectedCategory={selectedCategory}
+              onCategoryChange={cat => {
+                  setSelectedCategory(cat);
+                  setSelectedPair(null); // Reset pair selection when category changes
+              }}
+              />
+              <Sheet open={isWatchlistOpen} onOpenChange={setIsWatchlistOpen}>
+                <SheetTrigger asChild>
+                   <Button variant="ghost" size="icon">
+                    <ArrowRightLeft />
+                    <span className="sr-only">Open Watchlist</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent>
+                  <Watchlist 
+                    pairs={watchlistPairs}
+                    selectedPair={selectedPair}
+                    onSelectPair={handleSelectPair}
+                  />
+                </SheetContent>
+              </Sheet>
+          </div>
+           
             <div className="flex-1 p-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {isLoading && selectedPair ? (

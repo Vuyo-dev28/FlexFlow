@@ -5,6 +5,7 @@ import type { FinancialPair } from '@/types/signal';
 import { cn } from '@/lib/utils';
 import { SidebarContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarHeader } from './ui/sidebar';
 import React from 'react';
+import { SheetDescription, SheetHeader, SheetTitle } from './ui/sheet';
 
 interface WatchlistProps {
   pairs: FinancialPair[];
@@ -49,9 +50,9 @@ const WatchlistItem: React.FC<{
       <SidebarMenuButton
         onClick={() => onSelectPair(isAllSignals ? null : pair)}
         isActive={isActive}
-        className="justify-start"
+        className="justify-start text-base h-10"
       >
-        <Icon className="h-4 w-4" />
+        <Icon className="h-5 w-5 mr-3" />
         <span className="flex-1">{pair}</span>
       </SidebarMenuButton>
     </SidebarMenuItem>
@@ -61,11 +62,11 @@ const WatchlistItem: React.FC<{
 export function Watchlist({ pairs, selectedPair, onSelectPair }: WatchlistProps) {
   return (
     <div className="flex flex-col h-full">
-      <SidebarHeader>
-        <h2 className="font-bold text-lg text-foreground">Watchlist</h2>
-        <p className="text-xs text-muted-foreground">Select a pair to get a new signal</p>
-      </SidebarHeader>
-      <SidebarContent>
+      <SheetHeader className='text-left px-6'>
+        <SheetTitle className="text-2xl">Watchlist</SheetTitle>
+        <SheetDescription>Select a pair to get a new AI-generated signal.</SheetDescription>
+      </SheetHeader>
+      <SidebarContent className='p-4'>
         <SidebarMenu>
           <WatchlistItem
             pair="All Signals"

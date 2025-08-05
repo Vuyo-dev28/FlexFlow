@@ -3,8 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { Header } from '@/components/header';
 import { SidebarProvider, Sidebar, SidebarInset, SidebarContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
-import { Watchlist } from '@/components/watchlist';
-import { BotMessageSquare, CandlestickChart, Home, Settings } from 'lucide-react';
+import { BotMessageSquare, Home } from 'lucide-react';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
@@ -28,8 +27,7 @@ export default function RootLayout({
          <SidebarProvider>
             <div className="flex flex-col min-h-screen bg-background text-sm">
                 <Header />
-                <div className="flex flex-1">
-                <Sidebar>
+                 <Sidebar>
                     <SidebarContent>
                         <SidebarMenu>
                              <SidebarMenuItem>
@@ -51,12 +49,9 @@ export default function RootLayout({
                         </SidebarMenu>
                     </SidebarContent>
                 </Sidebar>
-                <SidebarInset>
-                    <main className="flex-1 flex flex-col">
-                        {children}
-                    </main>
-                </SidebarInset>
-                </div>
+                <main className="flex-1 flex flex-col">
+                    {children}
+                </main>
             </div>
         </SidebarProvider>
         <Toaster />
