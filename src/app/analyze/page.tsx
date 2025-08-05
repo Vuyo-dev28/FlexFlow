@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Upload, Lightbulb, TrendingUp, TrendingDown, Hourglass, Trash2, CheckCircle2, XCircle, Award, Info, Scalpel, DollarSign, BarChartHorizontal } from 'lucide-react';
+import { Upload, Lightbulb, TrendingUp, TrendingDown, Hourglass, Trash2, CheckCircle2, XCircle, Award, Info, Scale, DollarSign, BarChartHorizontal } from 'lucide-react';
 import Image from 'next/image';
 import { analyzeChart } from '@/ai/flows/analyze-chart-flow';
 import { AnalyzeChartOutput, TradingStyle, tradingStyles, AppSettings } from '@/types/signal';
@@ -82,7 +82,7 @@ function RiskManagementDetails({ result, settings }: { result: AnalyzeChartOutpu
         <div className="space-y-4">
              <Separator />
              <div>
-                <h3 className="font-semibold text-foreground mb-2 flex items-center gap-2"><Scalpel /> Risk Profile</h3>
+                <h3 className="font-semibold text-foreground mb-2 flex items-center gap-2"><Scale /> Risk Profile</h3>
                 <div className="grid grid-cols-2 items-center gap-x-4 gap-y-2 text-sm">
                     <span className="text-muted-foreground">Risk/Reward Ratio</span>
                     <span className="font-mono text-right text-foreground">1 : {riskRewardRatio.toFixed(2)}</span>
@@ -423,3 +423,5 @@ export default function AnalyzePage() {
     </div>
   );
 }
+
+    
