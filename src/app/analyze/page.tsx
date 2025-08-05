@@ -57,6 +57,7 @@ function AnalysisResultCard({ result, onDelete, onMarkResult }: { result: Analyz
 
     return (
         <Card className={cn(
+            "flex-shrink-0",
             result.isWin === true && "border-green-500/50",
             result.isWin === false && "border-red-500/50"
         )}>
@@ -312,32 +313,34 @@ export default function AnalyzePage() {
 
             <div className="flex flex-col gap-4">
                 <h2 className="text-xl font-bold">Analysis History</h2>
-                {isLoading && (
-                     <Card>
-                        <CardHeader>
-                            <Skeleton className="h-6 w-32" />
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <Skeleton className="h-40 w-full" />
-                            <Skeleton className="h-4 w-full" />
-                            <Skeleton className="h-4 w-5/6" />
-                        </CardContent>
-                    </Card>
-                )}
-                
-                {analysisHistory.length > 0 ? (
-                    analysisHistory.map(result => (
-                        <AnalysisResultCard key={result.id} result={result} onDelete={handleDeleteAnalysis} onMarkResult={handleMarkResult} />
-                    ))
-                ) : (
-                    !isLoading && (
+                <div className='relative flex flex-col gap-4 max-h-[80vh] overflow-y-auto pr-4 -mr-4'>
+                    {isLoading && (
                         <Card>
-                            <CardContent className="p-6 text-center text-muted-foreground">
-                                No analysis history yet. Upload a chart to get started.
+                            <CardHeader>
+                                <Skeleton className="h-6 w-32" />
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <Skeleton className="h-40 w-full" />
+                                <Skeleton className="h-4 w-full" />
+                                <Skeleton className="h-4 w-5/6" />
                             </CardContent>
                         </Card>
-                    )
-                )}
+                    )}
+                    
+                    {analysisHistory.length > 0 ? (
+                        analysisHistory.map(result => (
+                            <AnalysisResultCard key={result.id} result={result} onDelete={handleDeleteAnalysis} onMarkResult={handleMarkResult} />
+                        ))
+                    ) : (
+                        !isLoading && (
+                            <Card>
+                                <CardContent className="p-6 text-center text-muted-foreground">
+                                    No analysis history yet. Upload a chart to get started.
+                                </CardContent>
+                            </Card>
+                        )
+                    )}
+                </div>
             </div>
         </div>
     </div>
