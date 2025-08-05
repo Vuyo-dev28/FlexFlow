@@ -14,13 +14,14 @@ export type SignalType = 'BUY' | 'SELL';
 
 export type SignalCategory = 'Crypto' | 'Stock Indices' | 'Forex' | 'Metals' | 'Volatility Indices';
 
-export const timeFrames = ['1m', '3m', '5m', '15m', '30m', '1h', '4h', '1D'] as const;
-export type TimeFrame = (typeof timeFrames)[number];
+export const tradingStyles = ['Scalping', 'Day Trading', 'Swing Trading', 'Position Trading'] as const;
+export type TradingStyle = (typeof tradingStyles)[number];
+
 
 // Schema for generating a signal for a pair
 export const GenerateSignalInputSchema = z.object({
   pair: z.string().describe('The financial pair to generate a signal for, e.g., "EUR/USD".'),
-  timeFrame: z.enum(timeFrames).describe('The trading time frame to base the strategy on.'),
+  tradingStyle: z.enum(tradingStyles).describe('The trading style to base the strategy on.'),
 });
 export type GenerateSignalInput = z.infer<typeof GenerateSignalInputSchema>;
 
@@ -42,7 +43,7 @@ export const AnalyzeChartInputSchema = z.object({
     .describe(
       "A data URI of the chart image to be analyzed. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
     ),
-  timeFrame: z.enum(timeFrames).describe('The trading time frame the chart represents.'),
+  tradingStyle: z.enum(tradingStyles).describe('The trading style the chart analysis should assume.'),
 });
 export type AnalyzeChartInput = z.infer<typeof AnalyzeChartInputSchema>;
 

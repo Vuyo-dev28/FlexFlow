@@ -28,8 +28,8 @@ import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect } from 'react';
 import { Separator } from './ui/separator';
-import type { SignalCategory, TimeFrame } from '@/types/signal';
-import { timeFrames } from '@/types/signal';
+import type { SignalCategory, TradingStyle } from '@/types/signal';
+import { tradingStyles } from '@/types/signal';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
 interface SignalSettingsSheetProps {
@@ -47,7 +47,7 @@ const FormSchema = z.object({
   }),
   pushNotifications: z.boolean().default(false).optional(),
   emailNotifications: z.boolean().default(false).optional(),
-  timeFrame: z.enum(timeFrames),
+  tradingStyle: z.enum(tradingStyles),
 });
 
 type FormValues = z.infer<typeof FormSchema>;
@@ -61,7 +61,7 @@ export function SignalSettingsSheet({ open, onOpenChange }: SignalSettingsSheetP
       categories: availableCategories,
       pushNotifications: true,
       emailNotifications: false,
-      timeFrame: '5m',
+      tradingStyle: 'Day Trading',
     },
   });
 
@@ -76,7 +76,7 @@ export function SignalSettingsSheet({ open, onOpenChange }: SignalSettingsSheetP
           if (parsedSettings.categories) validValues.categories = parsedSettings.categories;
           if (typeof parsedSettings.pushNotifications === 'boolean') validValues.pushNotifications = parsedSettings.pushNotifications;
           if (typeof parsedSettings.emailNotifications === 'boolean') validValues.emailNotifications = parsedSettings.emailNotifications;
-          if (parsedSettings.timeFrame) validValues.timeFrame = parsedSettings.timeFrame;
+          if (parsedSettings.tradingStyle) validValues.tradingStyle = parsedSettings.tradingStyle;
           
           form.reset(validValues);
         }
@@ -120,24 +120,24 @@ export function SignalSettingsSheet({ open, onOpenChange }: SignalSettingsSheetP
             <div className="flex-1 space-y-8 overflow-y-auto pr-6">
                 <FormField
                   control={form.control}
-                  name="timeFrame"
+                  name="tradingStyle"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-base">Trading Time Frame</FormLabel>
+                      <FormLabel className="text-base">Trading Style</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select a time frame" />
+                            <SelectValue placeholder="Select a trading style" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {timeFrames.map((tf) => (
-                             <SelectItem key={tf} value={tf}>{tf}</SelectItem>
+                          {tradingStyles.map((ts) => (
+                             <SelectItem key={ts} value={ts}>{ts}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                       <FormDescription>
-                        Adjust the AI's strategy based on your preferred time frame.
+                        Adjust the AI's strategy based on your preferred trading style.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>

@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Upload, Lightbulb, TrendingUp, TrendingDown, Hourglass, Trash2, CheckCircle2, XCircle, Award, Info } from 'lucide-react';
 import Image from 'next/image';
 import { analyzeChart } from '@/ai/flows/analyze-chart-flow';
-import { AnalyzeChartOutput, TimeFrame, timeFrames } from '@/types/signal';
+import { AnalyzeChartOutput, TradingStyle, tradingStyles } from '@/types/signal';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -142,7 +142,7 @@ export default function AnalyzePage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [analysisHistory, setAnalysisHistory] = useState<AnalyzeChartOutput[]>([]);
-  const [timeFrame, setTimeFrame] = useState<TimeFrame>('5m');
+  const [tradingStyle, setTradingStyle] = useState<TradingStyle>('Day Trading');
   const { toast } = useToast();
 
   const loadSettings = useCallback(() => {
@@ -150,8 +150,8 @@ export default function AnalyzePage() {
         const savedSettings = localStorage.getItem(SETTINGS_KEY);
         if (savedSettings) {
             const parsed = JSON.parse(savedSettings);
-            if (parsed.timeFrame) {
-                setTimeFrame(parsed.timeFrame);
+            if (parsed.tradingStyle) {
+                setTradingStyle(parsed.tradingStyle);
             }
         }
     } catch (error) {
@@ -223,7 +223,7 @@ export default function AnalyzePage() {
       reader.readAsDataURL(imageFile);
       reader.onloadend = async () => {
         const base64data = reader.result as string;
-        const result = await analyzeChart({ chartImageUri: base64data, timeFrame });
+        const result = await analyzeChart({ chartImageUri: base64data, tradingStyle });
         
         const updatedHistory = [result, ...analysisHistory];
         setAnalysisHistory(updatedHistory);
@@ -271,7 +271,7 @@ export default function AnalyzePage() {
         <div className="flex flex-col gap-1.5">
             <h1 className="text-2xl font-bold tracking-tight">Chart Analyzer</h1>
             <p className="text-muted-foreground">
-                Upload a chart and select the time frame. The AI will provide a technical analysis signal.
+                Upload a chart and select your trading style. The AI will provide a technical analysis signal.
             </p>
         </div>
         <div className="grid md:grid-cols-2 gap-6 items-start">
@@ -279,18 +279,18 @@ export default function AnalyzePage() {
                 <Card>
                     <CardHeader>
                         <CardTitle>Upload Chart</CardTitle>
-                        <CardDescription>Select a screenshot of your trading chart and specify its time frame.</CardDescription>
+                        <CardDescription>Select a screenshot of your trading chart and specify your trading style.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                          <div className="space-y-2">
-                            <Label htmlFor="time-frame-select">Time Frame</Label>
-                             <Select value={timeFrame} onValueChange={(value) => setTimeFrame(value as TimeFrame)}>
-                                <SelectTrigger id="time-frame-select">
-                                    <SelectValue placeholder="Select a time frame" />
+                            <Label htmlFor="trading-style-select">Trading Style</Label>
+                             <Select value={tradingStyle} onValueChange={(value) => setTradingStyle(value as TradingStyle)}>
+                                <SelectTrigger id="trading-style-select">
+                                    <SelectValue placeholder="Select a trading style" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                {timeFrames.map((tf) => (
-                                    <SelectItem key={tf} value={tf}>{tf}</SelectItem>
+                                {tradingStyles.map((ts) => (
+                                    <SelectItem key={ts} value={ts}>{ts}</SelectItem>
                                 ))}
                                 </SelectContent>
                             </Select>
@@ -320,17 +320,18 @@ export default function AnalyzePage() {
                     <Lightbulb className="h-4 w-4" />
                     <AlertTitle>How it Works</AlertTitle>
                     <AlertDescription>
-                        This tool uses a multimodal AI to analyze your chart for the selected time frame. This is not financial advice. Your default time frame can be changed in the main settings.
+                        This tool uses a multimodal AI to analyze your chart based on your selected trading style. This is not financial advice. Your default style can be changed in the main settings.
                     </AlertDescription>
                 </Alert>
                 <Alert>
                     <Info className="h-4 w-4" />
-                    <AlertTitle>Time Frame Guidance</AlertTitle>
+                    <AlertTitle>Trading Style Guidance</AlertTitle>
                     <AlertDescription>
                         <ul className="list-disc pl-5 space-y-1 mt-2">
-                            <li><b>Short (1m-15m):</b> Best for scalping and capturing quick momentum shifts.</li>
-                            <li><b>Medium (30m-4h):</b> Ideal for day/swing trading, focusing on patterns and levels.</li>
-                            <li><b>Long (1D):</b> Suited for position trading and analyzing major market trends.</li>
+                            <li><b>Scalping:</b> High frequency, small profits. Focuses on 1m-5m charts.</li>
+                            <li><b>Day Trading:</b> Trades within a single day. Focuses on 15m-1h charts.</li>
+                            <li><b>Swing Trading:</b> Trades held for days or weeks. Focuses on 4h-1D charts.</li>
+                            <li><b>Position Trading:</b> Long-term trades held for weeks or months. Focuses on 1D-1W charts.</li>
                         </ul>
                     </AlertDescription>
                 </Alert>
