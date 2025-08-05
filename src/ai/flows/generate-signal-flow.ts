@@ -26,7 +26,7 @@ const prompt = ai.definePrompt({
 
     The user's preferred trading time frame is {{{timeFrame}}}. You must tailor your trading strategy, signal, and price targets accordingly.
     - For short time frames (1m, 5m, 15m), use a scalping strategy with very tight take-profit and stop-loss levels.
-    - For medium time frames (1h, 4h), use a day-trading or swing-trading strategy with wider targets.
+    - For medium time frames (30m, 1h, 4h), use a day-trading or swing-trading strategy with wider targets.
     - For long time frames (1D), use a position-trading strategy with much wider targets.
 
     Only generate a signal if you identify a setup with a very high probability of success. If no such setup exists, you must wait. Your reputation depends on your selectivity.

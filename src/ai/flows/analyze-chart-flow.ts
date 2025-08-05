@@ -30,7 +30,7 @@ const prompt = ai.definePrompt({
 
     The user has specified that this chart is for the {{{timeFrame}}} time frame. You must tailor your analysis and strategy to this time frame.
     - For short time frames (1m, 3m, 5m, 15m), focus on scalping opportunities, micro-trends, and momentum indicators.
-    - For medium time frames (1h, 4h), focus on swing trading setups, support/resistance levels, and pattern recognition.
+    - For medium time frames (30m, 1h, 4h), focus on swing trading setups, support/resistance levels, and pattern recognition.
     - For long time frames (1D), focus on position trading, major trend analysis, and macroeconomic factors.
 
     1. Analyze the provided chart based on the specified {{{timeFrame}}} for relevant patterns, indicators, and trends.

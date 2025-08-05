@@ -14,7 +14,7 @@ export type SignalType = 'BUY' | 'SELL';
 
 export type SignalCategory = 'Crypto' | 'Stock Indices' | 'Forex' | 'Metals' | 'Volatility Indices';
 
-export const timeFrames = ['1m', '3m', '5m', '15m', '1h', '4h', '1D'] as const;
+export const timeFrames = ['1m', '3m', '5m', '15m', '30m', '1h', '4h', '1D'] as const;
 export type TimeFrame = (typeof timeFrames)[number];
 
 // Schema for generating a signal for a pair
