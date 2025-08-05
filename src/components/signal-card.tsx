@@ -11,14 +11,10 @@ import {
   Globe,
   Mountain,
   Waves,
-  ArrowDown,
-  ArrowUp,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import type { Signal } from '@/types/signal';
 import { cn } from '@/lib/utils';
-import { useLivePrices } from '@/hooks/use-live-prices';
-import { useEffect, useState } from 'react';
 
 interface SignalCardProps {
   signal: Signal;
@@ -46,44 +42,6 @@ const pairIcons: Record<string, React.ElementType> = {
   // Metals
   'XAU/USD': Mountain,
 };
-
-function LivePriceDisplay({ pair }: { pair: string }) {
-    const { livePrices, priceChanges, forexPairs } = useLivePrices();
-    const [flash, setFlash] = useState<'up' | 'down' | ''>('');
-
-    const isForex = forexPairs.includes(pair);
-    const price = livePrices[pair];
-    const change = priceChanges[pair] || 'neutral';
-
-    useEffect(() => {
-        if (change !== 'neutral') {
-            setFlash(change);
-            const timer = setTimeout(() => setFlash(''), 500); // Flash for 500ms
-            return () => clearTimeout(timer);
-        }
-    }, [price, change]);
-
-    if (!isForex || typeof price !== 'number') {
-        return null;
-    }
-    
-    const priceColor = change === 'up' ? 'text-green-400' : change === 'down' ? 'text-red-400' : 'text-foreground';
-    const flashClass = flash === 'up' ? 'bg-green-500/20' : flash === 'down' ? 'bg-red-500/20' : '';
-
-    return (
-        <div className="flex items-center justify-center gap-2 mt-2 mb-1">
-            <div className={cn('flex items-center gap-2 rounded-md p-2 transition-colors duration-500', flashClass)}>
-                <span className="text-xs text-muted-foreground">Live:</span>
-                <span className={cn('text-lg font-mono font-bold transition-colors', priceColor)}>
-                    {price.toFixed(4)}
-                </span>
-                {change === 'up' && <ArrowUp className="h-4 w-4 text-green-400" />}
-                {change === 'down' && <ArrowDown className="h-4 w-4 text-red-400" />}
-            </div>
-        </div>
-    );
-}
-
 
 export function SignalCard({ signal, onSelect }: SignalCardProps) {
   const isBuy = signal.type === 'BUY';
@@ -126,10 +84,8 @@ export function SignalCard({ signal, onSelect }: SignalCardProps) {
         {/* Rationale */}
         <p className="text-sm text-muted-foreground mb-3 px-1 leading-snug">{signal.rationale}</p>
         
-        <LivePriceDisplay pair={signal.pair} />
-
         {/* Price Info */}
-        <div className="grid grid-cols-3 gap-2 text-center text-xs px-1">
+        <div className="grid grid-cols-3 gap-2 text-center text-xs px-1 mt-auto">
             <div className='text-red-400'>
                 <p className="text-muted-foreground text-xs">Stop Loss</p>
                 <p className="font-mono text-sm font-semibold">{formatPrice(signal.stopLoss)}</p>
