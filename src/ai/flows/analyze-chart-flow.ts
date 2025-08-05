@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview An AI flow for analyzing a trading chart image and generating a signal.
@@ -25,7 +26,7 @@ const prompt = ai.definePrompt({
     }),
   },
   prompt: `
-    You are an expert financial analyst who specializes in multi-timeframe trading strategies with a proven 70%+ win rate.
+    You are an expert financial analyst who specializes in multi-timeframe trading strategies with a proven 90%+ win rate.
     Your task is to analyze the provided financial chart image to identify a high-probability trading opportunity.
 
     The user has specified that their trading style is {{{tradingStyle}}}. You must tailor your analysis and strategy to this style.
