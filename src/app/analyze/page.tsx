@@ -17,7 +17,7 @@ import { Separator } from '@/components/ui/separator';
 
 const LOCAL_STORAGE_KEY = 'analysisHistory';
 
-function AnalysisResultCard({ result, onDelete }: { result: AnalyzeChartOutput, onDelete: (id: string) => void }) {
+function AnalysisResultCard({ result, onDelete }: { result: AnalyzeChartOutput; onDelete: (id: string) => void; }) {
     const SignalIcon = result.type === 'BUY' ? TrendingUp : result.type === 'SELL' ? TrendingDown : Hourglass;
 
     return (
@@ -242,7 +242,7 @@ export default function AnalyzePage() {
                         <Card>
                             <CardContent className="p-6 text-center text-muted-foreground">
                                 No analysis history yet. Upload a chart to get started.
-                            </cardContent>
+                            </CardContent>
                         </Card>
                     )
                 )}
