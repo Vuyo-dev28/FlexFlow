@@ -9,6 +9,7 @@
 import {ai} from '@/ai/genkit';
 import { AnalyzeChartInput, AnalyzeChartOutput, AnalyzeChartInputSchema, AnalyzeChartOutputSchema } from '@/types/signal';
 import { v4 as uuidv4 } from 'uuid';
+import { z } from 'zod';
 
 const prompt = ai.definePrompt({
   name: 'analyzeChartPrompt',
