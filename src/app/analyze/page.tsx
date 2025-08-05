@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Upload, Lightbulb, TrendingUp, TrendingDown, Hourglass, Trash2 } from 'lucide-react';
+import { Upload, Lightbulb, TrendingUp, TrendingDown, Hourglass, Trash2, CheckCircle2, XCircle, Award } from 'lucide-react';
 import Image from 'next/image';
 import { analyzeChart } from '@/ai/flows/analyze-chart-flow';
 import { AnalyzeChartOutput, TimeFrame } from '@/types/signal';
@@ -18,11 +18,48 @@ import { Separator } from '@/components/ui/separator';
 const LOCAL_STORAGE_KEY = 'analysisHistory';
 const SETTINGS_KEY = 'signalStreamSettings';
 
-function AnalysisResultCard({ result, onDelete }: { result: AnalyzeChartOutput; onDelete: (id: string) => void; }) {
-    const SignalIcon = result.type === 'BUY' ? TrendingUp : result.type === 'SELL' ? TrendingDown : Hourglass;
+function WinRateTracker({ history }: { history: AnalyzeChartOutput[] }) {
+    const { wins, completedTrades } = useMemo(() => {
+        const completed = history.filter(item => typeof item.isWin === 'boolean');
+        const wins = completed.filter(item => item.isWin).length;
+        return { wins, completedTrades: completed.length };
+    }, [history]);
+
+    const winRate = completedTrades > 0 ? (wins / completedTrades) * 100 : 0;
 
     return (
         <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                    <Award />
+                    Win Rate
+                </CardTitle>
+                <CardDescription>Based on your manually marked results.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <div className="flex items-center justify-between">
+                    <div className="text-4xl font-bold">{winRate.toFixed(1)}%</div>
+                    <div className="text-right">
+                        <p className="font-bold text-green-500">{wins} Wins</p>
+                        <p className="text-muted-foreground">{completedTrades - wins} Losses</p>
+                    </div>
+                </div>
+                 <div className="w-full bg-muted rounded-full h-2.5 mt-2">
+                    <div className="bg-green-500 h-2.5 rounded-full" style={{ width: `${winRate}%` }}></div>
+                </div>
+            </CardContent>
+        </Card>
+    );
+}
+
+function AnalysisResultCard({ result, onDelete, onMarkResult }: { result: AnalyzeChartOutput; onDelete: (id: string) => void; onMarkResult: (id: string, isWin: boolean) => void; }) {
+    const SignalIcon = result.type === 'BUY' ? TrendingUp : result.type === 'SELL' ? TrendingDown : Hourglass;
+
+    return (
+        <Card className={cn(
+            result.isWin === true && "border-green-500/50",
+            result.isWin === false && "border-red-500/50"
+        )}>
             <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                     <span>Analysis Result</span>
@@ -76,7 +113,18 @@ function AnalysisResultCard({ result, onDelete }: { result: AnalyzeChartOutput; 
                     </div>
                     </>
                 )}
-                 <Button variant="outline" size="sm" className="w-full" onClick={() => onDelete(result.id)}>
+                 <Separator />
+                 <div className="flex gap-2">
+                     <Button variant="outline" size="sm" className="w-full" onClick={() => onMarkResult(result.id, true)} disabled={result.isWin === true}>
+                        <CheckCircle2 className="mr-2 h-4 w-4 text-green-500" />
+                        Mark as Win
+                    </Button>
+                    <Button variant="outline" size="sm" className="w-full" onClick={() => onMarkResult(result.id, false)} disabled={result.isWin === false}>
+                        <XCircle className="mr-2 h-4 w-4 text-red-500" />
+                        Mark as Loss
+                    </Button>
+                </div>
+                 <Button variant="destructive" size="sm" className="w-full" onClick={() => onDelete(result.id)}>
                     <Trash2 className="mr-2 h-4 w-4" />
                     Delete Analysis
                 </Button>
@@ -200,7 +248,19 @@ export default function AnalyzePage() {
         title: 'Analysis Deleted',
         description: 'The analysis has been removed from your history.',
     });
-  }
+  };
+
+  const handleMarkResult = (id: string, isWin: boolean) => {
+    const updatedHistory = analysisHistory.map(item => 
+        item.id === id ? { ...item, isWin } : item
+    );
+    setAnalysisHistory(updatedHistory);
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedHistory));
+    toast({
+        title: 'Result Marked',
+        description: `Analysis has been marked as a ${isWin ? 'win' : 'loss'}.`,
+    });
+  };
 
   return (
     <div className="flex-1 flex flex-col p-4 md:p-6 gap-6">
@@ -240,6 +300,7 @@ export default function AnalyzePage() {
                         </Button>
                     </CardContent>
                 </Card>
+                <WinRateTracker history={analysisHistory} />
                  <Alert>
                     <Lightbulb className="h-4 w-4" />
                     <AlertTitle>How it Works</AlertTitle>
@@ -266,7 +327,7 @@ export default function AnalyzePage() {
                 
                 {analysisHistory.length > 0 ? (
                     analysisHistory.map(result => (
-                        <AnalysisResultCard key={result.id} result={result} onDelete={handleDeleteAnalysis} />
+                        <AnalysisResultCard key={result.id} result={result} onDelete={handleDeleteAnalysis} onMarkResult={handleMarkResult} />
                     ))
                 ) : (
                     !isLoading && (

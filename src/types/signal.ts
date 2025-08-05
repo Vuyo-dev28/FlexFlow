@@ -57,6 +57,7 @@ export const AnalyzeChartOutputSchema = z.object({
   entry: z.number().optional().describe('The suggested entry price for the trade. Required if type is BUY or SELL.'),
   takeProfit: z.number().optional().describe('The suggested take-profit price. Required if type is BUY or SELL.'),
   stopLoss: z.number().optional().describe('The suggested stop-loss price. Required if type is BUY or SELL.'),
+  isWin: z.boolean().optional().describe('Indicates if the trade was profitable.'),
 });
 export type AnalyzeChartOutput = z.infer<typeof AnalyzeChartOutputSchema>;
 
