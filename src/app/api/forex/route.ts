@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { FinancialPair } from '@/types/signal';
 import { ALL_PAIRS } from '@/lib/mock-data';
-import fetch from 'node-fetch';
 
 const forexPairs = ALL_PAIRS.filter(p => p.category === 'Forex').map(p => p.pair);
 
@@ -10,7 +9,7 @@ type LivePrices = Record<FinancialPair, number>;
 export async function GET() {
     const apiKey = process.env.FOREX_API_KEY;
 
-    if (!apiKey) {
+    if (!apiKey || apiKey === 'YOUR_API_KEY') {
         return NextResponse.json({ error: 'Forex API key is not configured.' }, { status: 500 });
     }
 

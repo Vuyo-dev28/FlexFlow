@@ -23,7 +23,4 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  env: {
-    FOREX_API_KEY: process.env.FOREX_API_KEY,
-  },
 };
