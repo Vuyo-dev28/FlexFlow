@@ -3,7 +3,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import type { FinancialPair } from '@/types/signal';
 import { ALL_PAIRS } from '@/lib/mock-data';
-import fetch from 'node-fetch';
 
 type PriceChanges = Record<FinancialPair, 'up' | 'down' | 'none'>;
 type LivePrices = Record<FinancialPair, number>;
