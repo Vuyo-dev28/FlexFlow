@@ -54,7 +54,7 @@ const analyzeChartFlow = ai.defineFlow(
   },
   async (input) => {
     const { output } = await prompt(input, {
-      model: 'gemini-pro-vision',
+      model: 'googleai/gemini-2.5-flash',
     });
 
     return {
