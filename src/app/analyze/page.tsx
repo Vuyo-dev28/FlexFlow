@@ -13,6 +13,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Separator } from '@/components/ui/separator';
 
 export default function AnalyzePage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -158,13 +159,32 @@ export default function AnalyzePage() {
                             </CardTitle>
                             <CardDescription>AI-generated signal based on the uploaded chart.</CardDescription>
                         </CardHeader>
-                        <CardContent>
+                        <CardContent className="space-y-4">
                              <div className="space-y-2">
                                 <h3 className="font-semibold">Rationale</h3>
                                 <p className="text-muted-foreground leading-relaxed">
                                     {analysisResult.rationale}
                                 </p>
                             </div>
+                            {analysisResult.type !== 'HOLD' && analysisResult.entry && (
+                                <>
+                                <Separator />
+                                <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                                        <div className='text-red-400'>
+                                            <p className="text-muted-foreground text-xs">Stop Loss</p>
+                                            <p className="font-mono text-sm font-semibold">{analysisResult.stopLoss?.toFixed(4)}</p>
+                                        </div>
+                                        <div className='text-foreground'>
+                                            <p className="text-muted-foreground text-xs">Entry Price</p>
+                                            <p className="font-mono text-sm font-semibold">{analysisResult.entry?.toFixed(4)}</p>
+                                        </div>
+                                        <div className='text-green-400'>
+                                            <p className="text-muted-foreground text-xs">Take Profit</p>
+                                            <p className="font-mono text-sm font-semibold">{analysisResult.takeProfit?.toFixed(4)}</p>
+                                        </div>
+                                </div>
+                                </>
+                            )}
                         </CardContent>
                     </Card>
                 )}

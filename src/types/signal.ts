@@ -28,7 +28,7 @@ export const GenerateSignalOutputSchema = z.object({
     stopLoss: z.number(),
     rationale: z.string(),
 });
-export type GeneratedSignal = z.infer<typeof GenerateSignalOutputSchema>;
+export type GenerateSignalOutput = z.infer<typeof GenerateSignalOutputSchema>;
 
 
 // Schema for analyzing a chart image
@@ -47,12 +47,15 @@ export const AnalyzeChartOutputSchema = z.object({
   rationale: z
     .string()
     .describe('A detailed rationale for the generated trading signal, based on the chart analysis.'),
+  entry: z.number().optional().describe('The suggested entry price for the trade. Required if type is BUY or SELL.'),
+  takeProfit: z.number().optional().describe('The suggested take-profit price. Required if type is BUY or SELL.'),
+  stopLoss: z.number().optional().describe('The suggested stop-loss price. Required if type is BUY or SELL.'),
 });
 export type AnalyzeChartOutput = z.infer<typeof AnalyzeChartOutputSchema>;
 
 
 // The full signal object used in the application
-export interface Signal extends GeneratedSignal {
+export interface Signal extends GenerateSignalOutput {
   id: string;
   pair: FinancialPair;
   category: SignalCategory;
