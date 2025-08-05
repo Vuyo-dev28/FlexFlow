@@ -9,17 +9,10 @@
 import {ai} from '@/ai/genkit';
 import {
   GenerateSignalInput,
+  GenerateSignalOutput,
   GenerateSignalInputSchema,
   GenerateSignalOutputSchema,
-  GeneratedSignal,
 } from '@/types/signal';
-import {z} from 'zod';
-
-
-// Schema for the AI-powered price generation
-const PriceGenerationSchema = z.object({
-  price: z.number().describe('The current, realistic market price for the asset.'),
-});
 
 // Define the prompt for the AI model, which will now use the getMarketData tool
 const prompt = ai.definePrompt({
@@ -52,7 +45,7 @@ const generateSignalFlow = ai.defineFlow(
     outputSchema: GenerateSignalOutputSchema,
   },
   async (input) => {
-    const { output } = await prompt(input, {model: 'googleai/gemini-1.5-flash-preview'});
+    const { output } = await prompt(input, {model: 'googleai/gemini-1.5-flash'});
     return output!;
   }
 );
@@ -63,6 +56,6 @@ const generateSignalFlow = ai.defineFlow(
  * @param input The financial pair.
  * @returns A promise that resolves to a `GeneratedSignal`.
  */
-export async function generateSignal(input: GenerateSignalInput): Promise<GeneratedSignal> {
+export async function generateSignal(input: GenerateSignalInput): Promise<GenerateSignalOutput> {
   return generateSignalFlow(input);
 }

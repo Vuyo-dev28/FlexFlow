@@ -7,7 +7,7 @@
  */
 
 import {ai} from '@/ai/genkit';
-import { AnalyzeChartInput, AnalyzeChartInputSchema, AnalyzeChartOutput, AnalyzeChartOutputSchema } from '@/types/signal';
+import { AnalyzeChartInput, AnalyzeChartOutput, AnalyzeChartInputSchema, AnalyzeChartOutputSchema } from '@/types/signal';
 
 const prompt = ai.definePrompt({
   name: 'analyzeChartPrompt',
@@ -34,7 +34,7 @@ const analyzeChartFlow = ai.defineFlow(
     outputSchema: AnalyzeChartOutputSchema,
   },
   async (input) => {
-    const { output } = await prompt(input, {model: 'googleai/gemini-1.5-flash-preview'});
+    const { output } = await prompt(input, {model: 'googleai/gemini-1.5-flash'});
     return output!;
   }
 );
