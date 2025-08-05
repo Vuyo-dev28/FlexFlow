@@ -16,7 +16,7 @@ import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { FormLabel } from '@/components/ui/form';
+import { Label } from '@/components/ui/label';
 
 const LOCAL_STORAGE_KEY = 'analysisHistory';
 const SETTINGS_KEY = 'signalStreamSettings';
@@ -283,7 +283,7 @@ export default function AnalyzePage() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                          <div className="space-y-2">
-                            <FormLabel htmlFor="time-frame-select">Time Frame</FormLabel>
+                            <Label htmlFor="time-frame-select">Time Frame</Label>
                              <Select value={timeFrame} onValueChange={(value) => setTimeFrame(value as TimeFrame)}>
                                 <SelectTrigger id="time-frame-select">
                                     <SelectValue placeholder="Select a time frame" />
@@ -296,7 +296,7 @@ export default function AnalyzePage() {
                             </Select>
                         </div>
                         <div className="space-y-2">
-                            <FormLabel htmlFor="chart-upload">Chart Image</FormLabel>
+                            <Label htmlFor="chart-upload">Chart Image</Label>
                             <Input id="chart-upload" type="file" accept="image/*" onChange={handleFileChange} />
                         </div>
                         {imagePreview && (
