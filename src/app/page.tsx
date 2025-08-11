@@ -120,8 +120,8 @@ function HowToUseDialog() {
 
 function HowItWorksGuide() {
     return (
-        <div className="flex justify-center items-center h-full p-4">
-            <Card className="max-w-md w-full">
+        <div className="h-full p-4 md:p-6">
+            <Card className="w-full">
                 <CardHeader>
                     <CardTitle className="text-2xl">How It Works</CardTitle>
                     <CardDescription>Follow these steps to get your first AI-generated signal.</CardDescription>
@@ -300,7 +300,7 @@ export default function HomePage() {
             </div>
           </div>
            
-            <div className="flex-1 p-4">
+            <div className="flex-1 p-4 md:p-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {isLoading && selectedPair && (
                     Array.from({ length: 1 }).map((_, index) => (
