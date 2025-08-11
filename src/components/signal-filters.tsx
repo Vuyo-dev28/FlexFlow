@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -11,7 +12,7 @@ interface SignalFiltersProps {
 
 export function SignalFilters({ categories, selectedCategory, onCategoryChange }: SignalFiltersProps) {
   return (
-    <div className="px-4 py-2 border-b border-border overflow-x-auto">
+    <div className="overflow-x-auto">
        <Tabs 
         value={selectedCategory} 
         onValueChange={(value) => onCategoryChange(value as SignalCategory | 'All')}
@@ -25,3 +26,5 @@ export function SignalFilters({ categories, selectedCategory, onCategoryChange }
     </div>
   );
 }
+
+    

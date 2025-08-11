@@ -12,9 +12,11 @@ import { generateSignal } from '@/ai/flows/generate-signal-flow';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { ArrowRightLeft, BotMessageSquare, Settings, Target } from 'lucide-react';
+import { ArrowRightLeft, BotMessageSquare, Settings, Target, HelpCircle, Settings2, BarChart, Tv, Download, Upload, ExternalLink } from 'lucide-react';
 import { useSettings } from '@/hooks/use-settings';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const SETTINGS_KEY = 'signalStreamSettings';
 
@@ -27,6 +29,85 @@ const defaultSettings: AppSettings = {
     emailNotifications: false,
     categories: ['Crypto', 'Stock Indices', 'Forex', 'Metals', 'Volatility Indices'],
 };
+
+function HowToUseDialog() {
+    return (
+        <Dialog>
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <DialogTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                                <HelpCircle className="h-5 w-5" />
+                                <span className="sr-only">How to Use</span>
+                            </Button>
+                        </DialogTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>How to Use</p>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+            <DialogContent className="sm:max-w-lg">
+                <DialogHeader>
+                    <DialogTitle>How to Use SignalStream</DialogTitle>
+                    <DialogDescription>
+                        Follow these steps to get the most out of the AI-powered tools.
+                    </DialogDescription>
+                </DialogHeader>
+                 <div className="space-y-4 py-4 text-sm text-muted-foreground">
+                    <ul className="space-y-4">
+                        <li className="flex items-start gap-4">
+                            <div className="flex-shrink-0 bg-primary/10 text-primary rounded-full h-8 w-8 flex items-center justify-center">
+                                <Settings2 className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <h4 className="font-semibold text-foreground">1. Configure Your Settings</h4>
+                                <p>First, go to the settings panel (top-right gear icon) to input your account size, risk tolerance, and preferred currency. This is essential for accurate risk management calculations.</p>
+                            </div>
+                        </li>
+                        <li className="flex items-start gap-4">
+                            <div className="flex-shrink-0 bg-primary/10 text-primary rounded-full h-8 w-8 flex items-center justify-center">
+                                <BarChart className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <h4 className="font-semibold text-foreground">2. Select Your Trading Style</h4>
+                                <p>Choose the trading style that matches your strategy (e.g., 'Scalping', 'Day Trading'). The AI will tailor its analysis based on your selection.</p>
+                            </div>
+                        </li>
+                        <li className="flex items-start gap-4">
+                            <div className="flex-shrink-0 bg-primary/10 text-primary rounded-full h-8 w-8 flex items-center justify-center">
+                                <Tv className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <h4 className="font-semibold text-foreground">3. Take a Screenshot</h4>
+                                <p>For chart analysis, capture a screenshot from TradingView or a similar platform.</p>
+                            </div>
+                        </li>
+                         <li className="flex items-start gap-4">
+                            <div className="flex-shrink-0 bg-primary/10 text-primary rounded-full h-8 w-8 flex items-center justify-center">
+                                <Upload className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <h4 className="font-semibold text-foreground">4. Upload or Generate</h4>
+                                <p>Go to the <span className="font-semibold text-primary/80">Chart Analyzer</span> to upload your screenshot for analysis, or use the <span className="font-semibold text-primary/80">Watchlist</span> here to generate a signal for a pair directly.</p>
+                            </div>
+                        </li>
+                        <li className="flex items-start gap-4">
+                            <div className="flex-shrink-0 bg-primary/10 text-primary rounded-full h-8 w-8 flex items-center justify-center">
+                                <ExternalLink className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <h4 className="font-semibold text-foreground">5. Execute Trade</h4>
+                                <p>Finally, use the AI-generated signal to execute the trade in your MT4/MT5 account.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </DialogContent>
+        </Dialog>
+    );
+}
 
 function HowItWorksGuide() {
     return (
@@ -162,6 +243,7 @@ export default function HomePage() {
     <>
         <div className="flex-1 flex flex-col">
           <div className='flex items-center justify-between px-4 py-2 border-b'>
+            <div className='flex items-center gap-2'>
              <SignalFilters
               categories={availableCategories}
               selectedCategory={selectedCategory}
@@ -170,21 +252,25 @@ export default function HomePage() {
                   setSelectedPair(null); // Reset pair selection when category changes
               }}
               />
-              <Sheet open={isWatchlistOpen} onOpenChange={setIsWatchlistOpen}>
-                <SheetTrigger asChild>
-                   <Button variant="ghost" size="icon">
-                    <ArrowRightLeft />
-                    <span className="sr-only">Open Watchlist</span>
-                  </Button>
-                </SheetTrigger>
-                <SheetContent>
-                  <Watchlist 
-                    pairs={watchlistPairs}
-                    selectedPair={selectedPair}
-                    onSelectPair={handleSelectPair}
-                  />
-                </SheetContent>
-              </Sheet>
+            </div>
+            <div className="flex items-center gap-2">
+                <HowToUseDialog />
+                <Sheet open={isWatchlistOpen} onOpenChange={setIsWatchlistOpen}>
+                    <SheetTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                        <ArrowRightLeft />
+                        <span className="sr-only">Open Watchlist</span>
+                    </Button>
+                    </SheetTrigger>
+                    <SheetContent>
+                    <Watchlist 
+                        pairs={watchlistPairs}
+                        selectedPair={selectedPair}
+                        onSelectPair={handleSelectPair}
+                    />
+                    </SheetContent>
+                </Sheet>
+            </div>
           </div>
            
             <div className="flex-1 p-4">
@@ -224,3 +310,5 @@ export default function HomePage() {
     </>
   );
 }
+
+    
