@@ -7,7 +7,7 @@ import { SignalDetailDialog } from '@/components/signal-detail-dialog';
 import { SignalFilters } from '@/components/signal-filters';
 import type { Signal, SignalCategory, FinancialPair, AppSettings } from '@/types/signal';
 import { Watchlist } from '@/components/watchlist';
-import { MOCK_SIGNALS, ALL_PAIRS } from '@/lib/mock-data';
+import { ALL_PAIRS } from '@/lib/mock-data';
 import { generateSignal } from '@/ai/flows/generate-signal-flow';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
@@ -28,7 +28,7 @@ const defaultSettings: AppSettings = {
 };
 
 export default function HomePage() {
-  const [signals, setSignals] = useState<Signal[]>(MOCK_SIGNALS);
+  const [signals, setSignals] = useState<Signal[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<SignalCategory | 'All'>('All');
   const [selectedPair, setSelectedPair] = useState<FinancialPair | null>(null);
   const [selectedSignal, setSelectedSignal] = useState<Signal | null>(null);
