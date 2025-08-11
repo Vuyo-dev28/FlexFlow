@@ -113,3 +113,5 @@ export function SignalCard({ signal, settings, onSelect }: SignalCardProps) {
     </div>
   );
 }
+
+    
