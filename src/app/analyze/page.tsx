@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Upload, Lightbulb, TrendingUp, TrendingDown, Hourglass, Trash2, CheckCircle2, XCircle, Award, Info, Scale, DollarSign, HelpCircle } from 'lucide-react';
+import { Upload, Lightbulb, TrendingUp, TrendingDown, Hourglass, Trash2, CheckCircle2, XCircle, Award, Info, Scale, DollarSign, HelpCircle, Settings2, Tv, Download, BarChart, ExternalLink } from 'lucide-react';
 import Image from 'next/image';
 import { analyzeChart } from '@/ai/flows/analyze-chart-flow';
 import { AnalyzeChartOutput, TradingStyle, tradingStyles, AppSettings, Currency, currencySymbols } from '@/types/signal';
@@ -42,44 +42,70 @@ function HowToUseDialog() {
                     </TooltipContent>
                 </Tooltip>
             </TooltipProvider>
-            <DialogContent className="sm:max-w-[480px]">
+            <DialogContent className="sm:max-w-lg">
                 <DialogHeader>
                     <DialogTitle>How to Use the Chart Analyzer</DialogTitle>
                     <DialogDescription>
                         Follow these steps to get the most out of the AI analysis tool.
                     </DialogDescription>
                 </DialogHeader>
-                <div className="space-y-4 py-4 text-sm text-muted-foreground">
-                    <div className="space-y-2">
-                        <h3 className="font-semibold text-foreground">1. Select Your Trading Style</h3>
-                        <p>
-                            Choose the trading style that matches the chart you are analyzing (e.g., 'Scalping', 'Day Trading'). The AI will tailor its analysis based on your selection. Your default style is loaded from the main settings but you can override it here.
-                        </p>
-                    </div>
-                    <div className="space-y-2">
-                        <h3 className="font-semibold text-foreground">2. Upload Your Chart</h3>
-                        <p>
-                            Click the "Chart Image" button and select a screenshot of the financial chart you want to analyze. A preview will appear once you've selected an image.
-                        </p>
-                    </div>
-                    <div className="space-y-2">
-                        <h3 className="font-semibold text-foreground">3. Get AI Analysis</h3>
-                        <p>
-                            Click the "Analyze Chart" button. The AI will examine the chart and provide a BUY, SELL, or HOLD signal along with a detailed rationale, entry price, take-profit, and stop-loss.
-                        </p>
-                    </div>
-                     <div className="space-y-2">
-                        <h3 className="font-semibold text-foreground">4. Track Your Performance</h3>
-                        <p>
-                           After a trade is complete, mark it as a "Win" or "Loss" using the buttons on the analysis card. Your overall win rate is tracked at the top of the page, helping you gauge the AI's effectiveness over time.
-                        </p>
-                    </div>
-                     <div className="space-y-2">
-                        <h3 className="font-semibold text-foreground">5. Review History</h3>
-                        <p>
-                           All your past analyses are saved in the "Analysis History" section on the right. You can scroll through them, review the rationale, and see how they performed.
-                        </p>
-                    </div>
+                 <div className="space-y-4 py-4 text-sm text-muted-foreground">
+                    <ul className="space-y-4">
+                        <li className="flex items-start gap-4">
+                            <div className="flex-shrink-0 bg-primary/10 text-primary rounded-full h-8 w-8 flex items-center justify-center">
+                                <Settings2 className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <h4 className="font-semibold text-foreground">1. Configure Your Settings</h4>
+                                <p>First, go to the settings panel (top-right gear icon) to input your account size, risk tolerance, and preferred currency. This is essential for accurate risk management calculations.</p>
+                            </div>
+                        </li>
+                        <li className="flex items-start gap-4">
+                            <div className="flex-shrink-0 bg-primary/10 text-primary rounded-full h-8 w-8 flex items-center justify-center">
+                                <BarChart className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <h4 className="font-semibold text-foreground">2. Select Your Trading Style</h4>
+                                <p>Choose the trading style that matches your strategy (e.g., 'Scalping', 'Day Trading'). The AI will tailor its analysis based on your selection.</p>
+                            </div>
+                        </li>
+                        <li className="flex items-start gap-4">
+                            <div className="flex-shrink-0 bg-primary/10 text-primary rounded-full h-8 w-8 flex items-center justify-center">
+                                <Tv className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <h4 className="font-semibold text-foreground">3. Take a Screenshot</h4>
+                                <p>Capture a screenshot of your chart from TradingView or a similar platform.</p>
+                            </div>
+                        </li>
+                         <li className="flex items-start gap-4">
+                            <div className="flex-shrink-0 bg-primary/10 text-primary rounded-full h-8 w-8 flex items-center justify-center">
+                                <Download className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <h4 className="font-semibold text-foreground">4. Upload to Analyzer</h4>
+                                <p>Upload the screenshot using the "Chart Image" button.</p>
+                            </div>
+                        </li>
+                        <li className="flex items-start gap-4">
+                            <div className="flex-shrink-0 bg-primary/10 text-primary rounded-full h-8 w-8 flex items-center justify-center">
+                                <Upload className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <h4 className="font-semibold text-foreground">5. Analyze Chart</h4>
+                                <p>Click 'Analyze Chart' to let the AI provide a detailed trading signal.</p>
+                            </div>
+                        </li>
+                        <li className="flex items-start gap-4">
+                            <div className="flex-shrink-0 bg-primary/10 text-primary rounded-full h-8 w-8 flex items-center justify-center">
+                                <ExternalLink className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <h4 className="font-semibold text-foreground">6. Execute Trade</h4>
+                                <p>Finally, use the AI-generated signal to execute the trade in your MT4/MT5 account.</p>
+                            </div>
+                        </li>
+                    </ul>
                 </div>
             </DialogContent>
         </Dialog>
@@ -467,3 +493,5 @@ export default function AnalyzePage() {
     </div>
   );
 }
+
+    
