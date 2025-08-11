@@ -12,8 +12,9 @@ import { generateSignal } from '@/ai/flows/generate-signal-flow';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { ArrowRightLeft } from 'lucide-react';
+import { ArrowRightLeft, BotMessageSquare, Settings, Target } from 'lucide-react';
 import { useSettings } from '@/hooks/use-settings';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 const SETTINGS_KEY = 'signalStreamSettings';
 
@@ -26,6 +27,59 @@ const defaultSettings: AppSettings = {
     emailNotifications: false,
     categories: ['Crypto', 'Stock Indices', 'Forex', 'Metals', 'Volatility Indices'],
 };
+
+function HowItWorksGuide() {
+    return (
+        <div className="flex justify-center items-center h-full p-4">
+            <Card className="max-w-md w-full">
+                <CardHeader>
+                    <CardTitle className="text-2xl">How It Works</CardTitle>
+                    <CardDescription>Follow these steps to get your first AI-generated signal.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <ul className="space-y-4 text-sm">
+                        <li className="flex items-start gap-4">
+                            <div className="flex-shrink-0 bg-primary/10 text-primary rounded-full h-8 w-8 flex items-center justify-center">
+                                <ArrowRightLeft className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <h4 className="font-semibold">1. Open Watchlist</h4>
+                                <p className="text-muted-foreground">Click the icon in the top right to open the watchlist and view all available financial pairs.</p>
+                            </div>
+                        </li>
+                         <li className="flex items-start gap-4">
+                            <div className="flex-shrink-0 bg-primary/10 text-primary rounded-full h-8 w-8 flex items-center justify-center">
+                                <Target className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <h4 className="font-semibold">2. Select a Pair</h4>
+                                <p className="text-muted-foreground">Choose a pair from the list that you want the AI to analyze.</p>
+                            </div>
+                        </li>
+                        <li className="flex items-start gap-4">
+                            <div className="flex-shrink-0 bg-primary/10 text-primary rounded-full h-8 w-8 flex items-center justify-center">
+                                <BotMessageSquare className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <h4 className="font-semibold">3. Get Signal</h4>
+                                <p className="text-muted-foreground">The AI will generate a brand new trading signal for that pair based on your settings.</p>
+                            </div>
+                        </li>
+                         <li className="flex items-start gap-4">
+                            <div className="flex-shrink-0 bg-primary/10 text-primary rounded-full h-8 w-8 flex items-center justify-center">
+                                <Settings className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <h4 className="font-semibold">4. Check Your Settings</h4>
+                                <p className="text-muted-foreground">For best results, make sure your Trading Style and Risk Management preferences are configured in the settings panel.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </CardContent>
+            </Card>
+        </div>
+    )
+}
 
 export default function HomePage() {
   const [signals, setSignals] = useState<Signal[]>([]);
@@ -135,23 +189,25 @@ export default function HomePage() {
            
             <div className="flex-1 p-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {isLoading && selectedPair ? (
+                {isLoading && selectedPair && (
                     Array.from({ length: 1 }).map((_, index) => (
                         <div key={index} className="flex flex-col space-y-3">
                             <Skeleton className="h-[125px] w-full rounded-xl" />
                         </div>
                     ))
-                ) : (
-                    filteredSignals.map(signal => (
-                    <SignalCard
-                        key={signal.id}
-                        signal={signal}
-                        settings={settings}
-                        onSelect={() => setSelectedSignal(signal)}
-                    />
-                    ))
                 )}
+                {filteredSignals.map(signal => (
+                <SignalCard
+                    key={signal.id}
+                    signal={signal}
+                    settings={settings}
+                    onSelect={() => setSelectedSignal(signal)}
+                />
+                ))}
             </div>
+             {!isLoading && filteredSignals.length === 0 && (
+                <HowItWorksGuide />
+            )}
             </div>
         </div>
 
