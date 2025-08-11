@@ -20,6 +20,7 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useSettings } from '@/hooks/use-settings';
+import { AnalysisLoader } from '@/components/analysis-loader';
 
 const LOCAL_STORAGE_KEY = 'analysisHistory';
 const SETTINGS_KEY = 'signalStreamSettings';
@@ -123,16 +124,16 @@ function WinRateTracker({ history }: { history: AnalyzeChartOutput[] }) {
 
     return (
         <Card>
-            <CardHeader className="p-4">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                    <Award className="h-5 w-5"/>
+            <CardHeader className="p-3">
+                <CardTitle className="flex items-center gap-2 text-md">
+                    <Award className="h-4 w-4"/>
                     Win Rate
                 </CardTitle>
             </CardHeader>
-            <CardContent className="p-4 pt-0">
+            <CardContent className="p-3 pt-0">
                 <div className="flex items-center justify-between">
-                    <div className="text-3xl font-bold">{winRate.toFixed(1)}%</div>
-                    <div className="text-right text-sm">
+                    <div className="text-2xl font-bold">{winRate.toFixed(1)}%</div>
+                    <div className="text-right text-xs">
                         <p className="font-semibold text-green-500">{wins} Wins</p>
                         <p className="text-muted-foreground">{completedTrades - wins} Losses</p>
                     </div>
@@ -392,8 +393,9 @@ export default function AnalyzePage() {
             </div>
             <HowToUseDialog />
         </div>
-
-        <WinRateTracker history={analysisHistory} />
+        <div className='grid gap-6'>
+            <WinRateTracker history={analysisHistory} />
+        </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
             <div className="flex flex-col gap-6">
@@ -462,16 +464,7 @@ export default function AnalyzePage() {
                 <h2 className="text-xl font-bold">Analysis History</h2>
                 <div className='relative flex flex-col gap-4 max-h-[100vh] overflow-y-auto pr-4 -mr-4'>
                     {isLoading && (
-                        <Card>
-                            <CardHeader>
-                                <Skeleton className="h-6 w-32" />
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <Skeleton className="h-40 w-full" />
-                                <Skeleton className="h-4 w-full" />
-                                <Skeleton className="h-4 w-5/6" />
-                            </CardContent>
-                        </Card>
+                        <AnalysisLoader />
                     )}
                     
                     {analysisHistory.length > 0 ? (
@@ -493,3 +486,5 @@ export default function AnalyzePage() {
     </div>
   );
 }
+
+    
