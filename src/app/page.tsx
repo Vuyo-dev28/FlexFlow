@@ -4,8 +4,7 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { SignalCard } from '@/components/signal-card';
 import { SignalDetailDialog } from '@/components/signal-detail-dialog';
-import { SignalFilters } from '@/components/signal-filters';
-import type { Signal, SignalCategory, FinancialPair, AppSettings } from '@/types/signal';
+import type { Signal, FinancialPair, AppSettings } from '@/types/signal';
 import { Watchlist } from '@/components/watchlist';
 import { ALL_PAIRS } from '@/lib/mock-data';
 import { generateSignal } from '@/ai/flows/generate-signal-flow';
@@ -191,7 +190,6 @@ function HowItWorksGuide() {
 
 export default function HomePage() {
   const [signals, setSignals] = useState<Signal[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<SignalCategory | 'All'>('All');
   const [selectedPair, setSelectedPair] = useState<FinancialPair | null>(null);
   const [selectedSignal, setSelectedSignal] = useState<Signal | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -240,45 +238,23 @@ export default function HomePage() {
     }
   }, [settings.tradingStyle]);
 
-
-  const availableCategories = useMemo(() => {
-    const categories = new Set(ALL_PAIRS.map(s => s.category));
-    return ['All', ...Array.from(categories)] as (SignalCategory | 'All')[];
-  }, []);
-
   const filteredSignals = useMemo(() => {
-    let categoryFiltered = signals;
-    if (selectedCategory !== 'All') {
-        categoryFiltered = signals.filter(signal => signal.category === selectedCategory);
-    }
-    
     if (selectedPair) {
-        return categoryFiltered.filter(signal => signal.pair === selectedPair);
+        return signals.filter(signal => signal.pair === selectedPair);
     }
-
-    return categoryFiltered;
-  }, [signals, selectedCategory, selectedPair]);
+    return signals;
+  }, [signals, selectedPair]);
   
   const watchlistPairs = useMemo(() => {
-    if (selectedCategory === 'All') {
-      return ALL_PAIRS.map(p => p.pair);
-    }
-    return ALL_PAIRS.filter(p => p.category === selectedCategory).map(p => p.pair);
-  }, [selectedCategory]);
+    return ALL_PAIRS.map(p => p.pair);
+  }, []);
 
   return (
     <>
         <div className="flex-1 flex flex-col">
           <div className='flex items-center justify-between px-4 py-2 border-b'>
             <div className='flex items-center gap-2'>
-             <SignalFilters
-              categories={availableCategories}
-              selectedCategory={selectedCategory}
-              onCategoryChange={cat => {
-                  setSelectedCategory(cat);
-                  setSelectedPair(null); // Reset pair selection when category changes
-              }}
-              />
+              <h2 className="text-lg font-semibold">Signals</h2>
             </div>
             <div className="flex items-center gap-2">
                 <HowToUseDialog />
@@ -337,3 +313,5 @@ export default function HomePage() {
     </>
   );
 }
+
+    
