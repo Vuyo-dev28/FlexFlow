@@ -127,41 +127,59 @@ function HowItWorksGuide() {
                     <CardDescription>Follow these steps to get your first AI-generated signal.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <ul className="space-y-4 text-sm">
+                     <ul className="space-y-4 text-sm text-muted-foreground">
                         <li className="flex items-start gap-4">
                             <div className="flex-shrink-0 bg-primary/10 text-primary rounded-full h-8 w-8 flex items-center justify-center">
-                                <ArrowRightLeft className="h-5 w-5" />
+                                <Settings2 className="h-5 w-5" />
                             </div>
                             <div>
-                                <h4 className="font-semibold">1. Open Watchlist</h4>
-                                <p className="text-muted-foreground">Click the icon in the top right to open the watchlist and view all available financial pairs.</p>
+                                <h4 className="font-semibold text-foreground">1. Configure Your Settings</h4>
+                                <p>First, go to the settings panel (top-right gear icon) to input your account size, risk tolerance, and preferred currency. This is essential for accurate risk management calculations.</p>
+                            </div>
+                        </li>
+                        <li className="flex items-start gap-4">
+                            <div className="flex-shrink-0 bg-primary/10 text-primary rounded-full h-8 w-8 flex items-center justify-center">
+                                <BarChart className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <h4 className="font-semibold text-foreground">2. Select Your Trading Style</h4>
+                                <p>Choose the trading style that matches your strategy (e.g., 'Scalping', 'Day Trading'). The AI will tailor its analysis based on your selection.</p>
+                            </div>
+                        </li>
+                        <li className="flex items-start gap-4">
+                            <div className="flex-shrink-0 bg-primary/10 text-primary rounded-full h-8 w-8 flex items-center justify-center">
+                                <Tv className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <h4 className="font-semibold text-foreground">3. Take a Screenshot</h4>
+                                <p>Capture a screenshot of your chart from TradingView or a similar platform.</p>
                             </div>
                         </li>
                          <li className="flex items-start gap-4">
                             <div className="flex-shrink-0 bg-primary/10 text-primary rounded-full h-8 w-8 flex items-center justify-center">
-                                <Target className="h-5 w-5" />
+                                <Upload className="h-5 w-5" />
                             </div>
                             <div>
-                                <h4 className="font-semibold">2. Select a Pair</h4>
-                                <p className="text-muted-foreground">Choose a pair from the list that you want the AI to analyze.</p>
+                                <h4 className="font-semibold text-foreground">4. Upload to Analyzer</h4>
+                                <p>Upload the screenshot using the "Chart Image" button.</p>
                             </div>
                         </li>
                         <li className="flex items-start gap-4">
-                            <div className="flex-shrink-0 bg-primary/10 text-primary rounded-full h-8 w-8 flex items-center justify-center">
+                             <div className="flex-shrink-0 bg-primary/10 text-primary rounded-full h-8 w-8 flex items-center justify-center">
                                 <BotMessageSquare className="h-5 w-5" />
                             </div>
                             <div>
-                                <h4 className="font-semibold">3. Get Signal</h4>
-                                <p className="text-muted-foreground">The AI will generate a brand new trading signal for that pair based on your settings.</p>
+                                <h4 className="font-semibold text-foreground">5. Analyze Chart</h4>
+                                <p>Click 'Analyze Chart' to let the AI provide a detailed trading signal.</p>
                             </div>
                         </li>
-                         <li className="flex items-start gap-4">
+                        <li className="flex items-start gap-4">
                             <div className="flex-shrink-0 bg-primary/10 text-primary rounded-full h-8 w-8 flex items-center justify-center">
-                                <Settings className="h-5 w-5" />
+                                <ExternalLink className="h-5 w-5" />
                             </div>
                             <div>
-                                <h4 className="font-semibold">4. Check Your Settings</h4>
-                                <p className="text-muted-foreground">For best results, make sure your Trading Style and Risk Management preferences are configured in the settings panel.</p>
+                                <h4 className="font-semibold text-foreground">6. Execute Trade</h4>
+                                <p>Finally, use the AI-generated signal to execute the trade in your MT4/MT5 account.</p>
                             </div>
                         </li>
                     </ul>
