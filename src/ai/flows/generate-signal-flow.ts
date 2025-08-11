@@ -4,7 +4,7 @@
  * @fileOverview A Genkit flow for generating trading signals.
  *
  * This file defines a flow that takes a financial pair and generates a trading signal
- * based on an AI-generated market price. It uses a tool to fetch prices.
+ * based on an System-generated market price. It uses a tool to fetch prices.
  */
 
 import {ai} from '@/ai/genkit';
@@ -16,7 +16,7 @@ import {
 } from '@/types/signal';
 
 
-// Define the prompt for the AI model
+// Define the prompt for the System model
 const prompt = ai.definePrompt({
   name: 'generateSignalPrompt',
   input: {schema: GenerateSignalInputSchema},

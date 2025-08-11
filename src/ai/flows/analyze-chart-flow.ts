@@ -1,7 +1,7 @@
 
 'use server';
 /**
- * @fileOverview An AI flow for analyzing a trading chart image and generating a signal.
+ * @fileOverview A system flow for analyzing a trading chart image and generating a signal.
  *
  * This file defines a flow that takes an image of a financial chart and returns a
  * trading signal (BUY/SELL) along with a rationale for the decision.
@@ -47,7 +47,7 @@ const prompt = ai.definePrompt({
   `,
 });
 
-// Define the AI flow using the correct model ID
+// Define the System flow using the correct model ID
 const analyzeChartFlow = ai.defineFlow(
   {
     name: 'analyzeChartFlow',

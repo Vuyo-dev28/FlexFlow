@@ -51,7 +51,7 @@ function HowToUseDialog() {
                 <DialogHeader>
                     <DialogTitle>How to Use SignalStream</DialogTitle>
                     <DialogDescription>
-                        Follow these steps to get the most out of the AI-powered tools.
+                        Follow these steps to get the most out of the System-powered tools.
                     </DialogDescription>
                 </DialogHeader>
                  <div className="space-y-4 py-4 text-sm text-muted-foreground">
@@ -71,7 +71,7 @@ function HowToUseDialog() {
                             </div>
                             <div>
                                 <h4 className="font-semibold text-foreground">2. Select Your Trading Style</h4>
-                                <p>Choose the trading style that matches your strategy (e.g., 'Scalping', 'Day Trading'). The AI will tailor its analysis based on your selection.</p>
+                                <p>Choose the trading style that matches your strategy (e.g., 'Scalping', 'Day Trading'). The System will tailor its analysis based on your selection.</p>
                             </div>
                         </li>
                         <li className="flex items-start gap-4">
@@ -98,7 +98,7 @@ function HowToUseDialog() {
                             </div>
                             <div>
                                 <h4 className="font-semibold text-foreground">5. Analyze Chart</h4>
-                                <p>Click 'Analyze Chart' to let the AI provide a detailed trading signal.</p>
+                                <p>Click 'Analyze Chart' to let the System provide a detailed trading signal.</p>
                             </div>
                         </li>
                         <li className="flex items-start gap-4">
@@ -107,7 +107,7 @@ function HowToUseDialog() {
                             </div>
                             <div>
                                 <h4 className="font-semibold text-foreground">6. Execute Trade</h4>
-                                <p>Finally, use the AI-generated signal to execute the trade in your MT4/MT5 account.</p>
+                                <p>Finally, use the System-generated signal to execute the trade in your MT4/MT5 account.</p>
                             </div>
                         </li>
                     </ul>
@@ -127,7 +127,7 @@ function HowItWorksGuide() {
         {
             icon: BarChart,
             title: "Select Your Trading Style",
-            description: "Choose the trading style that matches your strategy (e.g., 'Scalping', 'Day Trading'). The AI will tailor its analysis accordingly."
+            description: "Choose the trading style that matches your strategy (e.g., 'Scalping', 'Day Trading'). The System will tailor its analysis accordingly."
         },
         {
             icon: Tv,
@@ -142,12 +142,12 @@ function HowItWorksGuide() {
         {
             icon: BotMessageSquare,
             title: "Analyze Chart",
-            description: "Click 'Analyze Chart' to let the AI provide a detailed, actionable trading signal."
+            description: "Click 'Analyze Chart' to let the System provide a detailed, actionable trading signal."
         },
         {
             icon: ExternalLink,
             title: "Execute Trade",
-            description: "Use the AI-generated signal to execute the trade in your MT4/MT5 account."
+            description: "Use the System-generated signal to execute the trade in your MT4/MT5 account."
         }
     ];
 
@@ -155,7 +155,7 @@ function HowItWorksGuide() {
         <div className="h-full p-4 md:p-6">
             <div className="text-center mb-8">
                 <h1 className="text-3xl font-bold tracking-tight">How It Works</h1>
-                <p className="text-muted-foreground mt-2">Get your first AI-generated signal by following these steps.</p>
+                <p className="text-muted-foreground mt-2">Get your first System-generated signal by following these steps.</p>
             </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {steps.map((step, index) => (

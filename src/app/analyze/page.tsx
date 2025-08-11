@@ -46,7 +46,7 @@ function HowToUseDialog() {
                 <DialogHeader>
                     <DialogTitle>How to Use the Chart Analyzer</DialogTitle>
                     <DialogDescription>
-                        Follow these steps to get the most out of the AI analysis tool.
+                        Follow these steps to get the most out of the analysis tool.
                     </DialogDescription>
                 </DialogHeader>
                  <div className="space-y-4 py-4 text-sm text-muted-foreground">
@@ -66,7 +66,7 @@ function HowToUseDialog() {
                             </div>
                             <div>
                                 <h4 className="font-semibold text-foreground">2. Select Your Trading Style</h4>
-                                <p>Choose the trading style that matches your strategy (e.g., 'Scalping', 'Day Trading'). The AI will tailor its analysis based on your selection.</p>
+                                <p>Choose the trading style that matches your strategy (e.g., 'Scalping', 'Day Trading'). The System will tailor its analysis based on your selection.</p>
                             </div>
                         </li>
                         <li className="flex items-start gap-4">
@@ -93,7 +93,7 @@ function HowToUseDialog() {
                             </div>
                             <div>
                                 <h4 className="font-semibold text-foreground">5. Analyze Chart</h4>
-                                <p>Click 'Analyze Chart' to let the AI provide a detailed trading signal.</p>
+                                <p>Click 'Analyze Chart' to let the System provide a detailed trading signal.</p>
                             </div>
                         </li>
                         <li className="flex items-start gap-4">
@@ -102,7 +102,7 @@ function HowToUseDialog() {
                             </div>
                             <div>
                                 <h4 className="font-semibold text-foreground">6. Execute Trade</h4>
-                                <p>Finally, use the AI-generated signal to execute the trade in your MT4/MT5 account.</p>
+                                <p>Finally, use the System-generated signal to execute the trade in your MT4/MT5 account.</p>
                             </div>
                         </li>
                     </ul>
@@ -208,7 +208,7 @@ function AnalysisResultCard({ result, settings, onDelete, onMarkResult }: { resu
                         {result.type}
                     </Badge>
                 </CardTitle>
-                <CardDescription>AI-generated signal based on the uploaded chart.</CardDescription>
+                <CardDescription>System-generated signal based on the uploaded chart.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
                 <div className="border rounded-md p-2">
@@ -387,7 +387,7 @@ export default function AnalyzePage() {
             <div className="flex flex-col gap-1.5">
                 <h1 className="text-2xl font-bold tracking-tight">Chart Analyzer</h1>
                 <p className="text-muted-foreground">
-                    Upload a chart and select your trading style. The AI will provide a technical analysis signal.
+                    Upload a chart and select your trading style. The System will provide a technical analysis signal.
                 </p>
             </div>
             <HowToUseDialog />
@@ -441,7 +441,7 @@ export default function AnalyzePage() {
                     <Lightbulb className="h-4 w-4" />
                     <AlertTitle>How it Works</AlertTitle>
                     <AlertDescription>
-                        This tool uses a multimodal AI to analyze your chart based on your selected trading style. This is not financial advice. Your default style can be changed in the main settings.
+                        This tool uses a multimodal System to analyze your chart based on your selected trading style. This is not financial advice. Your default style can be changed in the main settings.
                     </AlertDescription>
                 </Alert>
                 <Alert>

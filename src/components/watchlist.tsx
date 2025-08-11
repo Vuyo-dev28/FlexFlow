@@ -64,7 +64,7 @@ export function Watchlist({ pairs, selectedPair, onSelectPair }: WatchlistProps)
     <div className="flex flex-col h-full">
       <SheetHeader className='text-left px-6'>
         <SheetTitle className="text-2xl">Watchlist</SheetTitle>
-        <SheetDescription>Select a pair to get a new AI-generated signal.</SheetDescription>
+        <SheetDescription>Select a pair to get a new System-generated signal.</SheetDescription>
       </SheetHeader>
       <SidebarContent className='p-4'>
         <SidebarMenu>

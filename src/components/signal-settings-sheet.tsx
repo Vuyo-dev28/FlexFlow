@@ -127,7 +127,7 @@ export function SignalSettingsSheet({ open, onOpenChange }: SignalSettingsSheetP
                         </SelectContent>
                       </Select>
                       <FormDescription>
-                        Adjust the AI's strategy based on your preferred trading style.
+                        Adjust the System's strategy based on your preferred trading style.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
