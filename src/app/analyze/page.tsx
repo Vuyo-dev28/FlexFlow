@@ -395,7 +395,7 @@ export default function AnalyzePage() {
 
         <WinRateTracker history={analysisHistory} />
         
-        <div className="grid md:grid-cols-2 gap-6 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
             <div className="flex flex-col gap-6">
                 <Card>
                     <CardHeader>
@@ -460,7 +460,7 @@ export default function AnalyzePage() {
 
             <div className="flex flex-col gap-4">
                 <h2 className="text-xl font-bold">Analysis History</h2>
-                <div className='relative flex flex-col gap-4 max-h-[80vh] overflow-y-auto pr-4 -mr-4'>
+                <div className='relative flex flex-col gap-4 max-h-[100vh] overflow-y-auto pr-4 -mr-4'>
                     {isLoading && (
                         <Card>
                             <CardHeader>
@@ -493,5 +493,3 @@ export default function AnalyzePage() {
     </div>
   );
 }
-
-    
