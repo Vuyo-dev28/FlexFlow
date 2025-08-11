@@ -97,23 +97,22 @@ function WinRateTracker({ history }: { history: AnalyzeChartOutput[] }) {
 
     return (
         <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <Award />
+            <CardHeader className="p-4">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                    <Award className="h-5 w-5"/>
                     Win Rate
                 </CardTitle>
-                <CardDescription>Based on your manually marked results.</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 pt-0">
                 <div className="flex items-center justify-between">
-                    <div className="text-4xl font-bold">{winRate.toFixed(1)}%</div>
-                    <div className="text-right">
-                        <p className="font-bold text-green-500">{wins} Wins</p>
+                    <div className="text-3xl font-bold">{winRate.toFixed(1)}%</div>
+                    <div className="text-right text-sm">
+                        <p className="font-semibold text-green-500">{wins} Wins</p>
                         <p className="text-muted-foreground">{completedTrades - wins} Losses</p>
                     </div>
                 </div>
-                 <div className="w-full bg-muted rounded-full h-2.5 mt-2">
-                    <div className="bg-green-500 h-2.5 rounded-full" style={{ width: `${winRate}%` }}></div>
+                 <div className="w-full bg-muted rounded-full h-2 mt-2">
+                    <div className="bg-green-500 h-2 rounded-full" style={{ width: `${winRate}%` }}></div>
                 </div>
             </CardContent>
         </Card>
