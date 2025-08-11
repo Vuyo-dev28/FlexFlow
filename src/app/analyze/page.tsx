@@ -367,6 +367,9 @@ export default function AnalyzePage() {
             </div>
             <HowToUseDialog />
         </div>
+
+        <WinRateTracker history={analysisHistory} />
+        
         <div className="grid md:grid-cols-2 gap-6 items-start">
             <div className="flex flex-col gap-6">
                 <Card>
@@ -408,7 +411,7 @@ export default function AnalyzePage() {
                         </Button>
                     </CardContent>
                 </Card>
-                <WinRateTracker history={analysisHistory} />
+                
                  <Alert>
                     <Lightbulb className="h-4 w-4" />
                     <AlertTitle>How it Works</AlertTitle>
