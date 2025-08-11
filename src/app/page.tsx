@@ -5,7 +5,7 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import { SignalCard } from '@/components/signal-card';
 import { SignalDetailDialog } from '@/components/signal-detail-dialog';
 import { SignalFilters } from '@/components/signal-filters';
-import type { Signal, SignalCategory, FinancialPair, TradingStyle, AppSettings, Currency } from '@/types/signal';
+import type { Signal, SignalCategory, FinancialPair, AppSettings } from '@/types/signal';
 import { Watchlist } from '@/components/watchlist';
 import { MOCK_SIGNALS, ALL_PAIRS } from '@/lib/mock-data';
 import { generateSignal } from '@/ai/flows/generate-signal-flow';
@@ -13,6 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { ArrowRightLeft } from 'lucide-react';
+import { useSettings } from '@/hooks/use-settings';
 
 const SETTINGS_KEY = 'signalStreamSettings';
 
@@ -33,38 +34,16 @@ export default function HomePage() {
   const [selectedSignal, setSelectedSignal] = useState<Signal | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isWatchlistOpen, setIsWatchlistOpen] = useState(false);
-  const [settings, setSettings] = useState<AppSettings>(defaultSettings);
-
-  const loadSettings = useCallback(() => {
-    try {
-      const savedSettings = localStorage.getItem(SETTINGS_KEY);
-      if (savedSettings) {
-        const parsed = JSON.parse(savedSettings);
-        setSettings({ ...defaultSettings, ...parsed });
-      } else {
-        setSettings(defaultSettings);
-      }
-    } catch (error) {
-      console.error("Failed to load settings:", error);
-      setSettings(defaultSettings);
-    }
-  }, []);
+  const { settings, setSettings, hasSettings, setHasSettings } = useSettings();
 
   useEffect(() => {
-    loadSettings();
-
-    const handleStorageChange = (event: StorageEvent) => {
-      if (event.key === SETTINGS_KEY) {
-        loadSettings();
-      }
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
-  }, [loadSettings]);
-
+    const savedSettings = localStorage.getItem(SETTINGS_KEY);
+    if (savedSettings) {
+      setHasSettings(true);
+    } else {
+      setHasSettings(false);
+    }
+  }, [setHasSettings]);
 
   const handleSelectPair = useCallback(async (pair: FinancialPair | null) => {
     setSelectedPair(pair);

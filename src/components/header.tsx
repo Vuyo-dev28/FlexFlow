@@ -1,14 +1,22 @@
+
 'use client';
 
-import { CandlestickChart, Settings, PanelLeft } from 'lucide-react';
+import { CandlestickChart, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SignalSettingsSheet } from './signal-settings-sheet';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { SidebarTrigger } from './ui/sidebar';
-import Link from 'next/link';
+import { useSettings } from '@/hooks/use-settings';
 
 export function Header() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const { hasSettings } = useSettings();
+
+  useEffect(() => {
+    if (hasSettings === false) { // Explicitly check for false
+      setIsSettingsOpen(true);
+    }
+  }, [hasSettings]);
 
   return (
     <>

@@ -19,19 +19,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useSettings } from '@/hooks/use-settings';
 
 const LOCAL_STORAGE_KEY = 'analysisHistory';
 const SETTINGS_KEY = 'signalStreamSettings';
-
-const defaultSettings: AppSettings = {
-    tradingStyle: 'Day Trading',
-    accountSize: 10000,
-    riskPerTrade: 1,
-    pushNotifications: true,
-    emailNotifications: false,
-    categories: ['Crypto', 'Stock Indices', 'Forex', 'Metals', 'Volatility Indices'],
-    currency: 'USD',
-};
 
 function HowToUseDialog() {
     return (
@@ -258,26 +249,13 @@ export default function AnalyzePage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [analysisHistory, setAnalysisHistory] = useState<AnalyzeChartOutput[]>([]);
-  const [tradingStyle, setTradingStyle] = useState<TradingStyle>('Day Trading');
-  const [settings, setSettings] = useState<AppSettings>(defaultSettings);
+  const { settings, setHasSettings } = useSettings();
+  const [tradingStyle, setTradingStyle] = useState<TradingStyle>(settings.tradingStyle);
   const { toast } = useToast();
 
-  const loadSettings = useCallback(() => {
-    try {
-      const savedSettings = localStorage.getItem(SETTINGS_KEY);
-      if (savedSettings) {
-        const parsed = JSON.parse(savedSettings);
-        setSettings({ ...defaultSettings, ...parsed });
-        setTradingStyle(parsed.tradingStyle || defaultSettings.tradingStyle);
-      } else {
-        setSettings(defaultSettings);
-        setTradingStyle(defaultSettings.tradingStyle);
-      }
-    } catch (error) {
-      console.error("Failed to load settings:", error);
-      setSettings(defaultSettings);
-    }
-  }, []);
+  useEffect(() => {
+    setTradingStyle(settings.tradingStyle);
+  }, [settings.tradingStyle]);
 
   useEffect(() => {
     try {
@@ -289,19 +267,14 @@ export default function AnalyzePage() {
         console.error("Failed to parse analysis history from localStorage", error);
         localStorage.removeItem(LOCAL_STORAGE_KEY);
     }
-
-    loadSettings();
-
-    const handleStorageChange = (event: StorageEvent) => {
-        if (event.key === SETTINGS_KEY) {
-            loadSettings();
-        }
-    };
-    window.addEventListener('storage', handleStorageChange);
-    return () => {
-        window.removeEventListener('storage', handleStorageChange);
-    };
-  }, [loadSettings]);
+    
+    const savedSettings = localStorage.getItem(SETTINGS_KEY);
+    if (savedSettings) {
+      setHasSettings(true);
+    } else {
+      setHasSettings(false);
+    }
+  }, [setHasSettings]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -492,5 +465,3 @@ export default function AnalyzePage() {
     </div>
   );
 }
-
-    

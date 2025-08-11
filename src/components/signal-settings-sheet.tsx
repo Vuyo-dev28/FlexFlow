@@ -34,6 +34,7 @@ import { tradingStyles, availableCurrencies } from '@/types/signal';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Input } from './ui/input';
 import { Slider } from './ui/slider';
+import { useSettings } from '@/hooks/use-settings';
 
 interface SignalSettingsSheetProps {
   open: boolean;
@@ -60,47 +61,24 @@ type FormValues = z.infer<typeof FormSchema>;
 
 export function SignalSettingsSheet({ open, onOpenChange }: SignalSettingsSheetProps) {
   const { toast } = useToast();
+  const { settings, setSettings, setHasSettings } = useSettings();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(FormSchema),
-    defaultValues: {
-      categories: availableCategories,
-      pushNotifications: true,
-      emailNotifications: false,
-      tradingStyle: 'Day Trading',
-      accountSize: 10000,
-      riskPerTrade: 1,
-      currency: 'USD',
-    },
+    defaultValues: settings,
   });
 
   useEffect(() => {
     if (open) {
-      try {
-        const savedSettings = localStorage.getItem(SETTINGS_KEY);
-        if (savedSettings) {
-          const parsedSettings = JSON.parse(savedSettings);
-          // Ensure we only set values that exist in the form schema
-          const validValues: Partial<FormValues> = {};
-          if (parsedSettings.categories) validValues.categories = parsedSettings.categories;
-          if (typeof parsedSettings.pushNotifications === 'boolean') validValues.pushNotifications = parsedSettings.pushNotifications;
-          if (typeof parsedSettings.emailNotifications === 'boolean') validValues.emailNotifications = parsedSettings.emailNotifications;
-          if (parsedSettings.tradingStyle) validValues.tradingStyle = parsedSettings.tradingStyle;
-          if (parsedSettings.accountSize) validValues.accountSize = parsedSettings.accountSize;
-          if (parsedSettings.riskPerTrade) validValues.riskPerTrade = parsedSettings.riskPerTrade;
-          if (parsedSettings.currency) validValues.currency = parsedSettings.currency;
-          
-          form.reset(validValues);
-        }
-      } catch (error) {
-        console.error("Failed to load settings from localStorage", error);
-      }
+      form.reset(settings);
     }
-  }, [open, form]);
+  }, [open, form, settings]);
 
   function onSubmit(data: FormValues) {
     try {
         localStorage.setItem(SETTINGS_KEY, JSON.stringify(data));
+        setSettings(data);
+        setHasSettings(true); // Mark that settings have been saved
         toast({
           title: 'Settings Saved',
           description: 'Your preferences have been updated.',
