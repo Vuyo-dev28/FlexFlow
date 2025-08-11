@@ -118,72 +118,60 @@ function HowToUseDialog() {
 }
 
 function HowItWorksGuide() {
+    const steps = [
+        {
+            icon: Settings2,
+            title: "Configure Your Settings",
+            description: "Go to the settings panel to input your account size, risk tolerance, and currency. This is essential for accurate risk management."
+        },
+        {
+            icon: BarChart,
+            title: "Select Your Trading Style",
+            description: "Choose the trading style that matches your strategy (e.g., 'Scalping', 'Day Trading'). The AI will tailor its analysis accordingly."
+        },
+        {
+            icon: Tv,
+            title: "Take a Screenshot",
+            description: "Capture a screenshot of your chart from TradingView or a similar platform for analysis."
+        },
+        {
+            icon: Upload,
+            title: "Upload to Analyzer",
+            description: "Upload the screenshot using the 'Chart Image' button on the Chart Analyzer page."
+        },
+        {
+            icon: BotMessageSquare,
+            title: "Analyze Chart",
+            description: "Click 'Analyze Chart' to let the AI provide a detailed, actionable trading signal."
+        },
+        {
+            icon: ExternalLink,
+            title: "Execute Trade",
+            description: "Use the AI-generated signal to execute the trade in your MT4/MT5 account."
+        }
+    ];
+
     return (
         <div className="h-full p-4 md:p-6">
-            <Card className="w-full">
-                <CardHeader>
-                    <CardTitle className="text-2xl">How It Works</CardTitle>
-                    <CardDescription>Follow these steps to get your first AI-generated signal.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                     <ul className="space-y-4 text-sm text-muted-foreground">
-                        <li className="flex items-start gap-4">
-                            <div className="flex-shrink-0 bg-primary/10 text-primary rounded-full h-8 w-8 flex items-center justify-center">
-                                <Settings2 className="h-5 w-5" />
+            <div className="text-center mb-8">
+                <h1 className="text-3xl font-bold tracking-tight">How It Works</h1>
+                <p className="text-muted-foreground mt-2">Get your first AI-generated signal by following these steps.</p>
+            </div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {steps.map((step, index) => (
+                    <Card key={index} className="bg-card/50 hover:border-primary/50 transition-colors">
+                        <CardHeader className="flex flex-row items-center gap-4 space-y-0 pb-2">
+                             <div className="bg-primary/10 text-primary p-3 rounded-full">
+                                <step.icon className="h-6 w-6" />
                             </div>
-                            <div>
-                                <h4 className="font-semibold text-foreground">1. Configure Your Settings</h4>
-                                <p>First, go to the settings panel (top-right gear icon) to input your account size, risk tolerance, and preferred currency. This is essential for accurate risk management calculations.</p>
-                            </div>
-                        </li>
-                        <li className="flex items-start gap-4">
-                            <div className="flex-shrink-0 bg-primary/10 text-primary rounded-full h-8 w-8 flex items-center justify-center">
-                                <BarChart className="h-5 w-5" />
-                            </div>
-                            <div>
-                                <h4 className="font-semibold text-foreground">2. Select Your Trading Style</h4>
-                                <p>Choose the trading style that matches your strategy (e.g., 'Scalping', 'Day Trading'). The AI will tailor its analysis based on your selection.</p>
-                            </div>
-                        </li>
-                        <li className="flex items-start gap-4">
-                            <div className="flex-shrink-0 bg-primary/10 text-primary rounded-full h-8 w-8 flex items-center justify-center">
-                                <Tv className="h-5 w-5" />
-                            </div>
-                            <div>
-                                <h4 className="font-semibold text-foreground">3. Take a Screenshot</h4>
-                                <p>Capture a screenshot of your chart from TradingView or a similar platform.</p>
-                            </div>
-                        </li>
-                         <li className="flex items-start gap-4">
-                            <div className="flex-shrink-0 bg-primary/10 text-primary rounded-full h-8 w-8 flex items-center justify-center">
-                                <Upload className="h-5 w-5" />
-                            </div>
-                            <div>
-                                <h4 className="font-semibold text-foreground">4. Upload to Analyzer</h4>
-                                <p>Upload the screenshot using the "Chart Image" button.</p>
-                            </div>
-                        </li>
-                        <li className="flex items-start gap-4">
-                             <div className="flex-shrink-0 bg-primary/10 text-primary rounded-full h-8 w-8 flex items-center justify-center">
-                                <BotMessageSquare className="h-5 w-5" />
-                            </div>
-                            <div>
-                                <h4 className="font-semibold text-foreground">5. Analyze Chart</h4>
-                                <p>Click 'Analyze Chart' to let the AI provide a detailed trading signal.</p>
-                            </div>
-                        </li>
-                        <li className="flex items-start gap-4">
-                            <div className="flex-shrink-0 bg-primary/10 text-primary rounded-full h-8 w-8 flex items-center justify-center">
-                                <ExternalLink className="h-5 w-5" />
-                            </div>
-                            <div>
-                                <h4 className="font-semibold text-foreground">6. Execute Trade</h4>
-                                <p>Finally, use the AI-generated signal to execute the trade in your MT4/MT5 account.</p>
-                            </div>
-                        </li>
-                    </ul>
-                </CardContent>
-            </Card>
+                            <CardTitle>{step.title}</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-muted-foreground">{step.description}</p>
+                        </CardContent>
+                    </Card>
+                ))}
+            </div>
         </div>
     )
 }
@@ -313,7 +301,3 @@ export default function HomePage() {
     </>
   );
 }
-
-    
-
-    

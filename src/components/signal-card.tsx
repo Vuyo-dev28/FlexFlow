@@ -63,7 +63,7 @@ export function SignalCard({ signal, settings, onSelect }: SignalCardProps) {
   
   return (
     <div
-      className="flex flex-col p-3 border rounded-lg cursor-pointer bg-card/50 hover:bg-accent/50 transition-colors duration-200 group"
+      className="group flex flex-col p-3 border rounded-lg cursor-pointer bg-card/50 hover:bg-accent/50 transition-colors duration-200"
       onClick={onSelect}
     >
         {/* Card Header */}
@@ -113,5 +113,3 @@ export function SignalCard({ signal, settings, onSelect }: SignalCardProps) {
     </div>
   );
 }
-
-    
