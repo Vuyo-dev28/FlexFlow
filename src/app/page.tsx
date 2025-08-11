@@ -89,8 +89,17 @@ function HowToUseDialog() {
                                 <Upload className="h-5 w-5" />
                             </div>
                             <div>
-                                <h4 className="font-semibold text-foreground">4. Upload or Generate</h4>
+                                <h4 className="font-semibold text-foreground">4. Upload to Analyzer</h4>
                                 <p>Go to the <span className="font-semibold text-primary/80">Chart Analyzer</span> to upload your screenshot for analysis, or use the <span className="font-semibold text-primary/80">Watchlist</span> here to generate a signal for a pair directly.</p>
+                            </div>
+                        </li>
+                        <li className="flex items-start gap-4">
+                             <div className="flex-shrink-0 bg-primary/10 text-primary rounded-full h-8 w-8 flex items-center justify-center">
+                                <BotMessageSquare className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <h4 className="font-semibold text-foreground">5. Analyze Chart</h4>
+                                <p>Click 'Analyze Chart' to let the AI provide a detailed trading signal.</p>
                             </div>
                         </li>
                         <li className="flex items-start gap-4">
@@ -98,7 +107,7 @@ function HowToUseDialog() {
                                 <ExternalLink className="h-5 w-5" />
                             </div>
                             <div>
-                                <h4 className="font-semibold text-foreground">5. Execute Trade</h4>
+                                <h4 className="font-semibold text-foreground">6. Execute Trade</h4>
                                 <p>Finally, use the AI-generated signal to execute the trade in your MT4/MT5 account.</p>
                             </div>
                         </li>
@@ -310,5 +319,3 @@ export default function HomePage() {
     </>
   );
 }
-
-    
