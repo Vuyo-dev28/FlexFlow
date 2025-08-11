@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Upload, Lightbulb, TrendingUp, TrendingDown, Hourglass, Trash2, CheckCircle2, XCircle, Award, Info, Scale, DollarSign, BarChartHorizontal } from 'lucide-react';
+import { Upload, Lightbulb, TrendingUp, TrendingDown, Hourglass, Trash2, CheckCircle2, XCircle, Award, Info, Scale, DollarSign, HelpCircle } from 'lucide-react';
 import Image from 'next/image';
 import { analyzeChart } from '@/ai/flows/analyze-chart-flow';
 import { AnalyzeChartOutput, TradingStyle, tradingStyles, AppSettings, Currency, currencySymbols } from '@/types/signal';
@@ -17,6 +17,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
 
 const LOCAL_STORAGE_KEY = 'analysisHistory';
 const SETTINGS_KEY = 'signalStreamSettings';
@@ -30,6 +31,59 @@ const defaultSettings: AppSettings = {
     categories: ['Crypto', 'Stock Indices', 'Forex', 'Metals', 'Volatility Indices'],
     currency: 'USD',
 };
+
+function HowToUseDialog() {
+    return (
+        <Dialog>
+            <DialogTrigger asChild>
+                <Button variant="ghost" size="icon">
+                    <HelpCircle className="h-5 w-5" />
+                    <span className="sr-only">How to Use</span>
+                </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[480px]">
+                <DialogHeader>
+                    <DialogTitle>How to Use the Chart Analyzer</DialogTitle>
+                    <DialogDescription>
+                        Follow these steps to get the most out of the AI analysis tool.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4 text-sm text-muted-foreground">
+                    <div className="space-y-2">
+                        <h3 className="font-semibold text-foreground">1. Select Your Trading Style</h3>
+                        <p>
+                            Choose the trading style that matches the chart you are analyzing (e.g., 'Scalping', 'Day Trading'). The AI will tailor its analysis based on your selection. Your default style is loaded from the main settings but you can override it here.
+                        </p>
+                    </div>
+                    <div className="space-y-2">
+                        <h3 className="font-semibold text-foreground">2. Upload Your Chart</h3>
+                        <p>
+                            Click the "Chart Image" button and select a screenshot of the financial chart you want to analyze. A preview will appear once you've selected an image.
+                        </p>
+                    </div>
+                    <div className="space-y-2">
+                        <h3 className="font-semibold text-foreground">3. Get AI Analysis</h3>
+                        <p>
+                            Click the "Analyze Chart" button. The AI will examine the chart and provide a BUY, SELL, or HOLD signal along with a detailed rationale, entry price, take-profit, and stop-loss.
+                        </p>
+                    </div>
+                     <div className="space-y-2">
+                        <h3 className="font-semibold text-foreground">4. Track Your Performance</h3>
+                        <p>
+                           After a trade is complete, mark it as a "Win" or "Loss" using the buttons on the analysis card. Your overall win rate is tracked at the top of the page, helping you gauge the AI's effectiveness over time.
+                        </p>
+                    </div>
+                     <div className="space-y-2">
+                        <h3 className="font-semibold text-foreground">5. Review History</h3>
+                        <p>
+                           All your past analyses are saved in the "Analysis History" section on the right. You can scroll through them, review the rationale, and see how they performed.
+                        </p>
+                    </div>
+                </div>
+            </DialogContent>
+        </Dialog>
+    );
+}
 
 function WinRateTracker({ history }: { history: AnalyzeChartOutput[] }) {
     const { wins, completedTrades } = useMemo(() => {
@@ -321,11 +375,14 @@ export default function AnalyzePage() {
 
   return (
     <div className="flex-1 flex flex-col p-4 md:p-6 gap-6">
-        <div className="flex flex-col gap-1.5">
-            <h1 className="text-2xl font-bold tracking-tight">Chart Analyzer</h1>
-            <p className="text-muted-foreground">
-                Upload a chart and select your trading style. The AI will provide a technical analysis signal.
-            </p>
+        <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-1.5">
+                <h1 className="text-2xl font-bold tracking-tight">Chart Analyzer</h1>
+                <p className="text-muted-foreground">
+                    Upload a chart and select your trading style. The AI will provide a technical analysis signal.
+                </p>
+            </div>
+            <HowToUseDialog />
         </div>
         <div className="grid md:grid-cols-2 gap-6 items-start">
             <div className="flex flex-col gap-6">
@@ -425,3 +482,5 @@ export default function AnalyzePage() {
     </div>
   );
 }
+
+    
