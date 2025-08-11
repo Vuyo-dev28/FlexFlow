@@ -18,6 +18,7 @@ import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const LOCAL_STORAGE_KEY = 'analysisHistory';
 const SETTINGS_KEY = 'signalStreamSettings';
@@ -35,12 +36,21 @@ const defaultSettings: AppSettings = {
 function HowToUseDialog() {
     return (
         <Dialog>
-            <DialogTrigger asChild>
-                <Button variant="ghost" size="icon">
-                    <HelpCircle className="h-5 w-5" />
-                    <span className="sr-only">How to Use</span>
-                </Button>
-            </DialogTrigger>
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <DialogTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                                <HelpCircle className="h-5 w-5" />
+                                <span className="sr-only">How to Use</span>
+                            </Button>
+                        </DialogTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>How to Use</p>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
             <DialogContent className="sm:max-w-[480px]">
                 <DialogHeader>
                     <DialogTitle>How to Use the Chart Analyzer</DialogTitle>
