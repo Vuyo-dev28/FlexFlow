@@ -21,6 +21,7 @@ import {
 
 import { Badge } from '@/components/ui/badge';
 import type { Signal, AppSettings } from '@/types/signal';
+import { currencySymbols } from '@/types/signal';
 import { cn } from '@/lib/utils';
 import { Separator } from './ui/separator';
 import { useMediaQuery } from '@/hooks/use-media-query';
@@ -44,6 +45,7 @@ function SignalDetails({ signal, settings }: { signal: Signal, settings: AppSett
     const positionSize = stopLossDistance > 0 ? riskAmount / stopLossDistance : 0;
     const potentialLoss = positionSize * stopLossDistance;
     const potentialProfit = positionSize * takeProfitDistance;
+    const currencySymbol = currencySymbols[settings.currency] || '$';
 
 
     return (
@@ -74,10 +76,10 @@ function SignalDetails({ signal, settings }: { signal: Signal, settings: AppSett
                     <span className="font-mono text-right text-foreground">{positionSize.toFixed(4)} units</span>
 
                     <span className="text-muted-foreground">Potential Profit</span>
-                    <span className="font-mono text-right text-green-500">${potentialProfit.toFixed(2)}</span>
+                    <span className="font-mono text-right text-green-500">{currencySymbol}{potentialProfit.toFixed(2)}</span>
 
                     <span className="text-muted-foreground">Potential Loss</span>
-                    <span className="font-mono text-right text-red-500">${potentialLoss.toFixed(2)}</span>
+                    <span className="font-mono text-right text-red-500">{currencySymbol}{potentialLoss.toFixed(2)}</span>
                 </div>
             </div>
 

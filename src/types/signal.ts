@@ -18,6 +18,16 @@ export type SignalCategory = 'Crypto' | 'Stock Indices' | 'Forex' | 'Metals' | '
 export const tradingStyles = ['Scalping', 'Day Trading', 'Swing Trading', 'Position Trading'] as const;
 export type TradingStyle = (typeof tradingStyles)[number];
 
+export const availableCurrencies = ['USD', 'EUR', 'GBP', 'JPY'] as const;
+export type Currency = (typeof availableCurrencies)[number];
+
+export const currencySymbols: Record<Currency, string> = {
+    USD: '$',
+    EUR: '€',
+    GBP: '£',
+    JPY: '¥',
+};
+
 
 // Schema for generating a signal for a pair
 export const GenerateSignalInputSchema = z.object({
@@ -77,6 +87,7 @@ export type AppSettings = {
   tradingStyle: TradingStyle;
   accountSize: number;
   riskPerTrade: number;
+  currency: Currency;
   pushNotifications: boolean;
   emailNotifications: boolean;
   categories: SignalCategory[];

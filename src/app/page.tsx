@@ -5,7 +5,7 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import { SignalCard } from '@/components/signal-card';
 import { SignalDetailDialog } from '@/components/signal-detail-dialog';
 import { SignalFilters } from '@/components/signal-filters';
-import type { Signal, SignalCategory, FinancialPair, TradingStyle, AppSettings } from '@/types/signal';
+import type { Signal, SignalCategory, FinancialPair, TradingStyle, AppSettings, Currency } from '@/types/signal';
 import { Watchlist } from '@/components/watchlist';
 import { MOCK_SIGNALS, ALL_PAIRS } from '@/lib/mock-data';
 import { generateSignal } from '@/ai/flows/generate-signal-flow';
@@ -20,6 +20,7 @@ const defaultSettings: AppSettings = {
     tradingStyle: 'Day Trading',
     accountSize: 10000,
     riskPerTrade: 1,
+    currency: 'USD',
     pushNotifications: true,
     emailNotifications: false,
     categories: ['Crypto', 'Stock Indices', 'Forex', 'Metals', 'Volatility Indices'],

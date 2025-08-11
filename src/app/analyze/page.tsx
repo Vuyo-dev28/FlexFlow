@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Upload, Lightbulb, TrendingUp, TrendingDown, Hourglass, Trash2, CheckCircle2, XCircle, Award, Info, Scale, DollarSign, BarChartHorizontal } from 'lucide-react';
 import Image from 'next/image';
 import { analyzeChart } from '@/ai/flows/analyze-chart-flow';
-import { AnalyzeChartOutput, TradingStyle, tradingStyles, AppSettings } from '@/types/signal';
+import { AnalyzeChartOutput, TradingStyle, tradingStyles, AppSettings, Currency, currencySymbols } from '@/types/signal';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -28,6 +28,7 @@ const defaultSettings: AppSettings = {
     pushNotifications: true,
     emailNotifications: false,
     categories: ['Crypto', 'Stock Indices', 'Forex', 'Metals', 'Volatility Indices'],
+    currency: 'USD',
 };
 
 function WinRateTracker({ history }: { history: AnalyzeChartOutput[] }) {
@@ -77,6 +78,7 @@ function RiskManagementDetails({ result, settings }: { result: AnalyzeChartOutpu
     const positionSize = stopLossDistance > 0 ? riskAmount / stopLossDistance : 0;
     const potentialLoss = positionSize * stopLossDistance;
     const potentialProfit = positionSize * takeProfitDistance;
+    const currencySymbol = currencySymbols[settings.currency] || '$';
 
     return (
         <div className="space-y-4">
@@ -91,10 +93,10 @@ function RiskManagementDetails({ result, settings }: { result: AnalyzeChartOutpu
                     <span className="font-mono text-right text-foreground">{positionSize.toFixed(4)} units</span>
 
                     <span className="text-muted-foreground">Potential Profit</span>
-                    <span className="font-mono text-right text-green-500">${potentialProfit.toFixed(2)}</span>
+                    <span className="font-mono text-right text-green-500">{currencySymbol}{potentialProfit.toFixed(2)}</span>
 
                     <span className="text-muted-foreground">Potential Loss</span>
-                    <span className="font-mono text-right text-red-500">${potentialLoss.toFixed(2)}</span>
+                    <span className="font-mono text-right text-red-500">{currencySymbol}{potentialLoss.toFixed(2)}</span>
                 </div>
             </div>
         </div>
@@ -423,5 +425,3 @@ export default function AnalyzePage() {
     </div>
   );
 }
-
-    

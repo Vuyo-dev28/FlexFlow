@@ -29,8 +29,8 @@ import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect } from 'react';
 import { Separator } from './ui/separator';
-import type { SignalCategory, TradingStyle } from '@/types/signal';
-import { tradingStyles } from '@/types/signal';
+import type { SignalCategory, TradingStyle, Currency } from '@/types/signal';
+import { tradingStyles, availableCurrencies } from '@/types/signal';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Input } from './ui/input';
 import { Slider } from './ui/slider';
@@ -53,6 +53,7 @@ const FormSchema = z.object({
   tradingStyle: z.enum(tradingStyles),
   accountSize: z.coerce.number().positive({ message: "Account size must be a positive number."}),
   riskPerTrade: z.number().min(0.1).max(10),
+  currency: z.enum(availableCurrencies),
 });
 
 type FormValues = z.infer<typeof FormSchema>;
@@ -69,6 +70,7 @@ export function SignalSettingsSheet({ open, onOpenChange }: SignalSettingsSheetP
       tradingStyle: 'Day Trading',
       accountSize: 10000,
       riskPerTrade: 1,
+      currency: 'USD',
     },
   });
 
@@ -86,6 +88,7 @@ export function SignalSettingsSheet({ open, onOpenChange }: SignalSettingsSheetP
           if (parsedSettings.tradingStyle) validValues.tradingStyle = parsedSettings.tradingStyle;
           if (parsedSettings.accountSize) validValues.accountSize = parsedSettings.accountSize;
           if (parsedSettings.riskPerTrade) validValues.riskPerTrade = parsedSettings.riskPerTrade;
+          if (parsedSettings.currency) validValues.currency = parsedSettings.currency;
           
           form.reset(validValues);
         }
@@ -160,10 +163,32 @@ export function SignalSettingsSheet({ open, onOpenChange }: SignalSettingsSheetP
                         name="accountSize"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>Account Size ($)</FormLabel>
+                            <FormLabel>Account Size</FormLabel>
                             <FormControl>
                                 <Input type="number" placeholder="e.g., 10000" {...field} />
                             </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                        />
+                     <FormField
+                        control={form.control}
+                        name="currency"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Account Currency</FormLabel>
+                             <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select a currency" />
+                                </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                {availableCurrencies.map((c) => (
+                                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                                ))}
+                                </SelectContent>
+                            </Select>
                             <FormMessage />
                             </FormItem>
                         )}
