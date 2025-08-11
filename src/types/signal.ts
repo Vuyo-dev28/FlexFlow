@@ -18,7 +18,11 @@ export type SignalCategory = 'Crypto' | 'Stock Indices' | 'Forex' | 'Metals' | '
 export const tradingStyles = ['Scalping', 'Day Trading', 'Swing Trading', 'Position Trading'] as const;
 export type TradingStyle = (typeof tradingStyles)[number];
 
-export const availableCurrencies = ['USD', 'EUR', 'GBP', 'JPY'] as const;
+export const availableCurrencies = [
+    'USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY', 
+    'HKD', 'INR', 'KRW', 'MXN', 'NOK', 'NZD', 'RUB', 'SEK', 
+    'SGD', 'TRY', 'ZAR', 'BRL'
+] as const;
 export type Currency = (typeof availableCurrencies)[number];
 
 export const currencySymbols: Record<Currency, string> = {
@@ -26,6 +30,22 @@ export const currencySymbols: Record<Currency, string> = {
     EUR: '€',
     GBP: '£',
     JPY: '¥',
+    AUD: 'A$',
+    CAD: 'C$',
+    CHF: 'CHF',
+    CNY: '¥',
+    HKD: 'HK$',
+    INR: '₹',
+    KRW: '₩',
+    MXN: 'Mex$',
+    NOK: 'kr',
+    NZD: 'NZ$',
+    RUB: '₽',
+    SEK: 'kr',
+    SGD: 'S$',
+    TRY: '₺',
+    ZAR: 'R',
+    BRL: 'R$'
 };
 
 
