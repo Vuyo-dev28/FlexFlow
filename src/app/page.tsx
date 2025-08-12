@@ -11,11 +11,12 @@ import { generateSignal } from '@/ai/flows/generate-signal-flow';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { ArrowRightLeft, BotMessageSquare, Settings, Target, HelpCircle, Settings2, BarChart, Tv, Download, Upload, ExternalLink } from 'lucide-react';
+import { ArrowRightLeft, BotMessageSquare, Settings, Target, HelpCircle, Settings2, BarChart, Tv, Download, Upload, ExternalLink, ArrowRight } from 'lucide-react';
 import { useSettings } from '@/hooks/use-settings';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import Link from 'next/link';
 
 const SETTINGS_KEY = 'signalStreamSettings';
 
@@ -152,7 +153,7 @@ function HowItWorksGuide() {
     ];
 
     return (
-        <div className="h-full p-4 md:p-6">
+        <div className="h-full p-4 md:p-6 flex flex-col">
             <div className="text-center mb-8">
                 <h1 className="text-3xl font-bold tracking-tight">How It Works</h1>
                 <p className="text-muted-foreground mt-2">Get your first System-generated signal by following these steps.</p>
@@ -171,6 +172,14 @@ function HowItWorksGuide() {
                         </CardContent>
                     </Card>
                 ))}
+            </div>
+             <div className="mt-auto pt-8 text-center">
+                <Link href="/analyze" passHref>
+                    <Button size="lg">
+                        START CHART ANALYZER
+                        <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                </Link>
             </div>
         </div>
     )
