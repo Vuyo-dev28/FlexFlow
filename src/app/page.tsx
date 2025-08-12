@@ -157,8 +157,16 @@ function HowItWorksGuide() {
             <div className="text-center mb-8">
                 <h1 className="text-3xl font-bold tracking-tight">How It Works</h1>
                 <p className="text-muted-foreground mt-2">Get your first System-generated signal by following these steps.</p>
+                <div className="mt-6 text-center">
+                    <Link href="/analyze" passHref>
+                        <Button size="lg">
+                            START CHART ANALYZER
+                            <ArrowRight className="ml-2 h-5 w-5" />
+                        </Button>
+                    </Link>
+                </div>
             </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
                 {steps.map((step, index) => (
                     <Card key={index} className="bg-card/50 hover:border-primary/50 transition-colors">
                         <CardHeader className="flex flex-row items-center gap-4 space-y-0 pb-2">
@@ -172,14 +180,6 @@ function HowItWorksGuide() {
                         </CardContent>
                     </Card>
                 ))}
-            </div>
-             <div className="mt-auto pt-8 text-center">
-                <Link href="/analyze" passHref>
-                    <Button size="lg">
-                        START CHART ANALYZER
-                        <ArrowRight className="ml-2 h-5 w-5" />
-                    </Button>
-                </Link>
             </div>
         </div>
     )
@@ -310,3 +310,5 @@ export default function HomePage() {
     </>
   );
 }
+
+    
