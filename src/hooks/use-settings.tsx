@@ -1,7 +1,7 @@
 
 'use client';
 
-import { AppSettings, SignalCategory } from "@/types/signal";
+import { AppSettings } from "@/types/signal";
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 
 const SETTINGS_KEY = 'signalStreamSettings';
@@ -13,7 +13,6 @@ const defaultSettings: AppSettings = {
     currency: 'USD',
     pushNotifications: true,
     emailNotifications: false,
-    categories: ['Crypto', 'Stock Indices', 'Forex', 'Metals', 'Volatility Indices'],
 };
 
 interface SettingsContextType {

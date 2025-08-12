@@ -110,5 +110,4 @@ export type AppSettings = {
   currency: Currency;
   pushNotifications: boolean;
   emailNotifications: boolean;
-  categories: SignalCategory[];
 };

@@ -41,14 +41,9 @@ interface SignalSettingsSheetProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const availableCategories: SignalCategory[] = ['Crypto', 'Stock Indices', 'Forex', 'Metals', 'Volatility Indices'];
-
 const SETTINGS_KEY = 'signalStreamSettings';
 
 const FormSchema = z.object({
-  categories: z.array(z.string()).refine(value => value.some(item => item), {
-    message: 'You have to select at least one category.',
-  }),
   pushNotifications: z.boolean().default(false).optional(),
   emailNotifications: z.boolean().default(false).optional(),
   tradingStyle: z.enum(tradingStyles),
@@ -250,54 +245,6 @@ export function SignalSettingsSheet({ open, onOpenChange }: SignalSettingsSheetP
                         />
                     </div>
                 </FormItem>
-
-                <FormField
-                  control={form.control}
-                  name="categories"
-                  render={() => (
-                    <FormItem>
-                      <div className="mb-4">
-                        <FormLabel className="text-base">Signal Categories</FormLabel>
-                        <FormDescription>
-                          Select the categories for which you want to receive alerts.
-                        </FormDescription>
-                      </div>
-                      {availableCategories.map(item => (
-                        <FormField
-                          key={item}
-                          control={form.control}
-                          name="categories"
-                          render={({ field }) => {
-                            return (
-                              <FormItem
-                                key={item}
-                                className="flex flex-row items-start space-x-3 space-y-0"
-                              >
-                                <FormControl>
-                                  <Checkbox
-                                    checked={field.value?.includes(item)}
-                                    onCheckedChange={checked => {
-                                      return checked
-                                        ? field.onChange([...(field.value || []), item])
-                                        : field.onChange(
-                                            field.value?.filter(
-                                              value => value !== item
-                                            )
-                                          );
-                                    }}
-                                  />
-                                </FormControl>
-                                <FormLabel className="font-normal">{item}</FormLabel>
-                              </FormItem>
-                            );
-                          }}
-                        />
-                      ))}
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
             </div>
             <SheetFooter className="mt-6">
                 <SheetClose asChild>
