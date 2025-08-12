@@ -7,6 +7,7 @@ import { SidebarProvider, Sidebar, SidebarContent, SidebarMenu, SidebarMenuItem,
 import { BotMessageSquare, Home } from 'lucide-react';
 import Link from 'next/link';
 import { SettingsProvider } from '@/hooks/use-settings';
+import { SupportButton } from '@/components/support-button';
 
 export const metadata: Metadata = {
   title: 'SignalStream',
@@ -55,6 +56,7 @@ export default function RootLayout({
                     <main className="flex-1 flex flex-col">
                         {children}
                     </main>
+                    <SupportButton />
                 </div>
             </SidebarProvider>
         </SettingsProvider>
