@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Upload, Lightbulb, TrendingUp, TrendingDown, Hourglass, Trash2, CheckCircle2, XCircle, Award, Info, Scale, DollarSign, HelpCircle, Settings2, Tv, Download, BarChart, ExternalLink } from 'lucide-react';
+import { Upload, Lightbulb, TrendingUp, TrendingDown, Hourglass, Trash2, CheckCircle2, XCircle, Award, Info, Scale, HelpCircle, Settings2, Tv, Download, BarChart, ExternalLink } from 'lucide-react';
 import Image from 'next/image';
 import { analyzeChart } from '@/ai/flows/analyze-chart-flow';
 import { AnalyzeChartOutput, TradingStyle, tradingStyles, AppSettings, Currency, currencySymbols } from '@/types/signal';
@@ -347,6 +347,7 @@ export default function AnalyzePage() {
         
         setImageFile(null);
         setImagePreview(null);
+        setIsLoading(false);
       };
     } catch (error) {
       console.error('Error analyzing chart:', error);
@@ -355,7 +356,6 @@ export default function AnalyzePage() {
         title: 'Analysis Failed',
         description: 'Something went wrong while analyzing the chart. Please try again.',
       });
-    } finally {
       setIsLoading(false);
     }
   };
@@ -407,7 +407,7 @@ export default function AnalyzePage() {
                     <CardContent className="space-y-4">
                          <div className="space-y-2">
                             <Label htmlFor="trading-style-select">Trading Style</Label>
-                             <Select value={tradingStyle} onValueChange={(value) => setTradingStyle(value as TradingStyle)}>
+                             <Select value={tradingStyle} onValueChange={(value) => setTradingStyle(value as TradingStyle)} disabled={isLoading}>
                                 <SelectTrigger id="trading-style-select">
                                     <SelectValue placeholder="Select a trading style" />
                                 </SelectTrigger>
@@ -420,9 +420,11 @@ export default function AnalyzePage() {
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="chart-upload">Chart Image</Label>
-                            <Input id="chart-upload" type="file" accept="image/*" onChange={handleFileChange} />
+                            <Input id="chart-upload" type="file" accept="image/*" onChange={handleFileChange} disabled={isLoading}/>
                         </div>
-                        {imagePreview && (
+                        {isLoading ? (
+                            <AnalysisLoader />
+                        ) : imagePreview && (
                             <div className="border rounded-md p-2">
                             <Image
                                 src={imagePreview}
@@ -463,22 +465,16 @@ export default function AnalyzePage() {
             <div className="flex flex-col gap-4">
                 <h2 className="text-xl font-bold">Analysis History</h2>
                 <div className='relative flex flex-col gap-4 max-h-[100vh] overflow-y-auto pr-4 -mr-4'>
-                    {isLoading && (
-                        <AnalysisLoader />
-                    )}
-                    
                     {analysisHistory.length > 0 ? (
                         analysisHistory.map(result => (
                             <AnalysisResultCard key={result.id} result={result} settings={settings} onDelete={handleDeleteAnalysis} onMarkResult={handleMarkResult} />
                         ))
                     ) : (
-                        !isLoading && (
-                            <Card>
-                                <CardContent className="p-6 text-center text-muted-foreground">
-                                    No analysis history yet. Upload a chart to get started.
-                                </CardContent>
-                            </Card>
-                        )
+                        <Card>
+                            <CardContent className="p-6 text-center text-muted-foreground">
+                                No analysis history yet. Upload a chart to get started.
+                            </CardContent>
+                        </Card>
                     )}
                 </div>
             </div>
@@ -486,5 +482,3 @@ export default function AnalyzePage() {
     </div>
   );
 }
-
-    
