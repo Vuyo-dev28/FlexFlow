@@ -42,14 +42,6 @@ export default function RootLayout({
                                         </SidebarMenuButton>
                                     </Link>
                                 </SidebarMenuItem>
-                                <SidebarMenuItem>
-                                    <Link href="/analyze" passHref>
-                                        <SidebarMenuButton>
-                                            <BotMessageSquare />
-                                            <span>Chart Analyzer</span>
-                                        </SidebarMenuButton>
-                                    </Link>
-                                </SidebarMenuItem>
                             </SidebarMenu>
                         </SidebarContent>
                     </Sidebar>

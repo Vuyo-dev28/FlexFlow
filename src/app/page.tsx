@@ -5,30 +5,19 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import { SignalCard } from '@/components/signal-card';
 import { SignalDetailDialog } from '@/components/signal-detail-dialog';
 import type { Signal, FinancialPair, AppSettings } from '@/types/signal';
-import { Watchlist } from '@/components/watchlist';
 import { ALL_PAIRS } from '@/lib/mock-data';
 import { generateSignal } from '@/ai/flows/generate-signal-flow';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { ArrowRightLeft, BotMessageSquare, Settings, Target, HelpCircle, Settings2, BarChart, Tv, Download, Upload, ExternalLink, ArrowRight } from 'lucide-react';
+import { BotMessageSquare, Settings, Target, HelpCircle, Settings2, BarChart, Tv, Download, Upload, ExternalLink, ArrowRight } from 'lucide-react';
 import { useSettings } from '@/hooks/use-settings';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 
 const SETTINGS_KEY = 'signalStreamSettings';
-
-const defaultSettings: AppSettings = {
-    tradingStyle: 'Day Trading',
-    accountSize: 10000,
-    riskPerTrade: 1,
-    currency: 'USD',
-    pushNotifications: true,
-    emailNotifications: false,
-    categories: ['Crypto', 'Stock Indices', 'Forex', 'Metals', 'Volatility Indices'],
-};
 
 function HowToUseDialog() {
     return (
@@ -186,129 +175,20 @@ function HowItWorksGuide() {
 }
 
 export default function HomePage() {
-  const [signals, setSignals] = useState<Signal[]>([]);
-  const [selectedPair, setSelectedPair] = useState<FinancialPair | null>(null);
-  const [selectedSignal, setSelectedSignal] = useState<Signal | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isWatchlistOpen, setIsWatchlistOpen] = useState(false);
-  const { settings, setSettings, hasSettings, setHasSettings } = useSettings();
+  const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
-    const savedSettings = localStorage.getItem(SETTINGS_KEY);
-    if (savedSettings) {
-      setHasSettings(true);
-    } else {
-      setHasSettings(false);
+    if (pathname === '/') {
+      router.replace('/analyze');
     }
-  }, [setHasSettings]);
+  }, [pathname, router]);
 
-  const handleSelectPair = useCallback(async (pair: FinancialPair | null) => {
-    setSelectedPair(pair);
-    setIsWatchlistOpen(false); // Close sheet on selection
-    if (pair) {
-      setIsLoading(true);
-      try {
-        const pairInfo = ALL_PAIRS.find(p => p.pair === pair);
-        if (!pairInfo) {
-            throw new Error(`Invalid pair selected: ${pair}`);
-        }
-        
-        const newSignal = await generateSignal({ pair, tradingStyle: settings.tradingStyle });
-        const signalWithMetadata: Signal = {
-          ...newSignal,
-          id: `ai-${pair}-${new Date().getTime()}`,
-          pair: pair,
-          category: pairInfo.category,
-          timestamp: new Date(),
-        };
-        // Replace existing signal for the pair or add the new one
-        setSignals(prevSignals => [
-          signalWithMetadata,
-          ...prevSignals.filter(s => s.pair !== pair)
-        ]);
-      } catch (error) {
-        console.error("Error generating signal:", error);
-        // Optionally, show a toast notification to the user
-      } finally {
-        setIsLoading(false);
-      }
-    }
-  }, [settings.tradingStyle]);
-
-  const filteredSignals = useMemo(() => {
-    if (selectedPair) {
-        return signals.filter(signal => signal.pair === selectedPair);
-    }
-    return signals;
-  }, [signals, selectedPair]);
-  
-  const watchlistPairs = useMemo(() => {
-    return ALL_PAIRS.map(p => p.pair);
-  }, []);
-
+  // This content will be briefly visible before the redirect.
+  // You can show a loader here if needed.
   return (
-    <>
-        <div className="flex-1 flex flex-col">
-          <div className='flex items-center justify-between px-4 py-2 border-b'>
-            <div className='flex items-center gap-2'>
-              <h2 className="text-lg font-semibold">Signals</h2>
-            </div>
-            <div className="flex items-center gap-2">
-                <HowToUseDialog />
-                <Sheet open={isWatchlistOpen} onOpenChange={setIsWatchlistOpen}>
-                    <SheetTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                        <ArrowRightLeft />
-                        <span className="sr-only">Open Watchlist</span>
-                    </Button>
-                    </SheetTrigger>
-                    <SheetContent>
-                    <Watchlist 
-                        pairs={watchlistPairs}
-                        selectedPair={selectedPair}
-                        onSelectPair={handleSelectPair}
-                    />
-                    </SheetContent>
-                </Sheet>
-            </div>
-          </div>
-           
-            <div className="flex-1 p-4 md:p-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {isLoading && selectedPair && (
-                    Array.from({ length: 1 }).map((_, index) => (
-                        <div key={index} className="flex flex-col space-y-3">
-                            <Skeleton className="h-[125px] w-full rounded-xl" />
-                        </div>
-                    ))
-                )}
-                {filteredSignals.map(signal => (
-                <SignalCard
-                    key={signal.id}
-                    signal={signal}
-                    settings={settings}
-                    onSelect={() => setSelectedSignal(signal)}
-                />
-                ))}
-            </div>
-             {!isLoading && filteredSignals.length === 0 && (
-                <HowItWorksGuide />
-            )}
-            </div>
-        </div>
-
-      <SignalDetailDialog
-        signal={selectedSignal}
-        settings={settings}
-        open={!!selectedSignal}
-        onOpenChange={(isOpen) => {
-          if (!isOpen) {
-            setSelectedSignal(null);
-          }
-        }}
-      />
-    </>
+    <div className="flex-1 flex flex-col p-4 md:p-6 justify-center items-center">
+        <HowItWorksGuide />
+    </div>
   );
 }
-
-    
