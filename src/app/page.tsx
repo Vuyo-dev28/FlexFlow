@@ -18,6 +18,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import Link from 'next/link';
 import { OnboardingForm } from '@/components/onboarding-form';
+import { useToast } from '@/hooks/use-toast';
 
 const SETTINGS_KEY = 'signalStreamSettings';
 const ONBOARDING_KEY = 'hasOnboarded';
@@ -185,6 +186,7 @@ export default function HomePage() {
   const [isWatchlistOpen, setIsWatchlistOpen] = useState(false);
   const { settings, hasSettings, setHasSettings } = useSettings();
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     const onboardingComplete = localStorage.getItem(ONBOARDING_KEY) === 'true';
@@ -198,6 +200,17 @@ export default function HomePage() {
       setHasSettings(false);
     }
   }, [setHasSettings]);
+
+  useEffect(() => {
+    const betaToastShown = sessionStorage.getItem('betaToastShown');
+    if (!betaToastShown) {
+      toast({
+        title: "Beta Version",
+        description: "This is a BETA version of the app",
+      });
+      sessionStorage.setItem('betaToastShown', 'true');
+    }
+  }, [toast]);
 
   const handleOnboardingComplete = () => {
     localStorage.setItem(ONBOARDING_KEY, 'true');
@@ -313,3 +326,5 @@ export default function HomePage() {
     </>
   );
 }
+
+    
