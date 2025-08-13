@@ -42,7 +42,7 @@ function HowToUseDialog() {
             </TooltipProvider>
             <DialogContent className="sm:max-w-lg">
                 <DialogHeader>
-                    <DialogTitle>How to Use SignalStream</DialogTitle>
+                    <DialogTitle>How to Use FlexFlow</DialogTitle>
                     <DialogDescription>
                         Follow these steps to get the most out of the System-powered tools.
                     </DialogDescription>

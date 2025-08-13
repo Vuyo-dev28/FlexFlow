@@ -9,8 +9,8 @@ import { SupportButton } from '@/components/support-button';
 import { MainNav } from '@/components/main-nav';
 
 export const metadata: Metadata = {
-  title: 'SignalStream',
-  description: 'Real-time trading signal delivery for multiple financial pairs.',
+  title: 'FlexFlow',
+  description: 'AI-powered chart analysis and signal generation.',
 };
 
 export default function RootLayout({

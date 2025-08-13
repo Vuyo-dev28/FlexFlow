@@ -97,7 +97,7 @@ export function OnboardingForm({ open, onOpenChange, onFormSubmit }: OnboardingF
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md" onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle>Welcome to SignalStream</DialogTitle>
+          <DialogTitle>Welcome to FlexFlow</DialogTitle>
           <DialogDescription>
             Please enter your details to get started.
           </DialogDescription>
