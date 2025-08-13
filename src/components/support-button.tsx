@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { LifeBuoy } from 'lucide-react';
+import { MessageSquare } from 'lucide-react';
 
 export function SupportButton() {
   return (
@@ -11,7 +11,7 @@ export function SupportButton() {
       className="fixed bottom-6 right-6 z-50 flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-110"
       aria-label="Contact support on WhatsApp"
     >
-      <LifeBuoy className="h-8 w-8" />
+      <MessageSquare className="h-8 w-8" />
     </a>
   );
 }
