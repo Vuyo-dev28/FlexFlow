@@ -32,7 +32,7 @@ export default function RootLayout({
             <SidebarProvider>
                 <div className="flex flex-col min-h-screen bg-background text-sm">
                     <Header />
-                    <Alert variant="destructive" className="rounded-none border-x-0 border-t-0 flex items-center justify-center text-center gap-2 py-2 px-4 text-xs">
+                    <Alert variant="destructive" className="sticky top-14 z-40 rounded-none border-x-0 border-t-0 flex items-center justify-center text-center gap-2 py-2 px-4 text-xs">
                         <TriangleAlert className="h-4 w-4" />
                         <AlertDescription>
                             Please remember to use proper risk management.
