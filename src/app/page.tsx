@@ -11,7 +11,7 @@ import { generateSignal } from '@/ai/flows/generate-signal-flow';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { ArrowRightLeft, BotMessageSquare, Settings, Target, HelpCircle, Settings2, BarChart, Tv, Download, Upload, ExternalLink, ArrowRight } from 'lucide-react';
+import { BotMessageSquare, Settings, Target, HelpCircle, Settings2, BarChart, Tv, Download, Upload, ExternalLink, ArrowRight, List } from 'lucide-react';
 import { useSettings } from '@/hooks/use-settings';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
@@ -248,7 +248,7 @@ export default function HomePage() {
                 <Sheet open={isWatchlistOpen} onOpenChange={setIsWatchlistOpen}>
                     <SheetTrigger asChild>
                     <Button variant="ghost" size="icon">
-                        <ArrowRightLeft />
+                        <List />
                         <span className="sr-only">Open Watchlist</span>
                     </Button>
                     </SheetTrigger>
