@@ -55,21 +55,16 @@ const pairIcons: Record<string, React.ElementType> = {
 
 
 export function Watchlist({ pairs, selectedPair, onSelectPair }: WatchlistProps) {
-    const [searchTerm, setSearchTerm] = useState('');
-
-    const filteredPairs = useMemo(() => {
-        return ALL_PAIRS.filter(p => p.pair.toLowerCase().includes(searchTerm.toLowerCase()));
-    }, [searchTerm]);
 
     const categorizedPairs = useMemo(() => {
-        return filteredPairs.reduce((acc, curr) => {
+        return ALL_PAIRS.reduce((acc, curr) => {
             if (!acc[curr.category]) {
                 acc[curr.category] = [];
             }
             acc[curr.category].push(curr.pair);
             return acc;
         }, {} as Record<SignalCategory, FinancialPair[]>);
-    }, [filteredPairs]);
+    }, []);
 
     return (
         <div className="flex flex-col h-full">
@@ -77,17 +72,6 @@ export function Watchlist({ pairs, selectedPair, onSelectPair }: WatchlistProps)
                 <SheetTitle>Watchlist</SheetTitle>
                 <SheetDescription>Select a financial pair to generate a signal.</SheetDescription>
             </SheetHeader>
-            <div className="p-4 pt-0">
-                 <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input 
-                        placeholder="Search pairs..."
-                        className="pl-9"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                </div>
-            </div>
             <Separator />
             <ScrollArea className="flex-1">
                 <div className='p-4'>
@@ -121,4 +105,3 @@ export function Watchlist({ pairs, selectedPair, onSelectPair }: WatchlistProps)
         </div>
     );
 }
-
