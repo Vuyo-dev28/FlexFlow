@@ -381,6 +381,15 @@ export default function AnalyzePage() {
         description: `Analysis has been marked as a ${isWin ? 'win' : 'loss'}.`,
     });
   };
+  
+    if (isLoading) {
+        return (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+                <AnalysisLoader />
+            </div>
+        );
+    }
+
 
   return (
     <div className="flex-1 flex flex-col p-4 md:p-6 gap-6">
@@ -422,9 +431,7 @@ export default function AnalyzePage() {
                             <Label htmlFor="chart-upload">Chart Image</Label>
                             <Input id="chart-upload" type="file" accept="image/*" onChange={handleFileChange} disabled={isLoading}/>
                         </div>
-                        {isLoading ? (
-                            <AnalysisLoader />
-                        ) : imagePreview && (
+                        {imagePreview && (
                             <div className="border rounded-md p-2">
                             <Image
                                 src={imagePreview}
@@ -436,7 +443,7 @@ export default function AnalyzePage() {
                             </div>
                         )}
                         <Button onClick={handleAnalyzeClick} disabled={isLoading || !imageFile} className="w-full">
-                            {isLoading ? 'Analyzing...' : <><Upload className="mr-2" /> Analyze Chart</>}
+                            <Upload className="mr-2" /> Analyze Chart
                         </Button>
                     </CardContent>
                 </Card>
