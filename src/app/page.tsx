@@ -17,8 +17,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import Link from 'next/link';
+import { OnboardingForm } from '@/components/onboarding-form';
 
 const SETTINGS_KEY = 'signalStreamSettings';
+const ONBOARDING_KEY = 'hasOnboarded';
 
 function HowToUseDialog() {
     return (
@@ -182,8 +184,13 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isWatchlistOpen, setIsWatchlistOpen] = useState(false);
   const { settings, hasSettings, setHasSettings } = useSettings();
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
+    const onboardingComplete = localStorage.getItem(ONBOARDING_KEY) === 'true';
+    if (!onboardingComplete) {
+        setShowOnboarding(true);
+    }
     const savedSettings = localStorage.getItem(SETTINGS_KEY);
     if (savedSettings) {
       setHasSettings(true);
@@ -191,6 +198,11 @@ export default function HomePage() {
       setHasSettings(false);
     }
   }, [setHasSettings]);
+
+  const handleOnboardingComplete = () => {
+    localStorage.setItem(ONBOARDING_KEY, 'true');
+    setShowOnboarding(false);
+  }
 
   const handleSelectPair = useCallback(async (pair: FinancialPair | null) => {
     setSelectedPair(pair);
@@ -238,6 +250,7 @@ export default function HomePage() {
 
   return (
     <>
+        <OnboardingForm open={showOnboarding} onOpenChange={setShowOnboarding} onFormSubmit={handleOnboardingComplete} />
         <div className="flex-1 flex flex-col">
           <div className='flex items-center justify-between px-4 py-2 border-b'>
             <div className='flex items-center gap-2'>
