@@ -9,6 +9,7 @@ import { SupportButton } from '@/components/support-button';
 import { MainNav } from '@/components/main-nav';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { TriangleAlert } from 'lucide-react';
+import { ScrollToTopButton } from '@/components/scroll-to-top-button';
 
 export const metadata: Metadata = {
   title: 'FlexFlow',
@@ -47,6 +48,7 @@ export default function RootLayout({
                         {children}
                     </main>
                     <SupportButton />
+                    <ScrollToTopButton />
                 </div>
             </SidebarProvider>
         </SettingsProvider>
