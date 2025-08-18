@@ -22,7 +22,7 @@ const prompt = ai.definePrompt({
   input: {schema: GenerateSignalInputSchema},
   output: {schema: GenerateSignalOutputSchema},
   prompt: `
-    You are a professional financial analyst and expert trader with a documented 90%+ win rate.
+    You are a professional financial analyst and expert trader with a documented 95%+ win rate.
     Your task is to generate a high-probability trading signal for the given financial pair: {{{pair}}}.
 
     The user's preferred trading style is {{{tradingStyle}}}. You must tailor your trading strategy, signal, and price targets accordingly.

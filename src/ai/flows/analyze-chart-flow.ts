@@ -26,7 +26,7 @@ const prompt = ai.definePrompt({
     }),
   },
   prompt: `
-    You are an expert financial analyst who specializes in multi-timeframe trading strategies with a proven 90%+ win rate.
+    You are an expert financial analyst who specializes in multi-timeframe trading strategies with a proven 95%+ win rate.
     Your task is to analyze the provided financial chart image to identify a high-probability trading opportunity.
 
     The user has specified that their trading style is {{{tradingStyle}}}. You must tailor your analysis and strategy to this style.
@@ -56,7 +56,7 @@ const analyzeChartFlow = ai.defineFlow(
   },
   async (input) => {
     const { output } = await prompt(input, {
-      model: 'googleai/gemini-2.5-flash',
+      model: 'googleai/gemini-1.5-flash-latest',
     });
 
     return {
