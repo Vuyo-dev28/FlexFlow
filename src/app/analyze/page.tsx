@@ -24,6 +24,8 @@ import { AnalysisLoader } from '@/components/analysis-loader';
 
 const LOCAL_STORAGE_KEY = 'analysisHistory';
 const SETTINGS_KEY = 'signalStreamSettings';
+const MAX_HISTORY_ITEMS = 10;
+const TRUNCATE_IMAGE_THRESHOLD = 50000; // Keep first ~50KB of image data for preview
 
 function HowToUseDialog() {
     return (
@@ -341,8 +343,21 @@ export default function AnalyzePage() {
         const base64data = reader.result as string;
         const result = await analyzeChart({ chartImageUri: base64data, tradingStyle });
         
-        const updatedHistory = [result, ...analysisHistory];
-        setAnalysisHistory(updatedHistory);
+        // Add the full image URI to the result object for immediate display
+        const resultWithFullImage = { ...result, chartImageUri: base64data };
+        
+        // For storage, create a version with a truncated image URI
+        const resultForStorage = {
+            ...result,
+            chartImageUri: base64data.length > TRUNCATE_IMAGE_THRESHOLD
+                ? base64data.substring(0, TRUNCATE_IMAGE_THRESHOLD)
+                : base64data,
+        };
+
+        const newHistory = [resultForStorage, ...analysisHistory];
+        const updatedHistory = newHistory.slice(0, MAX_HISTORY_ITEMS);
+        
+        setAnalysisHistory(prev => [resultWithFullImage, ...prev].slice(0, MAX_HISTORY_ITEMS));
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedHistory));
         
         setImageFile(null);
@@ -489,3 +504,5 @@ export default function AnalyzePage() {
     </div>
   );
 }
+
+    
